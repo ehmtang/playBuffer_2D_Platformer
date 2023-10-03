@@ -188,7 +188,7 @@ struct PlayerAttributes
 	const float climbAccel{ 5 };
 	const float runSpeed{ 5 };
 	const float runAccel{ 5 };
-	const float coyoteTimeThreshold{ 0.8f };
+	const float coyoteTimeThreshold{ 0.1f };
 	const float terminalVelocity{ 50.f };
 	const float airDashImpulse{ 50 };
 	const float airDashEndTime{ 0.1f };
@@ -571,7 +571,7 @@ void Fall(float& elapsedTime)
 	else if (Play::KeyDown(VK_RIGHT))
 		playerObj.pos.x += gameState.player.runSpeed;
 
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
+	//playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
 
 
 	if (Play::KeyPressed('C'))
@@ -1010,6 +1010,7 @@ void DrawParticle(float& elapsedTime)
 	}
 	default:
 	{
+		gameState.particleEmitter.splitTime = 0;
 		if (!gameState.particleEmitter.vParticle.empty())
 		{
 			UpdateParticleLifeTime(elapsedTime);
@@ -1150,8 +1151,11 @@ void DrawUI()
 	// Debug timers 
 	if (TEST_MODE == 1)
 	{
-		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(64, 64), Play::LEFT);
-		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(64, 101), Play::LEFT);
+		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 69), Play::LEFT);
+		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
+		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.particleEmitter.splitTime), Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "PARTICLE TIMER: " + std::to_string(gameState.particleEmitter.), Point2D(37, 143), Play::LEFT);
 
 	}
 	else
