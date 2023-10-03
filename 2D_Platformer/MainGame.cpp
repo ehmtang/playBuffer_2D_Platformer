@@ -1,22 +1,7 @@
 // Acknowledgements:
 // Zeggy Games - player character sprite https://zegley.itch.io/2d-platformermetroidvania-asset-pack
 // Ninjikin - tile sprites https://ninjikin.itch.io/starter-tiles
-// // CraftPix - Background sprites https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set
-
-/* TODO:
- * Jump and Fall
- *	- Variable jump height		DONE
- *  - Apex modifier
- *  - Jump buffering
- *  - Coyote time
- *  - Clamped fall speed		DONE
- *  - Edge detection
- *
- * Wall Slide, Climb and Jump
- *
- * Platforms, TileMaps and Level Design
- *
- */
+// CraftPix - Background sprites https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
@@ -27,8 +12,6 @@ constexpr int DISPLAY_WIDTH{ 1280 };
 constexpr int DISPLAY_HEIGHT{ 720 };
 constexpr int DISPLAY_SCALE{ 1 };
 constexpr int PLATFORM_WIDTH{ 32 };
-
-const int TEST_MODE{ 1 };
 
 const int ROOM[23][40] =
 {
@@ -81,6 +64,12 @@ const int ROOM[23][40] =
 //	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 //	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 //};
+
+enum GameModes
+{
+	TEST_MODE = 0,
+	PLAY_MODE = 1,
+};
 
 enum GameObjectType
 {
@@ -176,7 +165,7 @@ struct PlayerAttributes
 	Point2D startingPos{ 768, 96 };
 	PlayerState state = STATE_IDLE;
 	float jumpTime{ 0 };
-	float jumpEndTime{ 0.5f };
+	float jumpEndTime{ 0.2f };
 	float coyoteTime{ 0 };
 	float airDashTime{ 0 };
 	const float sizeScale{ 2.f };
@@ -219,6 +208,7 @@ struct GameState
 	PlayerAttributes player;
 	CameraInfo camera;
 	Backgrounds bg;
+	int gameMode = TEST_MODE;
 };
 
 GameState gameState;
@@ -504,24 +494,40 @@ void Jump(float& elapsedTime)
 
 	if (Play::KeyDown('Z') && gameState.player.hasJumped == false)
 	{
+		gameState.player.jumpTime += elapsedTime;
+
 		playerObj.velocity.y = -gameState.player.jumpImpulse;
 
-		if (gameState.player.jumpTime < gameState.player.jumpEndTime)
+		if (gameState.player.jumpTime > gameState.player.jumpEndTime)
 		{
-			gameState.player.jumpTime += elapsedTime;
-			playerObj.velocity += (gameState.player.gravity * elapsedTime * 1.5f);
+			gameState.player.hasJumped = true;
 		}
 	}
-
-	if (!gameState.player.isGrounded)
+	if (!Play::KeyDown('Z') && gameState.player.hasJumped == false)
 	{
 		gameState.player.hasJumped = true;
 	}
-	else
-	{
-		gameState.player.hasJumped = false;
-		gameState.player.jumpTime = 0;
-	}
+
+	//if (Play::KeyDown('Z') && gameState.player.hasJumped == false)
+	//{
+	//	playerObj.velocity.y = -gameState.player.jumpImpulse;
+
+	//	if (gameState.player.jumpTime < gameState.player.jumpEndTime)
+	//	{
+	//		gameState.player.jumpTime += elapsedTime;
+	//		playerObj.velocity += (gameState.player.gravity * elapsedTime * 1.5f);
+	//	}
+	//}
+
+	//if (!gameState.player.isGrounded)
+	//{
+	//	gameState.player.hasJumped = true;
+	//}
+	//else
+	//{
+	//	gameState.player.hasJumped = false;
+	//	gameState.player.jumpTime = 0;
+	//}
 
 	if (Play::KeyDown(VK_LEFT))
 		playerObj.velocity.x = -gameState.player.runSpeed;
@@ -538,6 +544,8 @@ void Jump(float& elapsedTime)
 
 	if (gameState.player.isGrounded == true)
 	{
+		gameState.player.hasJumped = false;
+		gameState.player.jumpTime = 0;
 		gameState.player.state = STATE_IDLE;
 		return;
 	}
@@ -1056,7 +1064,7 @@ void DrawPlayer()
 
 void DrawCollisionBoxes()
 {
-	if (TEST_MODE == 1)
+	if (gameState.gameMode == TEST_MODE)
 	{
 		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
@@ -1116,7 +1124,7 @@ void DrawCollisionBoxes()
 
 		}
 	}
-	else
+	if (gameState.gameMode == PLAY_MODE)
 	{
 		return;
 	}
@@ -1149,16 +1157,15 @@ void DrawUI()
 {
 
 	// Debug timers 
-	if (TEST_MODE == 1)
+	if (gameState.gameMode == TEST_MODE)
 	{
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.particleEmitter.splitTime), Point2D(37, 143), Play::LEFT);
-		Play::DrawFontText("64px", "PARTICLE TIMER: " + std::to_string(gameState.particleEmitter.), Point2D(37, 143), Play::LEFT);
 
 	}
-	else
+	else if (gameState.gameMode == PLAY_MODE)
 	{
 		if (gameState.finishLine.vSplitTime.size() > 0)
 		{
