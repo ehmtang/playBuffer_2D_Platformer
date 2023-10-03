@@ -7,6 +7,7 @@
 #define PLAY_USING_GAMEOBJECT_MANAGER
 
 #include "Play.h"
+#include "MainGame.h"
 
 constexpr int DISPLAY_WIDTH{ 1280 };
 constexpr int DISPLAY_HEIGHT{ 720 };
@@ -65,209 +66,7 @@ const int ROOM[23][40] =
 //	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 //};
 
-enum GameModes
-{
-	TEST_MODE = 0,
-	PLAY_MODE = 1,
-};
-
-enum GameObjectType
-{
-	TYPE_NULL = -1,
-	TYPE_PLAYER,
-	TYPE_DESTROYED,
-	TYPE_PLATFORM_GREEN_BRICK,
-	TYPE_PLATFORM_BUSH,
-	TYPE_PLATFORM_DARK_BRICK,
-	TYPE_PLATFORM_FIRE,
-	TYPE_PLATFORM_ICE,
-	TYPE_BALLOON,
-};
-
-enum Backgrounds
-{
-	BG_1ST = 0,
-	BG_2ND,
-	BG_3RD,
-	BG_4TH,
-	BG_5TH,
-	BG_6TH,
-	BG_7TH,
-	BG_8TH,
-};
-
-enum PlayerState
-{
-	STATE_IDLE = 0,
-	STATE_RUN,
-	STATE_JUMP,
-	STATE_FALL,
-	STATE_AIRDASH,
-	STATE_ATTACK,
-	STATE_ROLL,
-	STATE_WALLCLIMB,
-	STATE_WALLJUMP,
-	STATE_HURT,
-	STATE_DEATH,
-};
-
-struct Particle
-{
-	Point2D pos{ 0, 0 };
-	float opacity{ 0 };
-	float currentLifetime{ 0 };
-	int spriteId{ 0 };
-	int spriteFrame{ 0 };
-};
-
-struct ParticleEmitter
-{
-	std::vector<Particle> vParticle;
-	float splitTime{ 0 };
-	const float lifetime{ 0.2f };
-	const float baseOpacity{ 1.f };
-	const float opacityThreshold{ 0.02f };
-	const float decayConstant{ 4.0f };
-	const float emitPeriod{ 0.05f };
-	const int emitParticles{ 1 };
-};
-
-struct CameraInfo
-{
-	Point2D cameraPos{ 0, 0 };
-	float shakeTime{ 0 };
-	float shakeEndTime{ 0.08f };
-};
-
-struct FinishLine
-{
-	std::vector<float> vSplitTime;
-	Point2D pos{ 704, 96 };
-	Vector2D box{ 16, 48 };
-	float splitTime{ 0.f };
-	int completedLap{ 0 };
-	bool crossesFinishLine{ false };
-	bool hasCompletedLap{ false };
-};
-
-struct PlayerAttributes
-{
-	Vector2D gravity{ 0, 1.f };
-	Vector2D airDashDirection{ 0, 0 };
-	Vector2D GroundBox{ 4, 1 };				//scale in x
-	Vector2D GroundBoxOffset{ 0, 15 };		//scale in y
-	Vector2D WallBox{ 1, 7 };				//scale in y
-	Vector2D WallBoxOffset{ 7, -3 };		//scale in x and y
-	Vector2D HurtBox{ 5, 13 };				//scale in x and y
-	Vector2D HurtBoxOffset{ 0, 0 };			//none
-	Vector2D PunchBox{ 7, 7 };				//scale in x and y
-	Vector2D PunchBoxOffset{ 25, 0 };		//scale in x
-	Point2D startingPos{ 768, 96 };
-	PlayerState state = STATE_IDLE;
-	float jumpTime{ 0 };
-	float jumpEndTime{ 0.2f };
-	float coyoteTime{ 0 };
-	float airDashTime{ 0 };
-	const float sizeScale{ 2.f };
-	const float jumpImpulse{ 20 };
-	const float wallJumpImpulse{ 30 };
-	const float obstructedImpulse{ 5.f };
-	const float climbUp{ 1.2f };
-	const float climbDown{ 5 };
-	const float climbAccel{ 5 };
-	const float runSpeed{ 5 };
-	const float runAccel{ 5 };
-	const float coyoteTimeThreshold{ 0.1f };
-	const float terminalVelocity{ 50.f };
-	const float airDashImpulse{ 50 };
-	const float airDashEndTime{ 0.1f };
-	int health{ 100 };
-	int direction{ -1 };
-	const int rollSpeed{ 20 };
-	bool hasJumped{ false };
-	bool isAirDashing{ false };
-	bool hasAirDashed{ false };
-	bool hasLandedOnWall{ false };
-	bool isGrounded{ false };
-	bool isOnWall{ false };
-	bool isHurt{ false };
-};
-
-struct Platform
-{
-	const Vector2D PlatformBox{ 16, 16 };
-	Point2D pos{ 0, 0 };
-	int type = TYPE_PLATFORM_DARK_BRICK;
-};
-
-struct GameState
-{
-	std::vector<Platform> vPlatform;
-	ParticleEmitter particleEmitter;
-	FinishLine finishLine;
-	PlayerAttributes player;
-	CameraInfo camera;
-	Backgrounds bg;
-	int gameMode = TEST_MODE;
-};
-
 GameState gameState;
-
-// player controls and states
-void UpdatePlayer(float& elapsedTime);
-void Idle(float& elapsedTime);
-void Run(float& elapsedTime);
-void Jump(float& elapsedTime);
-void Fall(float& elapsedTime);
-void AirDash(float& elapsedTime);
-void Punch(float& elapsedTime);
-void Roll(float& elapsedTime);
-void WallClimb(float& elapsedTime);
-void WallJump(float& elapsedTime);
-void Hurt(float& elapsedTime);
-void Death(float& elapsedTime);
-void HandleSizeScale();
-
-// collisions
-void HandleFinishLine(float& elapsedTime);
-void HandleObstructed();
-void HandleGrounded();
-void HandleOnWall();
-void HandleHurt();
-void BalloonCollision();
-
-// camera 
-void UpdatePlayerCamera(float& elapsedTime);
-void ScreenShake(float& elapsedTime);
-
-// particle effects
-void DrawParticle(float& elapsedTime);
-void AddParticleToEmitter(GameObject& playerObj);
-void UpdateParticleLifeTime(float& elapsedTime);
-
-// draw
-void DrawPlayer();
-void DrawPlatform();
-void DrawBalloon();
-void DrawCollisionBoxes();
-void DrawFinishLine();
-void DrawUI();
-
-
-// background 
-void HandleBackgrounds();
-
-// create and destroy
-void CreatePlayer();
-void CreatePlatform();
-
-// utility
-float q_rsqrt(float number);
-float exponentialDecay(const float& A0, const float& lambda, const float& time);
-bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
-void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
-Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
-void MergeCollisionBox();
 
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
@@ -279,19 +78,14 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 	HandleSizeScale();
 	CreatePlatform();
 	CreatePlayer();
-
-	//Play::CreateGameObject(TYPE_BALLOON, Point2f(300, 300), 0, "red_balloon");
 }
 
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
 	HandleBackgrounds();
-
 	UpdatePlayer(elapsedTime);
 	HandleFinishLine(elapsedTime);
-
-	//UpdatePlayerCamera(elapsedTime);   //ScreenShake instead
 	DrawFinishLine();
 	DrawParticle(elapsedTime);
 	DrawPlatform();
@@ -299,8 +93,6 @@ bool MainGameUpdate(float elapsedTime)
 	DrawBalloon();
 	DrawPlayer();
 	DrawUI();
-
-
 	Play::PresentDrawingBuffer();
 	return Play::KeyDown(VK_ESCAPE);
 }
@@ -381,7 +173,7 @@ void UpdatePlayer(float& elapsedTime)
 	Play::UpdateGameObject(playerObj);
 
 	HandleGrounded();
-	HandleOnWall();
+	//HandleOnWall();
 	HandleHurt();
 	HandleObstructed();
 }
@@ -434,17 +226,17 @@ void Run(float& elapsedTime)
 	if (Play::KeyDown(VK_LEFT))
 	{
 		gameState.player.direction = -1;
-		playerObj.acceleration.x = -gameState.player.runAccel;
+		playerObj.acceleration.x = -gameState.player.maxRunAccel;
 		Play::SetSprite(playerObj, "player_run_left", 0.25f);
 	}
 	else if (Play::KeyDown(VK_RIGHT))
 	{
 		gameState.player.direction = 1;
 		Play::SetSprite(playerObj, "player_run", 0.25f);
-		playerObj.acceleration.x = gameState.player.runAccel;
+		playerObj.acceleration.x = gameState.player.maxRunAccel;
 	}
 
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
 
 	if (Play::KeyDown('Z'))
 	{
@@ -495,46 +287,19 @@ void Jump(float& elapsedTime)
 	if (Play::KeyDown('Z') && gameState.player.hasJumped == false)
 	{
 		gameState.player.jumpTime += elapsedTime;
-
 		playerObj.velocity.y = -gameState.player.jumpImpulse;
-
 		if (gameState.player.jumpTime > gameState.player.jumpEndTime)
-		{
 			gameState.player.hasJumped = true;
-		}
 	}
-	if (!Play::KeyDown('Z') && gameState.player.hasJumped == false)
-	{
+	else if (!Play::KeyDown('Z') && gameState.player.hasJumped == false)
 		gameState.player.hasJumped = true;
-	}
-
-	//if (Play::KeyDown('Z') && gameState.player.hasJumped == false)
-	//{
-	//	playerObj.velocity.y = -gameState.player.jumpImpulse;
-
-	//	if (gameState.player.jumpTime < gameState.player.jumpEndTime)
-	//	{
-	//		gameState.player.jumpTime += elapsedTime;
-	//		playerObj.velocity += (gameState.player.gravity * elapsedTime * 1.5f);
-	//	}
-	//}
-
-	//if (!gameState.player.isGrounded)
-	//{
-	//	gameState.player.hasJumped = true;
-	//}
-	//else
-	//{
-	//	gameState.player.hasJumped = false;
-	//	gameState.player.jumpTime = 0;
-	//}
 
 	if (Play::KeyDown(VK_LEFT))
-		playerObj.velocity.x = -gameState.player.runSpeed;
+		playerObj.velocity.x = -gameState.player.maxRunSpeed;
 	else if (Play::KeyDown(VK_RIGHT))
-		playerObj.velocity.x = gameState.player.runSpeed;
+		playerObj.velocity.x = gameState.player.maxRunSpeed;
 
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
 
 	if (Play::KeyPressed('C'))
 	{
@@ -575,9 +340,9 @@ void Fall(float& elapsedTime)
 	}
 
 	if (Play::KeyDown(VK_LEFT))
-		playerObj.pos.x -= gameState.player.runSpeed;
+		playerObj.pos.x -= gameState.player.maxRunSpeed;
 	else if (Play::KeyDown(VK_RIGHT))
-		playerObj.pos.x += gameState.player.runSpeed;
+		playerObj.pos.x += gameState.player.maxRunSpeed;
 
 	//playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
 
@@ -714,13 +479,13 @@ void WallClimb(float& elapsedTime)
 		if (Play::KeyDown(VK_UP))
 		{
 			Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.4f);
-			playerObj.velocity.y = -gameState.player.climbUp;
+			playerObj.velocity.y = -gameState.player.maxClimbUpSpeed;
 
 		}
 		else if (Play::KeyDown(VK_DOWN))
 		{
 			Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_slid_left" : "player_wall_slid", 0.2f);
-			playerObj.velocity.y += (gameState.player.climbDown * elapsedTime * 2.5f);
+			playerObj.velocity.y += (gameState.player.maxClimbDownSpeed * elapsedTime * 2.5f);
 		}
 
 		if (Play::KeyPressed('Z'))
@@ -851,23 +616,23 @@ void HandleObstructed()
 
 	for (Platform& p : gameState.vPlatform)
 	{
-		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-		{
-			playerObj.pos = playerObj.oldPos;
-			playerObj.velocity.x = 0;
-			playerObj.acceleration.x = 0;
-			return;
-		}
-		//if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-		//{
-		//	return;
-		//}
-
 		//if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 		//{
-		//	ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0));
+		//	playerObj.pos = playerObj.oldPos;
+		//	playerObj.velocity.x = 0;
+		//	playerObj.acceleration.x = 0;
 		//	return;
 		//}
+		if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+		{
+			return;
+		}
+
+		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+		{
+			ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0));
+			return;
+		}
 	}
 }
 
@@ -904,7 +669,7 @@ void HandleGrounded()
 	if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
 	{
 		playerObj.acceleration.y = gameState.player.gravity.y;
-		playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.terminalVelocity, gameState.player.terminalVelocity);
+		playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
 	}
 }
 
@@ -995,9 +760,8 @@ void DrawParticle(float& elapsedTime)
 		}
 
 		if (!gameState.particleEmitter.vParticle.empty())
-		{
 			UpdateParticleLifeTime(elapsedTime);
-		}
+
 		break;
 	}
 	case STATE_ROLL:
@@ -1020,9 +784,8 @@ void DrawParticle(float& elapsedTime)
 	{
 		gameState.particleEmitter.splitTime = 0;
 		if (!gameState.particleEmitter.vParticle.empty())
-		{
 			UpdateParticleLifeTime(elapsedTime);
-		}
+
 		break;
 	}
 	}
@@ -1155,8 +918,8 @@ void DrawFinishLine()
 
 void DrawUI()
 {
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-	// Debug timers 
 	if (gameState.gameMode == TEST_MODE)
 	{
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
@@ -1164,6 +927,16 @@ void DrawUI()
 		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.particleEmitter.splitTime), Point2D(37, 143), Play::LEFT);
 
+		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 37, 32), Play::RIGHT);
+		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(DISPLAY_WIDTH - 37, 69), Play::RIGHT);
+		Play::DrawFontText("64px", "HAS AIR DASHED: " + std::to_string(gameState.player.hasAirDashed), Point2D(DISPLAY_WIDTH - 37, 106), Play::RIGHT);
+		Play::DrawFontText("64px", "HAS LANDED ON WALL: " + std::to_string(gameState.player.hasLandedOnWall), Point2D(DISPLAY_WIDTH - 37, 143), Play::RIGHT);
+		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(DISPLAY_WIDTH - 37, 180), Play::RIGHT);
+
+		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
+		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(DISPLAY_WIDTH - 37, 291), Play::RIGHT);
+		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(DISPLAY_WIDTH - 37, 328), Play::RIGHT);
+		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(DISPLAY_WIDTH - 37, 365), Play::RIGHT);
 	}
 	else if (gameState.gameMode == PLAY_MODE)
 	{
@@ -1244,6 +1017,30 @@ float exponentialDecay(const float& A0, const float& lambda, const float& time)
 
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x - bOffset.x));
+	float right = abs((aPos.x - aAABB.x - aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y - bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y - aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
+
+	// aObj hit left side of bObj
+	if (left < right && left < top && left < bottom)
+		gameState.player.collisionDir = Vector2D(-1.0f, 0.0f);
+
+	// aObj hit right side of bObj
+	else if (right < left && right < top && right < bottom)
+		gameState.player.collisionDir = Vector2D(1.0f, 0.0f);
+
+	// aObj hit top side of bObj
+	else if (top < bottom && top < left && top < right)
+		gameState.player.collisionDir = Vector2D(0.0f, -1.0f);
+
+	// aObj hit bottom side of bObj
+	else if (bottom < top && bottom < left && bottom < right)
+		gameState.player.collisionDir = Vector2D(0.0f, 1.0f);
+
+	else
+		gameState.player.collisionDir = Vector2D(0.0f, 0.0f);
+
 	return (aPos.x - aAABB.x + aOffset.x < bPos.x + bAABB.x + bOffset.x
 		&& aPos.x + aAABB.x + aOffset.x > bPos.x - bAABB.x + bOffset.x
 		&& aPos.y - aAABB.y + aOffset.y < bPos.y + bAABB.y + bOffset.y
@@ -1256,29 +1053,29 @@ void ApplyReflection(GameObject& aObj, const Point2D& aAABB, const Vector2D& aOf
 	Vector2D surfaceNormal = collisionEdge.Perpendicular();
 	float dotProduct = aObj.velocity.Dot(surfaceNormal);
 	Vector2D reflectionVector = aObj.velocity - (2.0 * dotProduct * surfaceNormal);
-	reflectionVector;
-	aObj.velocity = -reflectionVector;
-	aObj.pos += aObj.velocity;
-	aObj.velocity += aObj.acceleration;
+	reflectionVector.Normalize();
+	aObj.pos += -reflectionVector * 5;
+	aObj.velocity = -reflectionVector * gameState.player.obstructedImpulse;
+	//aObj.velocity += aObj.acceleration;
 }
 
 Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
-	float left = abs((aPos.x + aAABB.x) - (bPos.x - bAABB.x));
-	float right = abs((aPos.x - aAABB.x) - (bPos.x + bAABB.x));
-	float top = abs((aPos.y + aAABB.y) - (bPos.y - bAABB.y));
-	float bottom = abs((aPos.y - aAABB.y) - (bPos.y + bAABB.y));
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x - bOffset.x));
+	float right = abs((aPos.x - aAABB.x - aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y - bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y - aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
 
 	if (left < right && left < top && left < bottom)
-		return Vector2D{ -1.0f, 0.0f };
+		return Vector2D(-1.0f, 0.0f);
 	else if (right < left && right < top && right < bottom)
-		return Vector2D{ 1.0f, 0.0f };
+		return Vector2D(1.0f, 0.0f);
 	else if (top < bottom && top < left && top < right)
-		return Vector2D{ 0.0f, -1.0f };
+		return Vector2D(0.0f, -1.0f);
 	else if (bottom < top && bottom < left && bottom < right)
-		return Vector2D{ 0.0f, 1.0f };
+		return Vector2D(0.0f, 1.0f);
 	else
-		return Vector2D{ 0.0f, 0.0f };
+		return Vector2D(0.0f, 0.0f);
 }
 
 void MergeCollisionBox()
