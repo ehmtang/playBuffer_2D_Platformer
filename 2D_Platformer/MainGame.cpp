@@ -31,26 +31,26 @@ constexpr int PLATFORM_WIDTH{ 32 };
 const int ROOM[23][40] =
 {
 	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
@@ -98,6 +98,7 @@ enum PlayerState
 struct Particle
 {
 	Point2D pos{ 0, 0 };
+	float opacity{ 0 };
 	float currentLifetime{ 0 };
 	int spriteId{ 0 };
 	int spriteFrame{ 0 };
@@ -122,6 +123,17 @@ struct CameraInfo
 	float shakeEndTime{ 0.08f };
 };
 
+struct FinishLine
+{
+	std::vector<float> vSplitTime;
+	Point2D pos{ 704, 96 };
+	Vector2D box{ 16, 48 };
+	float splitTime{ 0.f };
+	int completedLap{ 0 };
+	bool crossesFinishLine{ false };
+	bool hasCompletedLap{ false };
+};
+
 struct PlayerAttributes
 {
 	Vector2D gravity{ 0, 1.f };
@@ -134,6 +146,7 @@ struct PlayerAttributes
 	Vector2D HurtBoxOffset{ 0, 0 };			//none
 	Vector2D PunchBox{ 7, 7 };				//scale in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale in x
+	Point2D startingPos{ 768, 96 };
 	PlayerState state = STATE_IDLE;
 	float jumpTime{ 0 };
 	float jumpEndTime{ 0.5f };
@@ -173,9 +186,10 @@ struct Platform
 
 struct GameState
 {
-	PlayerAttributes player;
 	std::vector<Platform> vPlatform;
 	ParticleEmitter particleEmitter;
+	FinishLine finishLine;
+	PlayerAttributes player;
 	CameraInfo camera;
 	Backgrounds bg;
 };
@@ -198,6 +212,7 @@ void Death(float& elapsedTime);
 void HandleSizeScale();
 
 // collisions
+void HandleFinishLine(float& elapsedTime);
 void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
@@ -217,7 +232,10 @@ void UpdateParticleLifeTime(float& elapsedTime);
 void DrawPlayer();
 void DrawPlatform();
 void DrawBalloon();
-void DrawAllCollisionBoxes();
+void DrawCollisionBoxes();
+void DrawFinishLine();
+void DrawUI();
+
 
 // background 
 void HandleBackgrounds();
@@ -232,6 +250,7 @@ float exponentialDecay(const float& A0, const float& lambda, const float& time);
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
+void MergeCollisionBox();
 
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
@@ -253,13 +272,16 @@ bool MainGameUpdate(float elapsedTime)
 	HandleBackgrounds();
 
 	UpdatePlayer(elapsedTime);
+	HandleFinishLine(elapsedTime);
 
 	//UpdatePlayerCamera(elapsedTime);   //ScreenShake instead
+	DrawFinishLine();
 	DrawParticle(elapsedTime);
 	DrawPlatform();
-	DrawAllCollisionBoxes();
+	DrawCollisionBoxes();
 	DrawBalloon();
 	DrawPlayer();
+	DrawUI();
 
 
 	Play::PresentDrawingBuffer();
@@ -749,6 +771,42 @@ void HandleSizeScale()
 	gameState.player.PunchBoxOffset *= Vector2D(gameState.player.sizeScale, 1);
 }
 
+void HandleFinishLine(float& elapsedTime)
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+
+	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.finishLine.pos, gameState.finishLine.box, Vector2D(0, 0))
+		&& (playerObj.pos.x - gameState.player.HurtBox.x - gameState.player.HurtBoxOffset.x) > (gameState.finishLine.pos.x - gameState.finishLine.box.x))
+	{
+		gameState.finishLine.crossesFinishLine = false;
+	}
+	else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.finishLine.pos, gameState.finishLine.box, Vector2D(0, 0))
+		&& (playerObj.pos.x + gameState.player.HurtBox.x + gameState.player.HurtBoxOffset.x) <= gameState.finishLine.pos.x)
+	{
+		gameState.finishLine.crossesFinishLine = true;
+	}
+
+	if (gameState.finishLine.crossesFinishLine == true)
+	{
+		gameState.finishLine.splitTime += elapsedTime;
+	}
+
+	if (gameState.finishLine.crossesFinishLine == true 
+		&& gameState.finishLine.hasCompletedLap == false)
+	{
+		if (gameState.finishLine.completedLap > 0)
+			gameState.finishLine.vSplitTime.push_back(gameState.finishLine.splitTime);
+		gameState.finishLine.splitTime = 0;
+		gameState.finishLine.hasCompletedLap = true;
+		gameState.finishLine.completedLap += 1;
+	}
+	else if (gameState.finishLine.crossesFinishLine == false)
+	{
+		gameState.finishLine.hasCompletedLap = false;
+	}
+}
+
 void HandleObstructed()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
@@ -756,7 +814,13 @@ void HandleObstructed()
 
 	for (Platform& p : gameState.vPlatform)
 	{
-
+		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+		{
+			playerObj.pos = playerObj.oldPos;
+			playerObj.velocity.x = 0;
+			playerObj.acceleration.x = 0;
+			return;
+		}
 		//if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 		//{
 		//	return;
@@ -946,10 +1010,10 @@ void UpdateParticleLifeTime(float& elapsedTime)
 	for (int i = 0; i < gameState.particleEmitter.vParticle.size(); ++i)
 	{
 		gameState.particleEmitter.vParticle[i].currentLifetime += elapsedTime;
-		float opacity = exponentialDecay(gameState.particleEmitter.baseOpacity, gameState.particleEmitter.decayConstant, gameState.particleEmitter.vParticle[i].currentLifetime);
-		Play::DrawSpriteRotated(gameState.particleEmitter.vParticle[i].spriteId, gameState.particleEmitter.vParticle[i].pos, gameState.particleEmitter.vParticle[i].spriteFrame, 0, gameState.player.sizeScale, opacity);
+		gameState.particleEmitter.vParticle[i].opacity = exponentialDecay(gameState.particleEmitter.baseOpacity, gameState.particleEmitter.decayConstant, gameState.particleEmitter.vParticle[i].currentLifetime);
+		Play::DrawSpriteRotated(gameState.particleEmitter.vParticle[i].spriteId, gameState.particleEmitter.vParticle[i].pos, gameState.particleEmitter.vParticle[i].spriteFrame, 0, gameState.player.sizeScale, gameState.particleEmitter.vParticle[i].opacity);
 
-		if (opacity < gameState.particleEmitter.opacityThreshold)
+		if (gameState.particleEmitter.vParticle[i].opacity < gameState.particleEmitter.opacityThreshold)
 			gameState.particleEmitter.vParticle.erase(gameState.particleEmitter.vParticle.begin() + i);
 	}
 }
@@ -960,13 +1024,19 @@ void DrawPlayer()
 	Play::DrawObjectRotated(playerObj);
 }
 
-void DrawAllCollisionBoxes()
+void DrawCollisionBoxes()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
+
 	for (Platform& p : gameState.vPlatform)
 	{
-		Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cMagenta);
+		if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
+			|| AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+		{
+			Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cMagenta);
+		}
+
 
 		if (gameState.player.direction == -1)
 		{
@@ -1034,6 +1104,31 @@ void DrawBalloon()
 	}
 }
 
+void DrawFinishLine()
+{
+	Play::DrawSprite(Play::GetSpriteId("finish_line"), gameState.finishLine.pos, 0);
+}
+
+void DrawUI()
+{
+	if (gameState.finishLine.vSplitTime.size() > 0)
+	{
+		float fastestSplit = *std::min_element(gameState.finishLine.vSplitTime.begin(), gameState.finishLine.vSplitTime.end());
+		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
+		Play::DrawFontText("64px", "FASTEST SPLIT: " + std::to_string(fastestSplit), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
+		Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.finishLine.splitTime), Point2D(DISPLAY_WIDTH - 64, 138), Play::RIGHT);
+	}
+	else
+	{
+		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
+		Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.finishLine.splitTime), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
+	}
+	Play::DrawFontText("64px", "CROSSES FINISH LINE: " + std::to_string(gameState.finishLine.crossesFinishLine), Point2D(64, 64), Play::LEFT);
+	Play::DrawFontText("64px", "COMPLETED LAP: " + std::to_string(gameState.finishLine.completedLap), Point2D(64, 101), Play::LEFT);
+	Play::DrawFontText("64px", "HAS COMPLETED LAP: " + std::to_string(gameState.finishLine.hasCompletedLap), Point2D(64, 138), Play::LEFT);
+
+}
+
 void HandleBackgrounds()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
@@ -1045,7 +1140,7 @@ void HandleBackgrounds()
 
 void CreatePlayer()
 {
-	int id{ Play::CreateGameObject(TYPE_PLAYER, { 736, 96 }, 0, "player_idle") };
+	int id{ Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle") };
 	GameObject& playerObj{ Play::GetGameObject(id) };
 }
 
@@ -1128,4 +1223,9 @@ Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector
 		return Vector2D{ 0.0f, 1.0f };
 	else
 		return Vector2D{ 0.0f, 0.0f };
+}
+
+void MergeCollisionBox()
+{
+
 }
