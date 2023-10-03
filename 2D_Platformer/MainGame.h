@@ -91,7 +91,7 @@ struct PlayerAttributes
 	Vector2D GroundBoxOffset{ 0, 15 };		//scale in y
 	Vector2D WallBox{ 1, 7 };				//scale in y
 	Vector2D WallBoxOffset{ 7, -3 };		//scale in x and y
-	Vector2D HurtBox{ 5, 13 };				//scale in x and y
+	Vector2D HurtBox{ 5, 15 };				//scale in x and y
 	Vector2D HurtBoxOffset{ 0, 0 };			//none
 	Vector2D PunchBox{ 7, 7 };				//scale in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale in x
@@ -105,13 +105,14 @@ struct PlayerAttributes
 	const float sizeScale{ 2.f };
 	const float jumpImpulse{ 20 };
 	const float wallJumpImpulse{ 30 };
+	const float maxJumpAccel{ 1.f };
 	const float obstructedImpulse{ 5.f };
 	const float maxClimbUpSpeed{ 1.2f };
 	const float maxClimbDownSpeed{ 5.f };
 	const float maxRunSpeed{ 5 };
 	const float maxRunAccel{ 5 };
 	const float coyoteTimeThreshold{ 0.1f };
-	const float maxFallSpeed{ 50.f };
+	const float maxFallSpeed{ 25.f };
 	const float airDashImpulse{ 50 };
 	const float airDashEndTime{ 0.1f };
 	int health{ 100 };
@@ -158,6 +159,7 @@ void WallJump(float& elapsedTime);
 void Hurt(float& elapsedTime);
 void Death(float& elapsedTime);
 void HandleSizeScale();
+void Friction();
 
 // collisions
 void HandleFinishLine(float& elapsedTime);
