@@ -1,199 +1,81 @@
 // Acknowledgements:
 // Zeggy Games - player character sprite https://zegley.itch.io/2d-platformermetroidvania-asset-pack
-// Nate Kling - platform sprites https://drive.google.com/file/d/1hNrC1vZqzQ7fjO3Q1qFxWe0PERl8dXDs/view
-// CraftPix - Background sprites https://www.youtube.com/channel/UCW6u-uvdYt5ub0zsZDAHXKw
+// Ninjikin - tile sprites https://ninjikin.itch.io/starter-tiles
+// CraftPix - Background sprites https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
 
 #include "Play.h"
-
-
-/* TODO:
- * Jump and Fall
- *	- Variable jump height		DONE
- *  - Apex modifier
- *  - Jump buffering
- *  - Coyote time
- *  - Clamped fall speed		DONE
- *  - Edge detection
- *
- * Wall Slide, Climb and Jump
- * 
- * Platforms, TileMaps and Level Design  
- * 
- */
+#include "MainGame.h"
 
 constexpr int DISPLAY_WIDTH{ 1280 };
 constexpr int DISPLAY_HEIGHT{ 720 };
 constexpr int DISPLAY_SCALE{ 1 };
 constexpr int PLATFORM_WIDTH{ 32 };
 
-enum GameObjectType
+const int ROOM[23][40] =
 {
-	TYPE_NULL = -1,
-	TYPE_PLAYER,
-	TYPE_DESTROYED,
-	TYPE_PLATFORM,
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+
+	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
 
-enum PlayerState
-{
-	STATE_IDLE = 0,
-	STATE_RUN,
-	STATE_JUMP,
-	STATE_FALL,
-	STATE_AIRDASH,
-	STATE_ATTACK,
-	STATE_ROLL,
-	STATE_WALLCLIMB,
-	STATE_WALLJUMP,
-	STATE_HURT,
-	STATE_DEATH,
-};
-
-struct Particle
-{
-	float currentLifetime{ 0 };
-	float lifetime{ 0.2f };
-	float baseOpacity{ 0.5f };
-	float opacityThreshold{ 0.01f };
-	float decayConstant{ 5.0f };
-	Point2D pos;
-	int spriteId;
-};
-
-struct CameraInfo
-{
-	Point2f cameraPos;
-	float shakeTime;
-	float shakeEndTime{ 0.08f };
-};
-
-struct ParticleEmitter
-{
-	std::vector<Particle> vParticle;
-	float splitTime{ 0.0f };
-	float emitPeriod{ 0.05f };
-	const int emitParticles{ 1 };
-};
-
-struct PlayerInfo
-{
-	int health{ 100 };
-	int direction{ 1 };
-	const float runSpeed{ 5 };
-	const float runAccel{ 5 };
-
-	bool hasJumped;
-	float jumpTime{ 0 };
-	float jumpImpulse{ 20 };
-	float jumpEndTime{ 0.5f };
-	float coyoteTimeThreshold{ 0.1f };
-	const float terminalVelocity{ 50.f };
-
-	bool hasAirDashed;
-	bool isAirDashing;
-	float airDashTime{ 0 };
-	float airDashImpulse{ 50 };
-	float airDashEndTime{ 0.1f };
-	Vector2D airDashDirection;
-
-	const int rollSpeed{ 10 };
-
-	bool hasLandedOnWall;
-	const float wallJumpImpulse{ 30 };
-
-	const float climbUp{ 1.2f };
-	const float climbDown{ 5 };
-	const float climbAccel{ 5 };
-
-	bool isGrounded;
-	bool isOnWall;
-	bool isHurt;
-
-	Vector2D gravity{ 0, 1.f };
-
-	PlayerState state = STATE_IDLE;
-
-	const Vector2D GroundBox{ 12, 1 };
-	const Vector2D GroundBoxOffset{ 0, 46 };
-	const Vector2D WallBox{ 1, 20 };
-	const Vector2D WallBoxOffset{ 20, -10 };
-	const Vector2D HurtBox{ 14, 40 };
-	const Vector2D HurtBoxOffset{ 0, 0 };
-	const Vector2D PunchBox{ 20, 20 };
-	const Vector2D PunchBoxOffset{ 75, 0 };
-};
-
-struct Platform
-{
-	int type = TYPE_PLATFORM;
-	Point2D pos;
-	const Vector2D PlatformBox{ 16, 16 };
-};
-
-
-struct GameState
-{
-	PlayerInfo player;
-	std::vector<Platform> vPlatform;
-	ParticleEmitter particleEmitter;
-	CameraInfo camera;
-};
 
 GameState gameState;
-
-// Update Player prototypes
-void UpdatePlayer(float& elapsedTime);
-void Idle(float& elapsedTime);
-void Run(float& elapsedTime);
-void Jump(float& elapsedTime);
-void Fall(float& elapsedTime);
-void AirDash(float& elapsedTime);
-void Punch(float& elapsedTime);
-void Roll(float& elapsedTime);
-void WallClimb(float& elapsedTime);
-void WallJump(float& elapsedTime);
-void Hurt(float& elapsedTime);
-void Death(float& elapsedTime);
-
-void HandleObstructions();
-void HandleGrounded();
-void HandleOnWall();
-void HandleHurt();
-
-void UpdatePlayerCamera(float& elapsedTime);
-
-// Air Dashing prototypes 
-void ScreenShake(float& elapsedTime);
-void DrawParticle(float& elapsedTime);
-void AddParticleToEmitter(GameObject& playerObj);
-void UpdateParticleLifeTime(float& elapsedTime);
-
-// Draw prototypes
-void DrawPlayer();
-void DrawPlatform();
-void DrawAllCollisionBoxes();
-
-void SetForegrounds();
-
-// Create and Destroy prototypes
-void CreatePlayer();
-void CreatePlatform();
-
-// Utility prototypes
-bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
-float q_rsqrt(float number);
-float exponentialDecay(float A0, float lambda, float time);
 
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
-	Play::LoadBackground("Data\\Backgrounds\\bg.png");
+
+	Play::LoadBackground("Data\\Backgrounds\\bg_5th.png");
 	//Play::StartAudioLoop("theme");
 	Play::CentreAllSpriteOrigins();
-	SetForegrounds();
+	HandleSizeScale();
 	CreatePlatform();
 	CreatePlayer();
 }
@@ -201,22 +83,16 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
-	Play::DrawBackground();
-	Play::DrawSprite(Play::GetSpriteId("fg1st"), Point2D(0, 0), 0);
-	Play::DrawSprite(Play::GetSpriteId("fg2nd"), Point2D(0, 0), 0);
-	Play::DrawSprite(Play::GetSpriteId("fg3rd"), Point2D(0, 0), 0);
-	Play::DrawSprite(Play::GetSpriteId("fg4th"), Point2D(0, 0), 0);
-	Play::DrawSprite(Play::GetSpriteId("fg5th"), Point2D(0, 0), 0);
-
+	HandleBackgrounds();
 	UpdatePlayer(elapsedTime);
-
-	//UpdatePlayerCamera(elapsedTime);   //ScreenShake instead
-	DrawPlatform();
-	DrawPlayer();
-	DrawAllCollisionBoxes();
+	HandleFinishLine(elapsedTime);
+	DrawFinishLine();
 	DrawParticle(elapsedTime);
-
-
+	DrawPlatform();
+	DrawCollisionBoxes();
+	DrawBalloon();
+	DrawPlayer();
+	DrawUI();
 	Play::PresentDrawingBuffer();
 	return Play::KeyDown(VK_ESCAPE);
 }
@@ -230,7 +106,7 @@ int MainGameExit(void)
 void UpdatePlayer(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-	playerObj.scale = { 3.f };
+	playerObj.scale = gameState.player.sizeScale;
 
 	switch (gameState.player.state)
 	{
@@ -297,9 +173,9 @@ void UpdatePlayer(float& elapsedTime)
 	Play::UpdateGameObject(playerObj);
 
 	HandleGrounded();
-	HandleObstructions();
-	HandleOnWall();
+	//HandleOnWall();
 	HandleHurt();
+	//HandleObstructed();
 }
 
 void Idle(float& elapsedTime)
@@ -333,10 +209,10 @@ void Idle(float& elapsedTime)
 	if (!Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT) && gameState.player.isGrounded == true)
 	{
 		playerObj.acceleration.x = 0;
-		(abs(playerObj.velocity.x) > 0.01) ? playerObj.velocity.x *= 0.4 : 0;
+		(abs(playerObj.velocity.x) < 0.01) ? 0 : playerObj.velocity.x *= 0.4;
 	}
 
-	if (gameState.player.isGrounded == false && playerObj.velocity.y > 5)
+	if (gameState.player.isGrounded == false)
 	{
 		gameState.player.state = STATE_FALL;
 		return;
@@ -350,17 +226,17 @@ void Run(float& elapsedTime)
 	if (Play::KeyDown(VK_LEFT))
 	{
 		gameState.player.direction = -1;
-		playerObj.acceleration.x = -gameState.player.runAccel;
+		playerObj.acceleration.x = -gameState.player.maxRunAccel;
 		Play::SetSprite(playerObj, "player_run_left", 0.25f);
 	}
 	else if (Play::KeyDown(VK_RIGHT))
 	{
 		gameState.player.direction = 1;
 		Play::SetSprite(playerObj, "player_run", 0.25f);
-		playerObj.acceleration.x = gameState.player.runAccel;
+		playerObj.acceleration.x = gameState.player.maxRunAccel;
 	}
 
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
 
 	if (Play::KeyDown('Z'))
 	{
@@ -370,7 +246,6 @@ void Run(float& elapsedTime)
 	}
 	else if (Play::KeyPressed('X'))
 	{
-		playerObj.acceleration.x = 0;
 		gameState.player.state = STATE_ATTACK;
 		return;
 	}
@@ -388,7 +263,7 @@ void Run(float& elapsedTime)
 		return;
 	}
 
-	if (gameState.player.isGrounded == false && playerObj.velocity.y > 5)
+	if (gameState.player.isGrounded == false)
 	{
 		playerObj.acceleration.x = 0;
 		gameState.player.state = STATE_FALL;
@@ -409,34 +284,23 @@ void Jump(float& elapsedTime)
 	else if (playerObj.velocity.y > 5)
 		playerObj.frame = 2;
 
+	if (Play::KeyDown(VK_LEFT))
+		playerObj.velocity.x = -gameState.player.maxRunSpeed;
+	else if (Play::KeyDown(VK_RIGHT))
+		playerObj.velocity.x = gameState.player.maxRunSpeed;
+
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
+
 	if (Play::KeyDown('Z') && gameState.player.hasJumped == false)
 	{
+		gameState.player.jumpTime += elapsedTime;
 		playerObj.velocity.y = -gameState.player.jumpImpulse;
-
-		if (gameState.player.jumpTime < gameState.player.jumpEndTime)
-		{
-			gameState.player.jumpTime += elapsedTime;
-			playerObj.velocity += (gameState.player.gravity * elapsedTime * 1.5f);
-
-		}
+		if (gameState.player.jumpTime > gameState.player.jumpEndTime)
+			gameState.player.hasJumped = true;
 	}
-
-	if (!gameState.player.isGrounded)
-	{
+	else if (!Play::KeyDown('Z') && gameState.player.hasJumped == false)
 		gameState.player.hasJumped = true;
-	}
-	else
-	{
-		gameState.player.hasJumped = false;
-		gameState.player.jumpTime = 0;
-	}
 
-	if (Play::KeyDown(VK_LEFT))
-		playerObj.velocity.x = -gameState.player.runSpeed;
-	else if (Play::KeyDown(VK_RIGHT))
-		playerObj.velocity.x = gameState.player.runSpeed;
-
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
 
 	if (Play::KeyPressed('C'))
 	{
@@ -444,9 +308,9 @@ void Jump(float& elapsedTime)
 		return;
 	}
 
-	if (gameState.player.isGrounded == true)
+	if (gameState.player.isGrounded == false && playerObj.velocity.y > 0)
 	{
-		gameState.player.state = STATE_IDLE;
+		gameState.player.state = STATE_FALL;
 		return;
 	}
 }
@@ -454,7 +318,24 @@ void Jump(float& elapsedTime)
 void Fall(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
 	playerObj.acceleration.x = 0;
+
+	if (Play::KeyDown(VK_LEFT))
+		playerObj.velocity.x = -gameState.player.maxRunSpeed;
+	else if (Play::KeyDown(VK_RIGHT))
+		playerObj.velocity.x = gameState.player.maxRunSpeed;
+
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
+
+	gameState.player.coyoteTime += elapsedTime;
+
+	if (Play::KeyDown('Z') && gameState.player.hasJumped == false && gameState.player.coyoteTime < gameState.player.coyoteTimeThreshold)
+	{
+		gameState.player.coyoteTime = 0;
+		gameState.player.state = STATE_JUMP;
+		return;
+	}
 
 	if (gameState.player.isGrounded == false)
 	{
@@ -462,22 +343,18 @@ void Fall(float& elapsedTime)
 		playerObj.frame = 2;
 	}
 
-	if (Play::KeyDown(VK_LEFT))
-		playerObj.pos.x -= gameState.player.runSpeed;
-	else if (Play::KeyDown(VK_RIGHT))
-		playerObj.pos.x += gameState.player.runSpeed;
-
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.runSpeed, gameState.player.runSpeed);
-
-
 	if (Play::KeyPressed('C'))
 	{
+		gameState.player.coyoteTime = 0;
 		gameState.player.state = STATE_AIRDASH;
 		return;
 	}
 
 	if (gameState.player.isGrounded == true)
 	{
+		gameState.player.hasJumped = false;
+		gameState.player.jumpTime = 0;
+		gameState.player.coyoteTime = 0;
 		gameState.player.state = STATE_IDLE;
 		return;
 	}
@@ -491,11 +368,9 @@ void AirDash(float& elapsedTime)
 
 	float q_rsqrt_2 = q_rsqrt(2);
 
-	if (gameState.player.isAirDashing == false && gameState.player.hasAirDashed == false)
+	if (gameState.player.hasAirDashed == false)
 	{
-		gameState.player.airDashTime = 0;
 		gameState.player.hasAirDashed = true;
-		gameState.player.isAirDashing = true;
 
 		playerObj.velocity = Vector2D(0, 0);
 		playerObj.acceleration = Vector2D(0, 0);
@@ -527,8 +402,8 @@ void AirDash(float& elapsedTime)
 	else if (gameState.player.airDashTime > gameState.player.airDashEndTime)
 	{
 		playerObj.velocity = Vector2D(0, 0);
+		gameState.player.airDashTime = 0;
 		gameState.player.airDashDirection = Vector2D(0, 0);
-		gameState.player.isAirDashing = false;
 		gameState.player.state = STATE_JUMP;
 		return;
 	}
@@ -538,7 +413,7 @@ void Punch(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_punch_left" : "player_punch", 0.2f);
+	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_punch_left" : "player_punch", 0.7f);
 
 	if (Play::IsAnimationComplete(playerObj))
 	{
@@ -553,7 +428,7 @@ void Roll(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_roll_left" : "player_roll", 0.2f);
+	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_roll_left" : "player_roll", 1.f);
 
 	if (Play::IsAnimationComplete(playerObj))
 	{
@@ -562,7 +437,11 @@ void Roll(float& elapsedTime)
 		return;
 	}
 	else
+	{
+		ScreenShake(elapsedTime);
+
 		playerObj.velocity.x = gameState.player.direction * gameState.player.rollSpeed;
+	}
 }
 
 void WallClimb(float& elapsedTime)
@@ -575,7 +454,7 @@ void WallClimb(float& elapsedTime)
 		if (!Play::IsAnimationComplete(playerObj))
 		{
 			(abs(playerObj.velocity.y) > 0.01) ? playerObj.velocity.y *= 0.5 : 0;
-			
+
 			if (Play::KeyPressed('Z'))
 			{
 				gameState.player.hasLandedOnWall = false;
@@ -596,13 +475,13 @@ void WallClimb(float& elapsedTime)
 		if (Play::KeyDown(VK_UP))
 		{
 			Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.4f);
-			playerObj.velocity.y = -gameState.player.climbUp;
+			playerObj.velocity.y = -gameState.player.maxClimbUpSpeed;
 
 		}
 		else if (Play::KeyDown(VK_DOWN))
 		{
 			Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_slid_left" : "player_wall_slid", 0.2f);
-			playerObj.velocity.y += (gameState.player.climbDown * elapsedTime * 2.5f);
+			playerObj.velocity.y += (gameState.player.maxClimbDownSpeed * elapsedTime * 2.5f);
 		}
 
 		if (Play::KeyPressed('Z'))
@@ -677,24 +556,134 @@ void Death(float& elapsedTime)
 	}
 }
 
-void HandleObstructions()
+void HandleSizeScale()
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	gameState.player.GroundBox *= Vector2D(gameState.player.sizeScale, 1);
+	gameState.player.GroundBoxOffset *= Vector2D(1, gameState.player.sizeScale);
+	gameState.player.WallBox *= Vector2D(1, gameState.player.sizeScale);
+	gameState.player.WallBoxOffset *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
+	gameState.player.HurtBox *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
+	gameState.player.HurtBoxOffset;
+	gameState.player.PunchBox *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
+	gameState.player.PunchBoxOffset *= Vector2D(gameState.player.sizeScale, 1);
+}
+
+void Friction()
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	if (gameState.player.isGrounded == true)
+	{
+		playerObj.velocity.x = 0;
+		playerObj.acceleration.x = 0;
+	}
+}
+
+void HandleFinishLine(float& elapsedTime)
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+
+	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.finishLine.pos, gameState.finishLine.box, Vector2D(0, 0))
+		&& (playerObj.pos.x - gameState.player.HurtBox.x - gameState.player.HurtBoxOffset.x) > (gameState.finishLine.pos.x - gameState.finishLine.box.x))
+	{
+		gameState.finishLine.crossesFinishLine = false;
+	}
+	else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.finishLine.pos, gameState.finishLine.box, Vector2D(0, 0))
+		&& (playerObj.pos.x + gameState.player.HurtBox.x + gameState.player.HurtBoxOffset.x) <= gameState.finishLine.pos.x)
+	{
+		gameState.finishLine.crossesFinishLine = true;
+	}
+
+	if (gameState.finishLine.crossesFinishLine == true)
+	{
+		gameState.finishLine.splitTime += elapsedTime;
+	}
+
+	if (gameState.finishLine.crossesFinishLine == true
+		&& gameState.finishLine.hasCompletedLap == false)
+	{
+		if (gameState.finishLine.completedLap > 0)
+			gameState.finishLine.vSplitTime.push_back(gameState.finishLine.splitTime);
+		gameState.finishLine.splitTime = 0;
+		gameState.finishLine.hasCompletedLap = true;
+		gameState.finishLine.completedLap += 1;
+	}
+	else if (gameState.finishLine.crossesFinishLine == false)
+	{
+		gameState.finishLine.hasCompletedLap = false;
+	}
+}
+
+void HandleObstructed()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	for (Platform& p : gameState.vPlatform)
 	{
-		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(0, 1))
 		{
-			playerObj.pos = playerObj.oldPos;
+			int diff = playerObj.pos.y - playerObj.oldPos.y;
+			playerObj.pos.y = playerObj.oldPos.y;
+			for (int i = 0; i < diff; ++i)
+			{
+				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, diff), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+				{
+					playerObj.pos.y += i;
+					break;
+				}
+			}
+			ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0));
+		}
+		else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(-1, 0)
+			|| AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(1, 0))
+		{
+			int diff = playerObj.pos.x - playerObj.oldPos.x;
+			playerObj.pos.x = playerObj.oldPos.x;
+			for (int i = 0; i < diff; ++i)
+			{
+				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, i), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+				{
+					playerObj.pos.x += i;
+					break;
+				}
+			}
 			playerObj.velocity.x = 0;
-			playerObj.acceleration.x = 0;
-			return;
 		}
 	}
 }
 
 void HandleGrounded()
 {
+	//GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	//for (Platform& p : gameState.vPlatform)
+	//{
+	//	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+	//	{
+	//		playerObj.pos.y = playerObj.oldPos.y;
+	//		gameState.player.isGrounded = true;
+	//		gameState.player.hasJumped = false;
+	//		gameState.player.hasAirDashed = false;
+	//		playerObj.acceleration.y = 0;
+	//		playerObj.velocity.y = 0;
+	//		return;
+	//	}
+	//	else
+	//	{
+	//		gameState.player.isGrounded = false;
+	//	}
+	//}
+	//if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
+	//{
+	//	playerObj.acceleration.y = gameState.player.gravity.y;
+	//	playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
+	//}
+
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	for (Platform& p : gameState.vPlatform)
@@ -717,7 +706,6 @@ void HandleGrounded()
 			gameState.player.hasJumped == false;
 			gameState.player.hasAirDashed = false;
 			playerObj.velocity.y = 0;
-
 			break;
 		}
 		else
@@ -727,7 +715,7 @@ void HandleGrounded()
 	if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
 	{
 		playerObj.acceleration.y = gameState.player.gravity.y;
-		playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.terminalVelocity, gameState.player.terminalVelocity);
+		playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
 	}
 }
 
@@ -741,7 +729,7 @@ void HandleOnWall()
 		{
 			gameState.player.isOnWall = false;
 		}
-		else if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+		else if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) && gameState.player.isGrounded == false)
 		{
 			gameState.player.isOnWall = true;
 			gameState.player.hasJumped = false;
@@ -757,6 +745,24 @@ void HandleOnWall()
 
 void HandleHurt()
 {
+
+}
+
+void BalloonCollision()
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	std::vector<int> balloonIds = Play::CollectGameObjectIDsByType(TYPE_BALLOON);
+	for (int balloonId : balloonIds)
+	{
+		GameObject& balloonObj{ Play::GetGameObject(balloonId) };
+
+		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, balloonObj.pos, Vector2D(32, 32), Vector2D(0, 0)))
+		{
+			Play::DestroyGameObject(balloonId);
+			gameState.player.hasAirDashed = false;
+		}
+	}
 
 }
 
@@ -800,6 +806,21 @@ void DrawParticle(float& elapsedTime)
 		}
 
 		if (!gameState.particleEmitter.vParticle.empty())
+			UpdateParticleLifeTime(elapsedTime);
+
+		break;
+	}
+	case STATE_ROLL:
+	{
+		gameState.particleEmitter.splitTime += elapsedTime;
+
+		if (gameState.particleEmitter.splitTime > gameState.particleEmitter.emitPeriod)
+		{
+			AddParticleToEmitter(playerObj);
+			gameState.particleEmitter.splitTime = 0;
+		}
+
+		if (!gameState.particleEmitter.vParticle.empty())
 		{
 			UpdateParticleLifeTime(elapsedTime);
 		}
@@ -807,10 +828,10 @@ void DrawParticle(float& elapsedTime)
 	}
 	default:
 	{
+		gameState.particleEmitter.splitTime = 0;
 		if (!gameState.particleEmitter.vParticle.empty())
-		{
 			UpdateParticleLifeTime(elapsedTime);
-		}
+
 		break;
 	}
 	}
@@ -825,23 +846,21 @@ void AddParticleToEmitter(GameObject& playerObj)
 		gameState.particleEmitter.vParticle.push_back(particle);
 		gameState.particleEmitter.vParticle.back().pos = playerObj.pos;
 		gameState.particleEmitter.vParticle.back().spriteId = playerObj.spriteId;
+		gameState.particleEmitter.vParticle.back().spriteFrame = playerObj.frame;
 	}
-
-
 }
 
 void UpdateParticleLifeTime(float& elapsedTime)
 {
 	Particle particle;
 
-
 	for (int i = 0; i < gameState.particleEmitter.vParticle.size(); ++i)
 	{
 		gameState.particleEmitter.vParticle[i].currentLifetime += elapsedTime;
-		float opacity = exponentialDecay(gameState.particleEmitter.vParticle[i].baseOpacity, gameState.particleEmitter.vParticle[i].decayConstant, gameState.particleEmitter.vParticle[i].currentLifetime);
-		Play::DrawSpriteRotated(gameState.particleEmitter.vParticle[i].spriteId, gameState.particleEmitter.vParticle[i].pos, 0, 0, 3.0f, opacity);
+		gameState.particleEmitter.vParticle[i].opacity = exponentialDecay(gameState.particleEmitter.baseOpacity, gameState.particleEmitter.decayConstant, gameState.particleEmitter.vParticle[i].currentLifetime);
+		Play::DrawSpriteRotated(gameState.particleEmitter.vParticle[i].spriteId, gameState.particleEmitter.vParticle[i].pos, gameState.particleEmitter.vParticle[i].spriteFrame, 0, gameState.player.sizeScale, gameState.particleEmitter.vParticle[i].opacity);
 
-		if (opacity < particle.opacityThreshold)
+		if (gameState.particleEmitter.vParticle[i].opacity < gameState.particleEmitter.opacityThreshold)
 			gameState.particleEmitter.vParticle.erase(gameState.particleEmitter.vParticle.begin() + i);
 	}
 }
@@ -852,82 +871,152 @@ void DrawPlayer()
 	Play::DrawObjectRotated(playerObj);
 }
 
-void DrawAllCollisionBoxes()
+void DrawCollisionBoxes()
 {
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-
-	for (Platform& p : gameState.vPlatform)
+	switch (gameState.gameMode)
 	{
-		Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cMagenta);
+	case(TEST_MODE):
+	{
+		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-		if (gameState.player.direction == -1)
-		{
-			if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, Vector2D(-1, 1) * gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cGreen);
-
-			if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2D(-1, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cYellow);
-
-			if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, Vector2D(-1, 1) * gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cCyan);
-
-			if (AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, Vector2D(-1, 1) * gameState.player.PunchBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cMagenta);
-		}
-		else if (gameState.player.direction == 1)
+		for (Platform& p : gameState.vPlatform)
 		{
 			if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cRed, true);
+				Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cRed, true);
 			else
-				Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cGreen);
+				Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cGreen);
 
-			if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cYellow);
+			if (gameState.player.direction == -1)
+			{
+				if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, Vector2D(-1, 1) * gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cGreen);
+				if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2D(-1, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cYellow);
+				if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, Vector2D(-1, 1) * gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cCyan);
 
-			if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cCyan);
-
-			if (AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, gameState.player.PunchBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-				Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cRed, true);
-			else
-				Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cMagenta);
+				if (AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, Vector2D(-1, 1) * gameState.player.PunchBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cMagenta);
+			}
+			else if (gameState.player.direction == 1)
+			{
+				if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cGreen);
+				if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cYellow);
+				if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cCyan);
+				if (AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, gameState.player.PunchBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cMagenta);
+			}
 		}
-
+		break;
 	}
-}
-
-void SetForegrounds()
-{
-	Play::SetSpriteOrigin("fg1", 0, 0);
-	Play::SetSpriteOrigin("fg2", 0, 0);
-	Play::SetSpriteOrigin("fg3", 0, 0);
-	Play::SetSpriteOrigin("fg4", 0, 0);
-	Play::SetSpriteOrigin("fg5", 0, 0);
+	case(PLAY_MODE):
+	{
+		break;
+	}
+	}
 }
 
 void DrawPlatform()
 {
 	for (Platform& p : gameState.vPlatform)
 	{
-		Play::DrawSprite(Play::GetSpriteId("brick"), p.pos, 0);
+		Play::DrawSprite(Play::GetSpriteId("dark_brick"), p.pos, 0);
 	}
+}
+
+void DrawBalloon()
+{
+	std::vector<int> balloonIds = Play::CollectGameObjectIDsByType(TYPE_BALLOON);
+	for (int balloonId : balloonIds)
+	{
+		GameObject& balloonObj{ Play::GetGameObject(balloonId) };
+		Play::DrawObjectRotated(balloonObj);
+	}
+}
+
+void DrawFinishLine()
+{
+	Play::DrawSprite(Play::GetSpriteId("finish_line"), gameState.finishLine.pos, 0);
+}
+
+void DrawUI()
+{
+	switch (gameState.gameMode)
+	{
+	case(TEST_MODE):
+	{
+		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 69), Play::LEFT);
+		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
+		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.particleEmitter.splitTime), Point2D(37, 143), Play::LEFT);
+
+		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 37, 32), Play::RIGHT);
+		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(DISPLAY_WIDTH - 37, 69), Play::RIGHT);
+		Play::DrawFontText("64px", "HAS AIR DASHED: " + std::to_string(gameState.player.hasAirDashed), Point2D(DISPLAY_WIDTH - 37, 106), Play::RIGHT);
+		Play::DrawFontText("64px", "HAS LANDED ON WALL: " + std::to_string(gameState.player.hasLandedOnWall), Point2D(DISPLAY_WIDTH - 37, 143), Play::RIGHT);
+		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(DISPLAY_WIDTH - 37, 180), Play::RIGHT);
+
+		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
+		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(DISPLAY_WIDTH - 37, 291), Play::RIGHT);
+		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(DISPLAY_WIDTH - 37, 328), Play::RIGHT);
+		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(DISPLAY_WIDTH - 37, 365), Play::RIGHT);
+		break;
+	}
+	case(PLAY_MODE):
+	{
+		if (gameState.finishLine.vSplitTime.size() > 0)
+		{
+			float fastestSplit = *std::min_element(gameState.finishLine.vSplitTime.begin(), gameState.finishLine.vSplitTime.end());
+			Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
+			Play::DrawFontText("64px", "FASTEST SPLIT: " + std::to_string(fastestSplit), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
+			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.finishLine.splitTime), Point2D(DISPLAY_WIDTH - 64, 138), Play::RIGHT);
+		}
+		else
+		{
+			Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
+			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.finishLine.splitTime), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
+		}
+		Play::DrawFontText("64px", "CROSSES FINISH LINE: " + std::to_string(gameState.finishLine.crossesFinishLine), Point2D(64, 64), Play::LEFT);
+		Play::DrawFontText("64px", "COMPLETED LAP: " + std::to_string(gameState.finishLine.completedLap), Point2D(64, 101), Play::LEFT);
+		Play::DrawFontText("64px", "HAS COMPLETED LAP: " + std::to_string(gameState.finishLine.hasCompletedLap), Point2D(64, 138), Play::LEFT);
+		break;
+	}
+	}
+}
+
+void HandleBackgrounds()
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	// if player passes finishing line
+	// change background
+	Play::DrawBackground();
 }
 
 void CreatePlayer()
 {
-	int id{ Play::CreateGameObject(TYPE_PLAYER, { 1100, 500 }, 0, "player_idle") };
+	int id{ Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle") };
 	GameObject& playerObj{ Play::GetGameObject(id) };
 }
 
@@ -935,49 +1024,19 @@ void CreatePlatform()
 {
 	Platform platform;
 
-	// Floor
-	for (int display_x = 0; display_x < DISPLAY_WIDTH; display_x += PLATFORM_WIDTH)
+	int gap = 16;
+
+	for (int row = 0; row < 23; ++row)
 	{
-		gameState.vPlatform.push_back(platform);
-		gameState.vPlatform.back().pos = Point2D{ float(display_x), DISPLAY_HEIGHT - 32 };
+		for (int col = 0; col < 40; ++col)
+		{
+			if (ROOM[row][col] == 1)
+			{
+				gameState.vPlatform.push_back(platform);
+				gameState.vPlatform.back().pos = Point2D(gap + (col * 32), gap + (row * 32));
+			}
+		}
 	}
-
-	// Ceiling
-	for (int display_x = 0; display_x < DISPLAY_WIDTH; display_x += PLATFORM_WIDTH)
-	{
-		gameState.vPlatform.push_back(platform);
-		gameState.vPlatform.back().pos = Point2D{ float(display_x), 32 };
-	}
-
-	// Left Wall
-	for (int display_y = 0; display_y < DISPLAY_HEIGHT; display_y += PLATFORM_WIDTH)
-	{
-		gameState.vPlatform.push_back(platform);
-		gameState.vPlatform.back().pos = Point2D{ 32, float(display_y) };
-	}
-
-	// Right Wall
-	for (int display_y = 0; display_y < DISPLAY_HEIGHT; display_y += PLATFORM_WIDTH)
-	{
-		gameState.vPlatform.push_back(platform);
-		gameState.vPlatform.back().pos = Point2D{ DISPLAY_WIDTH - 32, float(display_y) };
-	}
-
-	// Chimmney
-	for (int display_y = 0; display_y < 550; display_y += PLATFORM_WIDTH)
-	{
-		gameState.vPlatform.push_back(platform);
-		gameState.vPlatform.back().pos = Point2D{ 200 - 32, float(display_y) };
-	}
-
-}
-
-bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
-{
-	return (aPos.x - aAABB.x + aOffset.x < bPos.x + bAABB.x + bOffset.x
-		&& aPos.x + aAABB.x + aOffset.x > bPos.x - bAABB.x + bOffset.x
-		&& aPos.y - aAABB.y + aOffset.y < bPos.y + bAABB.y + bOffset.y
-		&& aPos.y + aAABB.y + aOffset.y > bPos.y - bAABB.y + bOffset.y);
 }
 
 float q_rsqrt(float number)
@@ -998,7 +1057,73 @@ float q_rsqrt(float number)
 	return y;
 }
 
-float exponentialDecay(float A0, float lambda, float time)
+float exponentialDecay(const float& A0, const float& lambda, const float& time)
 {
 	return A0 * exp(-lambda * time);
+}
+
+bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
+{
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
+	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
+
+	// aObj hit left side of bObj
+	if (left < right && left < top && left < bottom)
+		gameState.player.collisionDir = Vector2D(-1.0f, 0.0f);
+
+	// aObj hit right side of bObj
+	else if (right < left && right < top && right < bottom)
+		gameState.player.collisionDir = Vector2D(1.0f, 0.0f);
+
+	// aObj hit top side of bObj
+	else if (top < bottom && top < left && top < right)
+		gameState.player.collisionDir = Vector2D(0.0f, -1.0f);
+
+	// aObj hit bottom side of bObj
+	else if (bottom < top && bottom < left && bottom < right)
+		gameState.player.collisionDir = Vector2D(0.0f, 1.0f);
+
+	else
+		gameState.player.collisionDir = Vector2D(0.0f, 0.0f);
+
+	return (aPos.x - aAABB.x + aOffset.x < bPos.x + bAABB.x + bOffset.x
+		&& aPos.x + aAABB.x + aOffset.x > bPos.x - bAABB.x + bOffset.x
+		&& aPos.y - aAABB.y + aOffset.y < bPos.y + bAABB.y + bOffset.y
+		&& aPos.y + aAABB.y + aOffset.y > bPos.y - bAABB.y + bOffset.y);
+}
+
+void ApplyReflection(GameObject& aObj, const Point2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Point2D& bAABB, const Vector2D& bOffset)
+{
+	Vector2D collisionEdge = GetNearestEdge(aObj.pos, aAABB, aOffset, bPos, bAABB, bOffset);
+	Vector2D surfaceNormal = collisionEdge.Perpendicular();
+	float dotProduct = aObj.velocity.Dot(surfaceNormal);
+	Vector2D reflectionVector = aObj.velocity - (2.0 * dotProduct * surfaceNormal);
+	reflectionVector.Normalize();
+	aObj.velocity = -reflectionVector * gameState.player.obstructedImpulse;
+}
+
+Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
+{
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
+	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
+
+	if (left < right && left < top && left < bottom)
+		return Vector2D(-1.0f, 0.0f);
+	else if (right < left && right < top && right < bottom)
+		return Vector2D(1.0f, 0.0f);
+	else if (top < bottom && top < left && top < right)
+		return Vector2D(0.0f, -1.0f);
+	else if (bottom < top && bottom < left && bottom < right)
+		return Vector2D(0.0f, 1.0f);
+	else
+		return Vector2D(0.0f, 0.0f);
+}
+
+void MergeCollisionBox()
+{
+
 }
