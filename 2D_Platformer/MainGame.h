@@ -9,12 +9,17 @@ enum GameObjectType
 	TYPE_NULL = -1,
 	TYPE_PLAYER,
 	TYPE_DESTROYED,
-	TYPE_PLATFORM_GREEN_BRICK,
-	TYPE_PLATFORM_BUSH,
-	TYPE_PLATFORM_DARK_BRICK,
-	TYPE_PLATFORM_FIRE,
-	TYPE_PLATFORM_ICE,
 	TYPE_BALLOON,
+};
+
+enum PlatformType
+{
+	EMPT = 0,
+	GBRK,
+	DBRK,
+	BUSH,
+	FIRE,
+	ICE_,
 };
 
 enum Backgrounds
@@ -97,27 +102,27 @@ struct PlayerAttributes
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale in x
 	Vector2D collisionDir{ 0, 0 };
 	Point2D startingPos{ 768, 96 };
-	PlayerState state = STATE_IDLE;
+	PlayerState state{ STATE_IDLE };
 	float jumpTime{ 0 };
 	float jumpEndTime{ 0.1f };
 	float coyoteTime{ 0 };
 	float airDashTime{ 0 };
 	const float sizeScale{ 2.f };
-	const float jumpImpulse{ 20 };
-	const float wallJumpImpulse{ 30 };
+	const float rollImpulse{ 30.f };
+	const float jumpImpulse{ 20.f };
+	const float wallJumpImpulse{ 30.f };
 	const float maxJumpAccel{ 1.f };
 	const float obstructedImpulse{ 5.f };
 	const float maxClimbUpSpeed{ 1.2f };
 	const float maxClimbDownSpeed{ 5.f };
-	const float maxRunSpeed{ 5 };
-	const float maxRunAccel{ 5 };
+	const float maxRunSpeed{ 5.f };
+	const float maxRunAccel{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
 	const float maxFallSpeed{ 25.f };
-	const float airDashImpulse{ 50 };
+	const float airDashImpulse{ 30 };
 	const float airDashEndTime{ 0.1f };
 	int health{ 100 };
 	int direction{ -1 };
-	const int rollSpeed{ 20 };
 	bool hasJumped{ false };
 	bool isAirDashing{ false };
 	bool hasAirDashed{ false };
@@ -131,7 +136,18 @@ struct Platform
 {
 	const Vector2D PlatformBox{ 16, 16 };
 	Point2D pos{ 0, 0 };
-	int type = TYPE_PLATFORM_DARK_BRICK;
+	int type{ DBRK };
+	bool playerOnTop{ false };
+
+	Point2D Left() { return Point2D(pos.x - PlatformBox.x, pos.y); }
+	Point2D Right() { return Point2D(pos.x + PlatformBox.x, pos.y); }
+	Point2D Top() { return Point2D(pos.x, pos.y - PlatformBox.y); }
+	Point2D Bottom() { return Point2D(pos.x, pos.y + PlatformBox.y); }
+
+	Point2D TopLeft() { return pos - PlatformBox; }
+	Point2D BottomRight() { return pos + PlatformBox; }
+	Point2D TopRight() { return Point2D(pos.x + PlatformBox.x, pos.y - PlatformBox.y); }
+	Point2D BottomLeft() { return Point2D(pos.x - PlatformBox.x, pos.y + PlatformBox.y); }
 };
 
 struct GameState
@@ -159,7 +175,7 @@ void WallJump(float& elapsedTime);
 void Hurt(float& elapsedTime);
 void Death(float& elapsedTime);
 void HandleSizeScale();
-void Friction();
+float ResolveFriction();
 
 // collisions
 void HandleFinishLine(float& elapsedTime);
@@ -201,3 +217,5 @@ bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2
 void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 void MergeCollisionBox();
+int GetPlatformId();
+int GetPlatformType();

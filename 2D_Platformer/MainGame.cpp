@@ -16,29 +16,29 @@ constexpr int PLATFORM_WIDTH{ 32 };
 
 const int ROOM[23][40] =
 {
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
+	{DBRK, DBRK, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, DBRK, DBRK, DBRK, DBRK},
+	{DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK},
 
 	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -173,9 +173,9 @@ void UpdatePlayer(float& elapsedTime)
 	Play::UpdateGameObject(playerObj);
 
 	HandleGrounded();
-	//HandleOnWall();
+	HandleOnWall();
 	HandleHurt();
-	//HandleObstructed();
+	HandleObstructed();
 }
 
 void Idle(float& elapsedTime)
@@ -184,7 +184,11 @@ void Idle(float& elapsedTime)
 
 	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_idle_left" : "player_idle", 0.25f);
 
-	if (Play::KeyDown(VK_LEFT) || Play::KeyDown(VK_RIGHT))
+	if (!Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT) && gameState.player.isGrounded == true)
+	{
+		playerObj.acceleration.x = ResolveFriction();
+	}
+	else if (Play::KeyDown(VK_LEFT) || Play::KeyDown(VK_RIGHT))
 	{
 		gameState.player.state = STATE_RUN;
 		return;
@@ -206,12 +210,6 @@ void Idle(float& elapsedTime)
 		return;
 	}
 
-	if (!Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT) && gameState.player.isGrounded == true)
-	{
-		playerObj.acceleration.x = 0;
-		(abs(playerObj.velocity.x) < 0.01) ? 0 : playerObj.velocity.x *= 0.4;
-	}
-
 	if (gameState.player.isGrounded == false)
 	{
 		gameState.player.state = STATE_FALL;
@@ -226,17 +224,17 @@ void Run(float& elapsedTime)
 	if (Play::KeyDown(VK_LEFT))
 	{
 		gameState.player.direction = -1;
-		playerObj.acceleration.x = -gameState.player.maxRunAccel;
 		Play::SetSprite(playerObj, "player_run_left", 0.25f);
+		playerObj.acceleration.x = ResolveFriction();
 	}
 	else if (Play::KeyDown(VK_RIGHT))
 	{
 		gameState.player.direction = 1;
 		Play::SetSprite(playerObj, "player_run", 0.25f);
-		playerObj.acceleration.x = gameState.player.maxRunAccel;
+		playerObj.acceleration.x = ResolveFriction();
 	}
 
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed - playerObj.acceleration.x, gameState.player.maxRunSpeed - playerObj.acceleration.x);
 
 	if (Play::KeyDown('Z'))
 	{
@@ -258,7 +256,6 @@ void Run(float& elapsedTime)
 
 	if (!Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT) && gameState.player.isGrounded == true)
 	{
-		playerObj.acceleration.x = 0;
 		gameState.player.state = STATE_IDLE;
 		return;
 	}
@@ -399,6 +396,14 @@ void AirDash(float& elapsedTime)
 		ScreenShake(elapsedTime);
 		playerObj.velocity = gameState.player.airDashDirection * gameState.player.airDashImpulse;
 	}
+	else if (gameState.player.isGrounded == true)
+	{
+		playerObj.velocity = Vector2D(0, 0);
+		gameState.player.airDashTime = 0;
+		gameState.player.airDashDirection = Vector2D(0, 0);
+		gameState.player.state = STATE_IDLE;
+		return;
+	}
 	else if (gameState.player.airDashTime > gameState.player.airDashEndTime)
 	{
 		playerObj.velocity = Vector2D(0, 0);
@@ -432,15 +437,15 @@ void Roll(float& elapsedTime)
 
 	if (Play::IsAnimationComplete(playerObj))
 	{
-		playerObj.velocity = { 0 , 0 };
 		gameState.player.state = STATE_IDLE;
 		return;
 	}
 	else
 	{
 		ScreenShake(elapsedTime);
+		playerObj.pos.x += gameState.player.direction * gameState.player.rollImpulse;
 
-		playerObj.velocity.x = gameState.player.direction * gameState.player.rollSpeed;
+		// if obstructed prevent player from rolling out
 	}
 }
 
@@ -569,15 +574,87 @@ void HandleSizeScale()
 	gameState.player.PunchBoxOffset *= Vector2D(gameState.player.sizeScale, 1);
 }
 
-void Friction()
+float ResolveFriction()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-	if (gameState.player.isGrounded == true)
+	int dir = gameState.player.direction;
+	float accel_x = 0;
+
+	switch (GetPlatformType())
 	{
-		playerObj.velocity.x = 0;
-		playerObj.acceleration.x = 0;
+	case GBRK:
+	{
+		accel_x = dir * 1.f;
+		break;
 	}
+	case DBRK:
+	{
+		accel_x = dir * 1.f;
+
+		if (gameState.player.state == STATE_IDLE)
+		{
+			if (playerObj.velocity.x > 0.1)
+				accel_x = -1.f;
+			else if (playerObj.velocity.x < 0.1)
+				accel_x = 1.f;
+
+			if (playerObj.velocity.x >= -0.1 && playerObj.velocity.x <= 0.1)
+			{
+				accel_x = 0;
+				playerObj.velocity.x = 0;
+			}
+		}
+
+		break;
+	}
+	case BUSH:
+	{
+		break;
+	}
+	case FIRE:
+	{
+		accel_x = dir * 1.f;
+		playerObj.velocity.y = -20;
+
+		if (gameState.player.state == STATE_IDLE)
+		{
+			if (playerObj.velocity.x > 0.1)
+				accel_x = -1.f;
+			else if (playerObj.velocity.x < 0.1)
+				accel_x = 1.f;
+
+			if (playerObj.velocity.x >= -0.1 && playerObj.velocity.x <= 0.1)
+			{
+				accel_x = 0;
+				playerObj.velocity.x = 0;
+			}
+		}
+
+		break;
+	}
+	case ICE_:
+	{
+		accel_x = dir * 0.1f;
+
+		if (gameState.player.state == STATE_IDLE)
+		{
+			if (playerObj.velocity.x > 0.1)
+				accel_x = -0.1f;
+			else if (playerObj.velocity.x < -0.1)
+				accel_x = 0.1f;
+
+			if (playerObj.velocity.x >= -0.1 && playerObj.velocity.x <= 0.1)
+			{
+				accel_x = 0;
+				playerObj.velocity.x = 0;
+			}
+		}
+		break;
+	}
+	}
+
+	return accel_x;
 }
 
 void HandleFinishLine(float& elapsedTime)
@@ -659,38 +736,12 @@ void HandleObstructed()
 
 void HandleGrounded()
 {
-	//GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-
-	//for (Platform& p : gameState.vPlatform)
-	//{
-	//	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-	//	{
-	//		playerObj.pos.y = playerObj.oldPos.y;
-	//		gameState.player.isGrounded = true;
-	//		gameState.player.hasJumped = false;
-	//		gameState.player.hasAirDashed = false;
-	//		playerObj.acceleration.y = 0;
-	//		playerObj.velocity.y = 0;
-	//		return;
-	//	}
-	//	else
-	//	{
-	//		gameState.player.isGrounded = false;
-	//	}
-	//}
-	//if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
-	//{
-	//	playerObj.acceleration.y = gameState.player.gravity.y;
-	//	playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
-	//}
-
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	for (Platform& p : gameState.vPlatform)
 	{
 		if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 		{
-
 			int diff = playerObj.pos.y - playerObj.oldPos.y;
 			playerObj.pos.y = playerObj.oldPos.y;
 			for (int i = 0; i < diff; i++)
@@ -701,15 +752,19 @@ void HandleGrounded()
 					break;
 				}
 			}
-
+			p.playerOnTop = true;
 			gameState.player.isGrounded = true;
-			gameState.player.hasJumped == false;
+			gameState.player.hasJumped = false;
 			gameState.player.hasAirDashed = false;
 			playerObj.velocity.y = 0;
+			playerObj.acceleration.y = 0;
 			break;
 		}
 		else
+		{
+			p.playerOnTop = false;
 			gameState.player.isGrounded = false;
+		}
 	}
 
 	if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
@@ -939,7 +994,16 @@ void DrawPlatform()
 {
 	for (Platform& p : gameState.vPlatform)
 	{
-		Play::DrawSprite(Play::GetSpriteId("dark_brick"), p.pos, 0);
+		if (p.type == DBRK)
+			Play::DrawSprite(Play::GetSpriteId("dark_brick"), p.pos, 0);
+		else if (p.type == GBRK)
+			Play::DrawSprite(Play::GetSpriteId("green_brick"), p.pos, 0);
+		else if (p.type == BUSH)
+			Play::DrawSprite(Play::GetSpriteId("bush"), p.pos, 0);
+		else if (p.type == FIRE)
+			Play::DrawSprite(Play::GetSpriteId("fire"), p.pos, 0);
+		else if (p.type == ICE_)
+			Play::DrawSprite(Play::GetSpriteId("ice"), p.pos, 0);
 	}
 }
 
@@ -971,16 +1035,19 @@ void DrawUI()
 		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.particleEmitter.splitTime), Point2D(37, 143), Play::LEFT);
 
+		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 217), Play::LEFT);
+		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 254), Play::LEFT);
+		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 291), Play::LEFT);
+		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(37, 328), Play::LEFT);
+
 		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 37, 32), Play::RIGHT);
 		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(DISPLAY_WIDTH - 37, 69), Play::RIGHT);
 		Play::DrawFontText("64px", "HAS AIR DASHED: " + std::to_string(gameState.player.hasAirDashed), Point2D(DISPLAY_WIDTH - 37, 106), Play::RIGHT);
 		Play::DrawFontText("64px", "HAS LANDED ON WALL: " + std::to_string(gameState.player.hasLandedOnWall), Point2D(DISPLAY_WIDTH - 37, 143), Play::RIGHT);
 		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(DISPLAY_WIDTH - 37, 180), Play::RIGHT);
+		Play::DrawFontText("64px", "PLATFORM ON: " + std::to_string(GetPlatformId()), Point2D(DISPLAY_WIDTH - 37, 217), Play::RIGHT);
+		Play::DrawFontText("64px", "PLATFORM TYPE: " + std::to_string(GetPlatformType()), Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
 
-		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
-		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(DISPLAY_WIDTH - 37, 291), Play::RIGHT);
-		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(DISPLAY_WIDTH - 37, 328), Play::RIGHT);
-		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(DISPLAY_WIDTH - 37, 365), Play::RIGHT);
 		break;
 	}
 	case(PLAY_MODE):
@@ -1030,11 +1097,21 @@ void CreatePlatform()
 	{
 		for (int col = 0; col < 40; ++col)
 		{
-			if (ROOM[row][col] == 1)
-			{
-				gameState.vPlatform.push_back(platform);
-				gameState.vPlatform.back().pos = Point2D(gap + (col * 32), gap + (row * 32));
-			}
+			if (ROOM[row][col] == EMPT)
+				continue;
+			else if (ROOM[row][col] == GBRK)
+				platform.type = GBRK;
+			else if (ROOM[row][col] == DBRK)
+				platform.type = DBRK;
+			else if (ROOM[row][col] == BUSH)
+				platform.type = BUSH;
+			else if (ROOM[row][col] == FIRE)
+				platform.type = FIRE;
+			else if (ROOM[row][col] == ICE_)
+				platform.type = ICE_;
+
+			platform.pos = Point2D(gap + (col * 32), gap + (row * 32));
+			gameState.vPlatform.push_back(platform);
 		}
 	}
 }
@@ -1125,5 +1202,26 @@ Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector
 
 void MergeCollisionBox()
 {
+	for (int i = 0; i < gameState.vPlatform.size(); ++i)
+	{
+		return;
+	}
+}
 
+int GetPlatformId()
+{
+	for (int i = 0; i < gameState.vPlatform.size(); ++i)
+	{
+		if (gameState.vPlatform[i].playerOnTop == true)
+			return i;
+	}
+}
+
+int GetPlatformType()
+{
+	for (int i = 0; i < gameState.vPlatform.size(); ++i)
+	{
+		if (gameState.vPlatform[i].playerOnTop == true)
+			return gameState.vPlatform[i].type;
+	}
 }
