@@ -77,6 +77,12 @@ struct CameraInfo
 	float shakeEndTime{ 0.08f };
 };
 
+struct Audio
+{
+	float audioTimer{ 0 };
+	bool audioPlayed{ false };
+};
+
 struct FinishLine
 {
 	std::vector<float> vSplitTime;
@@ -134,20 +140,20 @@ struct PlayerAttributes
 
 struct Platform
 {
-	const Vector2D PlatformBox{ 16, 16 };
+	Vector2D pBox{ 16, 16 };
 	Point2D pos{ 0, 0 };
 	int type{ DBRK };
 	bool playerOnTop{ false };
 
-	Point2D Left() { return Point2D(pos.x - PlatformBox.x, pos.y); }
-	Point2D Right() { return Point2D(pos.x + PlatformBox.x, pos.y); }
-	Point2D Top() { return Point2D(pos.x, pos.y - PlatformBox.y); }
-	Point2D Bottom() { return Point2D(pos.x, pos.y + PlatformBox.y); }
+	Point2D Left() { return Point2D(pos.x - pBox.x, pos.y); };
+	Point2D Right() { return Point2D(pos.x + pBox.x, pos.y); };
+	Point2D Top() { return Point2D(pos.x, pos.y - pBox.y); };
+	Point2D Bottom() { return Point2D(pos.x, pos.y + pBox.y); };
 
-	Point2D TopLeft() { return pos - PlatformBox; }
-	Point2D BottomRight() { return pos + PlatformBox; }
-	Point2D TopRight() { return Point2D(pos.x + PlatformBox.x, pos.y - PlatformBox.y); }
-	Point2D BottomLeft() { return Point2D(pos.x - PlatformBox.x, pos.y + PlatformBox.y); }
+	Point2D TopLeft() { return pos - pBox; };
+	Point2D BottomRight() { return pos + pBox; };
+	Point2D TopRight() { return Point2D(pos.x + pBox.x, pos.y - pBox.y); };
+	Point2D BottomLeft() { return Point2D(pos.x - pBox.x, pos.y + pBox.y); };
 };
 
 struct GameState
@@ -157,6 +163,7 @@ struct GameState
 	FinishLine finishLine;
 	PlayerAttributes player;
 	CameraInfo camera;
+	Audio audio;
 	Backgrounds bg;
 	int gameMode = TEST_MODE;
 };
@@ -185,6 +192,9 @@ void HandleOnWall();
 void HandleHurt();
 void BalloonCollision();
 
+// audio
+void HandleAudio(float& elapsedTime);
+
 // camera 
 void UpdatePlayerCamera(float& elapsedTime);
 void ScreenShake(float& elapsedTime);
@@ -196,7 +206,7 @@ void UpdateParticleLifeTime(float& elapsedTime);
 
 // draw
 void DrawPlayer();
-void DrawPlatform();
+void DrawPlatformSprites();
 void DrawBalloon();
 void DrawCollisionBoxes();
 void DrawFinishLine();
