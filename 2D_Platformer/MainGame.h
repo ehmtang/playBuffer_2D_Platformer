@@ -111,7 +111,7 @@ struct PlayerAttributes
 	const float maxClimbDownSpeed{ 5.f };
 	const float maxRunSpeed{ 5 };
 	const float maxRunAccel{ 5 };
-	const float coyoteTimeThreshold{ 0.1f };
+	const float coyoteTimeThreshold{ 0.8f };
 	const float maxFallSpeed{ 25.f };
 	const float airDashImpulse{ 50 };
 	const float airDashEndTime{ 0.1f };

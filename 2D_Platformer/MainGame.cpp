@@ -175,7 +175,7 @@ void UpdatePlayer(float& elapsedTime)
 	HandleGrounded();
 	//HandleOnWall();
 	HandleHurt();
-	HandleObstructed();
+	//HandleObstructed();
 }
 
 void Idle(float& elapsedTime)
@@ -284,6 +284,13 @@ void Jump(float& elapsedTime)
 	else if (playerObj.velocity.y > 5)
 		playerObj.frame = 2;
 
+	if (Play::KeyDown(VK_LEFT))
+		playerObj.velocity.x = -gameState.player.maxRunSpeed;
+	else if (Play::KeyDown(VK_RIGHT))
+		playerObj.velocity.x = gameState.player.maxRunSpeed;
+
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
+
 	if (Play::KeyDown('Z') && gameState.player.hasJumped == false)
 	{
 		gameState.player.jumpTime += elapsedTime;
@@ -294,12 +301,6 @@ void Jump(float& elapsedTime)
 	else if (!Play::KeyDown('Z') && gameState.player.hasJumped == false)
 		gameState.player.hasJumped = true;
 
-	if (Play::KeyDown(VK_LEFT))
-		playerObj.velocity.x = -gameState.player.maxRunSpeed;
-	else if (Play::KeyDown(VK_RIGHT))
-		playerObj.velocity.x = gameState.player.maxRunSpeed;
-
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
 
 	if (Play::KeyPressed('C'))
 	{
@@ -307,36 +308,33 @@ void Jump(float& elapsedTime)
 		return;
 	}
 
-	if (gameState.player.isGrounded == false && playerObj.velocity.y < 0)
+	if (gameState.player.isGrounded == false && playerObj.velocity.y > 0)
 	{
 		gameState.player.state = STATE_FALL;
 		return;
 	}
-
-	//if (gameState.player.isGrounded == true)
-	//{
-	//	gameState.player.hasJumped = false;
-	//	gameState.player.jumpTime = 0;
-	//	gameState.player.state = STATE_IDLE;
-	//	return;
-	//}
 }
 
 void Fall(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
 	playerObj.acceleration.x = 0;
+
+	if (Play::KeyDown(VK_LEFT))
+		playerObj.velocity.x = -gameState.player.maxRunSpeed;
+	else if (Play::KeyDown(VK_RIGHT))
+		playerObj.velocity.x = gameState.player.maxRunSpeed;
+
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
 
 	gameState.player.coyoteTime += elapsedTime;
 
-	if (gameState.player.hasJumped == false && gameState.player.coyoteTime < gameState.player.coyoteTimeThreshold)
+	if (Play::KeyDown('Z') && gameState.player.hasJumped == false && gameState.player.coyoteTime < gameState.player.coyoteTimeThreshold)
 	{
-		if (Play::KeyDown('Z'))
-		{
-			gameState.player.coyoteTime = 0;
-			gameState.player.state = STATE_JUMP;
-			return;
-		}
+		gameState.player.coyoteTime = 0;
+		gameState.player.state = STATE_JUMP;
+		return;
 	}
 
 	if (gameState.player.isGrounded == false)
@@ -344,14 +342,6 @@ void Fall(float& elapsedTime)
 		Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_jump_left" : "player_jump", 0);
 		playerObj.frame = 2;
 	}
-
-	if (Play::KeyDown(VK_LEFT))
-		playerObj.pos.x -= gameState.player.maxRunSpeed;
-	else if (Play::KeyDown(VK_RIGHT))
-		playerObj.pos.x += gameState.player.maxRunSpeed;
-
-	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
-
 
 	if (Play::KeyPressed('C'))
 	{
@@ -362,6 +352,8 @@ void Fall(float& elapsedTime)
 
 	if (gameState.player.isGrounded == true)
 	{
+		gameState.player.hasJumped = false;
+		gameState.player.jumpTime = 0;
 		gameState.player.coyoteTime = 0;
 		gameState.player.state = STATE_IDLE;
 		return;
@@ -376,11 +368,9 @@ void AirDash(float& elapsedTime)
 
 	float q_rsqrt_2 = q_rsqrt(2);
 
-	if (gameState.player.isAirDashing == false && gameState.player.hasAirDashed == false)
+	if (gameState.player.hasAirDashed == false)
 	{
-		gameState.player.airDashTime = 0;
 		gameState.player.hasAirDashed = true;
-		gameState.player.isAirDashing = true;
 
 		playerObj.velocity = Vector2D(0, 0);
 		playerObj.acceleration = Vector2D(0, 0);
@@ -412,8 +402,8 @@ void AirDash(float& elapsedTime)
 	else if (gameState.player.airDashTime > gameState.player.airDashEndTime)
 	{
 		playerObj.velocity = Vector2D(0, 0);
+		gameState.player.airDashTime = 0;
 		gameState.player.airDashDirection = Vector2D(0, 0);
-		gameState.player.isAirDashing = false;
 		gameState.player.state = STATE_JUMP;
 		return;
 	}
@@ -628,47 +618,18 @@ void HandleFinishLine(float& elapsedTime)
 
 void HandleObstructed()
 {
-	//GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-
-
-	//for (Platform& p : gameState.vPlatform)
-	//{
-	//	//if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-	//	//{
-	//	//	playerObj.pos = playerObj.oldPos;
-	//	//	playerObj.velocity.x = 0;
-	//	//	playerObj.acceleration.x = 0;
-	//	//	return;
-	//	//}
-	//	if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-	//	{
-	//		return;
-	//	}
-
-	//	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
-	//	{
-	//		ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0));
-	//		return;
-	//	}
-	//}
-
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	for (Platform& p : gameState.vPlatform)
 	{
 		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
-			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(0, -1))
-		{
-			return;
-		}
-		else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
 			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(0, 1))
 		{
 			int diff = playerObj.pos.y - playerObj.oldPos.y;
 			playerObj.pos.y = playerObj.oldPos.y;
 			for (int i = 0; i < diff; ++i)
 			{
-				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, i), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, diff), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 				{
 					playerObj.pos.y += i;
 					break;
@@ -676,10 +637,10 @@ void HandleObstructed()
 			}
 			ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0));
 		}
-		else if ((AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
-			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(-1, 0))
-			|| (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
-				&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(1, 0)))
+		else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(-1, 0)
+			|| AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(1, 0))
 		{
 			int diff = playerObj.pos.x - playerObj.oldPos.x;
 			playerObj.pos.x = playerObj.oldPos.x;
@@ -698,29 +659,53 @@ void HandleObstructed()
 
 void HandleGrounded()
 {
+	//GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	//for (Platform& p : gameState.vPlatform)
+	//{
+	//	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+	//	{
+	//		playerObj.pos.y = playerObj.oldPos.y;
+	//		gameState.player.isGrounded = true;
+	//		gameState.player.hasJumped = false;
+	//		gameState.player.hasAirDashed = false;
+	//		playerObj.acceleration.y = 0;
+	//		playerObj.velocity.y = 0;
+	//		return;
+	//	}
+	//	else
+	//	{
+	//		gameState.player.isGrounded = false;
+	//	}
+	//}
+	//if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
+	//{
+	//	playerObj.acceleration.y = gameState.player.gravity.y;
+	//	playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
+	//}
+
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	for (Platform& p : gameState.vPlatform)
 	{
-		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0))
-			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)) == Vector2D(0, -1))
+		if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 		{
+
 			int diff = playerObj.pos.y - playerObj.oldPos.y;
 			playerObj.pos.y = playerObj.oldPos.y;
-			for (int i = 0; i < diff; ++i)
+			for (int i = 0; i < diff; i++)
 			{
-				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, diff), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, i), gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 				{
 					playerObj.pos.y += i;
-					gameState.player.isGrounded = true;
 					break;
 				}
 			}
+
+			gameState.player.isGrounded = true;
 			gameState.player.hasJumped == false;
 			gameState.player.hasAirDashed = false;
-			playerObj.acceleration.y = 0;
 			playerObj.velocity.y = 0;
-
 			break;
 		}
 		else
@@ -896,13 +881,17 @@ void DrawCollisionBoxes()
 
 		for (Platform& p : gameState.vPlatform)
 		{
-			if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+			if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 				Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cRed, true);
 			else
 				Play::DrawRect(p.pos - p.PlatformBox, p.pos + p.PlatformBox, Play::cGreen);
 
 			if (gameState.player.direction == -1)
 			{
+				if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, Vector2D(-1, 1) * gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cGreen);
 				if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2D(-1, 1) * gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 					Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cRed, true);
 				else
@@ -919,6 +908,10 @@ void DrawCollisionBoxes()
 			}
 			else if (gameState.player.direction == 1)
 			{
+				if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cRed, true);
+				else
+					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cGreen);
 				if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, gameState.player.WallBoxOffset, p.pos, p.PlatformBox, Vector2D(0, 0)))
 					Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cRed, true);
 				else
@@ -1071,10 +1064,10 @@ float exponentialDecay(const float& A0, const float& lambda, const float& time)
 
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
-	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x - bOffset.x));
-	float right = abs((aPos.x - aAABB.x - aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
-	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y - bOffset.y));
-	float bottom = abs((aPos.y - aAABB.y - aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
+	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
 
 	// aObj hit left side of bObj
 	if (left < right && left < top && left < bottom)
@@ -1113,10 +1106,10 @@ void ApplyReflection(GameObject& aObj, const Point2D& aAABB, const Vector2D& aOf
 
 Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
-	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x - bOffset.x));
-	float right = abs((aPos.x - aAABB.x - aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
-	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y - bOffset.y));
-	float bottom = abs((aPos.y - aAABB.y - aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
+	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
 
 	if (left < right && left < top && left < bottom)
 		return Vector2D(-1.0f, 0.0f);
