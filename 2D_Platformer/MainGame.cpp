@@ -550,6 +550,15 @@ void HandleSizeScale()
 	gameState.player.HurtBoxOffset;
 	gameState.player.PunchBox *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
 	gameState.player.PunchBoxOffset *= Vector2D(gameState.player.sizeScale, 1);
+
+	gameState.player.rollImpulse *= gameState.player.sizeScale;
+	gameState.player.jumpImpulse *= gameState.player.sizeScale;
+	gameState.player.wallJumpImpulse *= gameState.player.sizeScale;
+	gameState.player.maxClimbUpSpeed *= gameState.player.sizeScale;
+	gameState.player.maxClimbDownSpeed *= gameState.player.sizeScale;
+	gameState.player.maxRunSpeed *= gameState.player.sizeScale;
+	gameState.player.maxFallSpeed *= gameState.player.sizeScale;
+	gameState.player.airDashImpulse *= gameState.player.sizeScale;
 }
 
 float ResolveFriction()
@@ -1234,7 +1243,7 @@ bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2
 		&& aPos.y + aAABB.y + aOffset.y > bPos.y - bAABB.y + bOffset.y);
 }
 
-void ApplyReflection(GameObject& aObj, const Point2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Point2D& bAABB, const Vector2D& bOffset)
+void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
 	Vector2D collisionEdge = gameState.player.collisionDir;
 	Vector2D surfaceNormal = collisionEdge.Perpendicular();
@@ -1243,6 +1252,7 @@ void ApplyReflection(GameObject& aObj, const Point2D& aAABB, const Vector2D& aOf
 	reflectionVector.Normalize();
 	aObj.velocity = -reflectionVector * gameState.player.obstructedImpulse;
 }
+
 
 void MergeCollisionBox()
 {

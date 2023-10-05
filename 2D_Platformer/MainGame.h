@@ -129,14 +129,14 @@ struct PlayerAttributes
 {
 	Vector2D gravity{ 0, 1.f };
 	Vector2D airDashDir{ 0, 0 };
-	Vector2D GroundBox{ 4, 1 };				//scale in x
-	Vector2D GroundBoxOffset{ 0, 15 };		//scale in y
-	Vector2D WallBox{ 1, 7 };				//scale in y
-	Vector2D WallBoxOffset{ 7, -3 };		//scale in x and y
-	Vector2D HurtBox{ 5, 15 };				//scale in x and y
-	Vector2D HurtBoxOffset{ 0, 0 };			//none
-	Vector2D PunchBox{ 7, 7 };				//scale in x and y
-	Vector2D PunchBoxOffset{ 25, 0 };		//scale in x
+	Vector2D GroundBox{ 4, 1 };				//scale with size in x
+	Vector2D GroundBoxOffset{ 0, 15 };		//scale with size in y
+	Vector2D WallBox{ 1, 7 };				//scale with size in y
+	Vector2D WallBoxOffset{ 7, -3 };		//scale with size in x and y
+	Vector2D HurtBox{ 5, 15 };				//scale with size in x and y
+	Vector2D HurtBoxOffset{ 0, 0 };			
+	Vector2D PunchBox{ 7, 7 };				//scale with size in x and y
+	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
 	Vector2D collisionDir{ 0, 0 };
 	Point2D startingPos{ 600, 300 };
 	PlayerState state{ STATE_IDLE };
@@ -144,18 +144,18 @@ struct PlayerAttributes
 	float jumpEndTime{ 0.1f };
 	float coyoteTime{ 0 };
 	float airDashTime{ 0 };
+	float rollImpulse{ 12.f };				//scaled with size
+	float jumpImpulse{ 12.f };				//scaled with size
+	float wallJumpImpulse{ 10.f };			//scaled with size
+	float maxClimbUpSpeed{ 1.f };			//scaled with size
+	float maxClimbDownSpeed{ 3.f };			//scaled with size
+	float maxRunSpeed{ 2.f };				//scaled with size
+	float maxFallSpeed{ 8.f };				//scaled with size
+	float airDashImpulse{ 15 };				//scaled with size
 	const float sizeScale{ 1.5f };
-	const float rollImpulse{ 30.f };
-	const float jumpImpulse{ 15.f };
-	const float wallJumpImpulse{ 30.f };
 	const float maxJumpAccel{ 1.f };
 	const float obstructedImpulse{ 5.f };
-	const float maxClimbUpSpeed{ 1.2f };
-	const float maxClimbDownSpeed{ 5.f };
-	const float maxRunSpeed{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
-	const float maxFallSpeed{ 25.f };
-	const float airDashImpulse{ 30 };
 	const float airDashEndTime{ 0.1f };
 	int health{ 100 };
 	int direction{ -1 };
