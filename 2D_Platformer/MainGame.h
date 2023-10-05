@@ -59,7 +59,7 @@ enum PlayerState
 	STATE_DEATH,
 };
 
-struct Particle
+struct Petal
 {
 	Point2D pos{ 0, 0 };
 	float opacity{ 0 };
@@ -68,23 +68,44 @@ struct Particle
 	int spriteFrame{ 0 };
 };
 
-struct ParticleEmitter
+struct PetalEmitter
 {
-	std::vector<Particle> vParticle;
+	std::vector<Petal> vPetal;
 	float splitTime{ 0 };
 	const float lifetime{ 0.2f };
 	const float baseOpacity{ 1.f };
 	const float opacityThreshold{ 0.02f };
 	const float decayConstant{ 4.0f };
-	const float emitPeriod{ 0.05f };
+	const float emitPeriod{ 0.02f };
 	const int emitParticles{ 1 };
 };
 
-struct CameraInfo
+struct AfterImage
+{
+	Point2D pos{ 0, 0 };
+	float opacity{ 0 };
+	float currentLifetime{ 0 };
+	int spriteId{ 0 };
+	int spriteFrame{ 0 };
+};
+
+struct AfterImageEmitter
+{
+	std::vector<AfterImage> vAfterImage;
+	float splitTime{ 0 };
+	const float lifetime{ 0.2f };
+	const float baseOpacity{ 1.f };
+	const float opacityThreshold{ 0.02f };
+	const float decayConstant{ 4.0f };
+	const float emitPeriod{ 0.02f };
+	const int emitParticles{ 1 };
+};
+
+struct ScreenShakeInfo
 {
 	Point2D cameraPos{ 0, 0 };
 	float shakeTime{ 0 };
-	float shakeEndTime{ 0.08f };
+	float shakeEndTime{ 0.05f };
 };
 
 struct Audio
@@ -96,18 +117,18 @@ struct Audio
 struct FinishLine
 {
 	std::vector<float> vSplitTime;
-	Point2D pos{ 704, 96 };
+	Point2D pos{ 720, 120 };
 	Vector2D box{ 16, 48 };
 	float splitTime{ 0.f };
 	int completedLap{ 0 };
-	bool crossesFinishLine{ false };
+	bool crossesPortal{ false };
 	bool hasCompletedLap{ false };
 };
 
 struct PlayerAttributes
 {
 	Vector2D gravity{ 0, 1.f };
-	Vector2D airDashDirection{ 0, 0 };
+	Vector2D airDashDir{ 0, 0 };
 	Vector2D GroundBox{ 4, 1 };				//scale in x
 	Vector2D GroundBoxOffset{ 0, 15 };		//scale in y
 	Vector2D WallBox{ 1, 7 };				//scale in y
@@ -152,33 +173,31 @@ struct Platform
 {
 	Vector2D pBox{ 16, 16 };
 	Point2D pos{ 0, 0 };
-	int type{ 0 };
-	bool playerOnTop{ false };
-
 	Point2D Left() { return Point2D(pos.x - pBox.x, pos.y); };
 	Point2D Right() { return Point2D(pos.x + pBox.x, pos.y); };
 	Point2D Top() { return Point2D(pos.x, pos.y - pBox.y); };
 	Point2D Bottom() { return Point2D(pos.x, pos.y + pBox.y); };
-
 	Point2D TopLeft() { return pos - pBox; };
 	Point2D BottomRight() { return pos + pBox; };
 	Point2D TopRight() { return Point2D(pos.x + pBox.x, pos.y - pBox.y); };
 	Point2D BottomLeft() { return Point2D(pos.x - pBox.x, pos.y + pBox.y); };
+	int type{ 0 };
+	bool playerOnTop{ false };
 };
 
 struct GameState
 {
 	std::vector<Platform> vPlatform;
-	ParticleEmitter particleEmitter;
-	FinishLine finishLine;
+	PetalEmitter petalEmitter;
+	AfterImageEmitter afterImageEmitter;
+	FinishLine portal;
 	PlayerAttributes player;
-	CameraInfo camera;
+	ScreenShakeInfo camera;
 	Audio audio;
 	Backgrounds bg;
 	int gameMode = TEST_MODE;
 };
 
-// player controls and states
 void UpdatePlayer(float& elapsedTime);
 void Idle(float& elapsedTime);
 void Run(float& elapsedTime);
@@ -194,43 +213,33 @@ void Death(float& elapsedTime);
 void HandleSizeScale();
 float ResolveFriction();
 
-// collisions
-void HandleFinishLine(float& elapsedTime);
+void HandlePortal(float& elapsedTime);
 void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
 void HandleHurt();
 void BalloonCollision();
 
-// audio
 void HandleAudio(float& elapsedTime);
 
-// camera 
-void UpdatePlayerCamera(float& elapsedTime);
 void ScreenShake(float& elapsedTime);
 
-// particle effects
-void DrawParticle(float& elapsedTime);
-void AddParticleToEmitter(GameObject& playerObj);
-void UpdateParticleLifeTime(float& elapsedTime);
+void DrawAfterImage(float& elapsedTime);
+void AddAfterImageToEmitter(GameObject& playerObj);
+void UpdateAfterImageLifeTime(float& elapsedTime);
 
-// draw
 void DrawPlayer();
 void DrawPlatformSprites();
 void DrawBalloon();
 void DrawCollisionBoxes();
-void DrawFinishLine();
+void DrawPortal();
 void DrawUI();
 
-
-// background 
 void HandleBackgrounds();
 
-// create and destroy
 void CreatePlayer();
 void CreatePlatform();
 
-// utility
 float q_rsqrt(float number);
 float exponentialDecay(const float& A0, const float& lambda, const float& time);
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);

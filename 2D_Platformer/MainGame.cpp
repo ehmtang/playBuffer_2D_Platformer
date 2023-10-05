@@ -1,10 +1,11 @@
 // Acknowledgements:
 // Zeggy Games - player character sprite https://zegley.itch.io/2d-platformermetroidvania-asset-pack
 // Ninjikin - tile sprites https://ninjikin.itch.io/starter-tiles
-// CraftPix - Background sprites https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set
+// Mix&Jam and Nate Kling - tile sprites https://drive.google.com/file/d/1hNrC1vZqzQ7fjO3Q1qFxWe0PERl8dXDs/view
+// CraftPix - background sprites https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set
 // Leopaz - player SFX https://leohpaz.itch.io/90-retro-player-movement-sfx
 // JasonTomLee - slime character sprite https://jasontomlee.itch.io/slime-platformer-asset-pack
-
+// Elthen - portal sprite https://elthen.itch.io/2d-pixel-art-portal-sprites
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
@@ -42,25 +43,7 @@ const int ROOM[23][40] =
 	{0,0,14,14,14,14,14,14,14,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-
-	//<tileset firstgid = "1" source = "../_btm_mid.tsx" / >
-	//<tileset firstgid = "2" source = "../_btm_l_out_cnr.tsx" / >
-	//<tileset firstgid = "3" source = "../_btm_mid.tsx" / >
-	//<tileset firstgid = "4" source = "../_btm_r_in_cnr.tsx" / >
-	//<tileset firstgid = "5" source = "../_btm_r_out_cnr.tsx" / >
-	//<tileset firstgid = "6" source = "../_l_mid.tsx" / >
-	//<tileset firstgid = "7" source = "../_r_mid.tsx" / >
-	//<tileset firstgid = "8" source = "../_top_l_in_cnr.tsx" / >
-	//<tileset firstgid = "9" source = "../_top_l_out_cnr.tsx" / >
-	//<tileset firstgid = "10" source = "../_top_mid.tsx" / >
-	//<tileset firstgid = "11" source = "../_top_r_in_cnr.tsx" / >
-	//<tileset firstgid = "12" source = "../_btm_l_in_cnr.tsx" / >
-	//<tileset firstgid = "13" source = "../_top_r_out_cnr.tsx" / >
-	//<tileset firstgid = "14" source = "../ice.tsx" / >
-	//<tileset firstgid = "15" source = "../ledge.tsx" / >
-	//<tileset firstgid = "16" source = "fire.tsx" / >
 };
-
 
 GameState gameState;
 
@@ -80,14 +63,14 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
-	
+
 	HandleBackgrounds();
 
 	UpdatePlayer(elapsedTime);
 	//HandleAudio(elapsedTime);
-	HandleFinishLine(elapsedTime);
-	DrawFinishLine();
-	DrawParticle(elapsedTime);
+	HandlePortal(elapsedTime);
+	DrawPortal();
+	DrawAfterImage(elapsedTime);
 	DrawPlatformSprites();
 	DrawCollisionBoxes();
 	DrawBalloon();
@@ -376,34 +359,34 @@ void AirDash(float& elapsedTime)
 		playerObj.acceleration = Vector2D(0, 0);
 
 		if (Play::KeyDown(VK_UP) && !Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT))
-			gameState.player.airDashDirection = Vector2D(0, -1);
+			gameState.player.airDashDir = Vector2D(0, -1);
 		else if (Play::KeyDown(VK_UP) && Play::KeyDown(VK_RIGHT))
-			gameState.player.airDashDirection = Vector2D(q_rsqrt_2, -q_rsqrt_2);
+			gameState.player.airDashDir = Vector2D(q_rsqrt_2, -q_rsqrt_2);
 		else if (Play::KeyDown(VK_RIGHT) && !Play::KeyDown(VK_UP) && !Play::KeyDown(VK_DOWN))
-			gameState.player.airDashDirection = Vector2D(1, 0);
+			gameState.player.airDashDir = Vector2D(1, 0);
 		else if (Play::KeyDown(VK_DOWN) && Play::KeyDown(VK_RIGHT))
-			gameState.player.airDashDirection = Vector2D(q_rsqrt_2, q_rsqrt_2);
+			gameState.player.airDashDir = Vector2D(q_rsqrt_2, q_rsqrt_2);
 		else if (Play::KeyDown(VK_DOWN) && !Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT))
-			gameState.player.airDashDirection = Vector2D(0, 1);
+			gameState.player.airDashDir = Vector2D(0, 1);
 		else if (Play::KeyDown(VK_DOWN) && Play::KeyDown(VK_LEFT))
-			gameState.player.airDashDirection = Vector2D(-q_rsqrt_2, q_rsqrt_2);
+			gameState.player.airDashDir = Vector2D(-q_rsqrt_2, q_rsqrt_2);
 		else if (Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_UP) && !Play::KeyDown(VK_DOWN))
-			gameState.player.airDashDirection = Vector2D(-1, 0);
+			gameState.player.airDashDir = Vector2D(-1, 0);
 		else if (Play::KeyDown(VK_UP) && Play::KeyDown(VK_LEFT))
-			gameState.player.airDashDirection = Vector2D(-q_rsqrt_2, -q_rsqrt_2);
+			gameState.player.airDashDir = Vector2D(-q_rsqrt_2, -q_rsqrt_2);
 	}
 
 	if (gameState.player.airDashTime <= gameState.player.airDashEndTime)
 	{
 		gameState.player.airDashTime += elapsedTime;
 		ScreenShake(elapsedTime);
-		playerObj.velocity = gameState.player.airDashDirection * gameState.player.airDashImpulse;
+		playerObj.velocity = gameState.player.airDashDir * gameState.player.airDashImpulse;
 	}
 	else if (gameState.player.isGrounded == true)
 	{
 		playerObj.velocity = Vector2D(0, 0);
 		gameState.player.airDashTime = 0;
-		gameState.player.airDashDirection = Vector2D(0, 0);
+		gameState.player.airDashDir = Vector2D(0, 0);
 		gameState.player.state = STATE_IDLE;
 		return;
 	}
@@ -411,7 +394,7 @@ void AirDash(float& elapsedTime)
 	{
 		playerObj.velocity = Vector2D(0, 0);
 		gameState.player.airDashTime = 0;
-		gameState.player.airDashDirection = Vector2D(0, 0);
+		gameState.player.airDashDir = Vector2D(0, 0);
 		gameState.player.state = STATE_JUMP;
 		return;
 	}
@@ -579,7 +562,7 @@ float ResolveFriction()
 
 	int dir = gameState.player.direction;
 	float accel_x = 0;
-	
+
 	switch (GetPlatformType())
 	{
 	default:
@@ -646,39 +629,39 @@ float ResolveFriction()
 	return accel_x;
 }
 
-void HandleFinishLine(float& elapsedTime)
+void HandlePortal(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 
-	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.finishLine.pos, gameState.finishLine.box, Vector2D(0, 0))
-		&& (playerObj.pos.x - gameState.player.HurtBox.x - gameState.player.HurtBoxOffset.x) > (gameState.finishLine.pos.x - gameState.finishLine.box.x))
+	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.portal.pos, gameState.portal.box, Vector2D(0, 0))
+		&& (playerObj.pos.x - gameState.player.HurtBox.x - gameState.player.HurtBoxOffset.x) > (gameState.portal.pos.x - gameState.portal.box.x))
 	{
-		gameState.finishLine.crossesFinishLine = false;
+		gameState.portal.crossesPortal = false;
 	}
-	else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.finishLine.pos, gameState.finishLine.box, Vector2D(0, 0))
-		&& (playerObj.pos.x + gameState.player.HurtBox.x + gameState.player.HurtBoxOffset.x) <= gameState.finishLine.pos.x)
+	else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.portal.pos, gameState.portal.box, Vector2D(0, 0))
+		&& (playerObj.pos.x + gameState.player.HurtBox.x + gameState.player.HurtBoxOffset.x) <= gameState.portal.pos.x)
 	{
-		gameState.finishLine.crossesFinishLine = true;
-	}
-
-	if (gameState.finishLine.crossesFinishLine == true)
-	{
-		gameState.finishLine.splitTime += elapsedTime;
+		gameState.portal.crossesPortal = true;
 	}
 
-	if (gameState.finishLine.crossesFinishLine == true
-		&& gameState.finishLine.hasCompletedLap == false)
+	if (gameState.portal.crossesPortal == true)
 	{
-		if (gameState.finishLine.completedLap > 0)
-			gameState.finishLine.vSplitTime.push_back(gameState.finishLine.splitTime);
-		gameState.finishLine.splitTime = 0;
-		gameState.finishLine.hasCompletedLap = true;
-		gameState.finishLine.completedLap += 1;
+		gameState.portal.splitTime += elapsedTime;
 	}
-	else if (gameState.finishLine.crossesFinishLine == false)
+
+	if (gameState.portal.crossesPortal == true
+		&& gameState.portal.hasCompletedLap == false)
 	{
-		gameState.finishLine.hasCompletedLap = false;
+		if (gameState.portal.completedLap > 0)
+			gameState.portal.vSplitTime.push_back(gameState.portal.splitTime);
+		gameState.portal.splitTime = 0;
+		gameState.portal.hasCompletedLap = true;
+		gameState.portal.completedLap += 1;
+	}
+	else if (gameState.portal.crossesPortal == false)
+	{
+		gameState.portal.hasCompletedLap = false;
 	}
 }
 
@@ -807,7 +790,6 @@ void BalloonCollision()
 			gameState.player.hasAirDashed = false;
 		}
 	}
-
 }
 
 void HandleAudio(float& elapsedTime)
@@ -891,30 +873,25 @@ void HandleAudio(float& elapsedTime)
 	}
 }
 
-void UpdatePlayerCamera(float& elapsedTime)
-{
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-	Play::SetCameraPosition(Point2f{ playerObj.pos.x - DISPLAY_WIDTH / 2, playerObj.pos.y - DISPLAY_HEIGHT / 2 });
-}
-
 void ScreenShake(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-	if (gameState.camera.shakeTime < gameState.camera.shakeEndTime)
+	gameState.camera.shakeTime += elapsedTime;
+
+	if (gameState.camera.shakeTime <= gameState.camera.shakeEndTime)
 	{
 		Point2f randomPos = { Play::RandomRollRange(-3, 3), Play::RandomRollRange(-3, 3) };
 		Play::SetCameraPosition(randomPos);
-		gameState.camera.shakeTime += elapsedTime;
 	}
-	else if (gameState.camera.shakeTime >= gameState.camera.shakeEndTime)
+	else if (gameState.camera.shakeTime > gameState.camera.shakeEndTime)
 	{
 		Play::SetCameraPosition(Point2f(0, 0));
 		gameState.camera.shakeTime = 0;
 	}
 }
 
-void DrawParticle(float& elapsedTime)
+void DrawAfterImage(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
@@ -922,71 +899,71 @@ void DrawParticle(float& elapsedTime)
 	{
 	case STATE_AIRDASH:
 	{
-		gameState.particleEmitter.splitTime += elapsedTime;
+		gameState.afterImageEmitter.splitTime += elapsedTime;
 
-		if (gameState.particleEmitter.splitTime > gameState.particleEmitter.emitPeriod)
+		if (gameState.afterImageEmitter.splitTime > gameState.afterImageEmitter.emitPeriod)
 		{
-			AddParticleToEmitter(playerObj);
-			gameState.particleEmitter.splitTime = 0;
+			AddAfterImageToEmitter(playerObj);
+			gameState.afterImageEmitter.splitTime = 0;
 		}
 
-		if (!gameState.particleEmitter.vParticle.empty())
-			UpdateParticleLifeTime(elapsedTime);
+		if (!gameState.afterImageEmitter.vAfterImage.empty())
+			UpdateAfterImageLifeTime(elapsedTime);
 
 		break;
 	}
 	case STATE_ROLL:
 	{
-		gameState.particleEmitter.splitTime += elapsedTime;
+		gameState.afterImageEmitter.splitTime += elapsedTime;
 
-		if (gameState.particleEmitter.splitTime > gameState.particleEmitter.emitPeriod)
+		if (gameState.afterImageEmitter.splitTime > gameState.afterImageEmitter.emitPeriod)
 		{
-			AddParticleToEmitter(playerObj);
-			gameState.particleEmitter.splitTime = 0;
+			AddAfterImageToEmitter(playerObj);
+			gameState.afterImageEmitter.splitTime = 0;
 		}
 
-		if (!gameState.particleEmitter.vParticle.empty())
+		if (!gameState.afterImageEmitter.vAfterImage.empty())
 		{
-			UpdateParticleLifeTime(elapsedTime);
+			UpdateAfterImageLifeTime(elapsedTime);
 		}
 		break;
 	}
 	default:
 	{
-		gameState.particleEmitter.splitTime = 0;
-		if (!gameState.particleEmitter.vParticle.empty())
-			UpdateParticleLifeTime(elapsedTime);
+		gameState.afterImageEmitter.splitTime = 0;
+		if (!gameState.afterImageEmitter.vAfterImage.empty())
+			UpdateAfterImageLifeTime(elapsedTime);
 
 		break;
 	}
 	}
 }
 
-void AddParticleToEmitter(GameObject& playerObj)
+void AddAfterImageToEmitter(GameObject& playerObj)
 {
-	Particle particle;
+	AfterImage afterImage;
 
-	for (int i = 0; i < gameState.particleEmitter.emitParticles; ++i)
+	for (int i = 0; i < gameState.afterImageEmitter.emitParticles; ++i)
 	{
-		gameState.particleEmitter.vParticle.push_back(particle);
-		gameState.particleEmitter.vParticle.back().pos = playerObj.pos;
-		gameState.particleEmitter.vParticle.back().spriteId = playerObj.spriteId;
-		gameState.particleEmitter.vParticle.back().spriteFrame = playerObj.frame;
+		gameState.afterImageEmitter.vAfterImage.push_back(afterImage);
+		gameState.afterImageEmitter.vAfterImage.back().pos = playerObj.pos;
+		gameState.afterImageEmitter.vAfterImage.back().spriteId = playerObj.spriteId;
+		gameState.afterImageEmitter.vAfterImage.back().spriteFrame = playerObj.frame;
 	}
 }
 
-void UpdateParticleLifeTime(float& elapsedTime)
+void UpdateAfterImageLifeTime(float& elapsedTime)
 {
-	Particle particle;
+	AfterImage afterImage;
 
-	for (int i = 0; i < gameState.particleEmitter.vParticle.size(); ++i)
+	for (int i = 0; i < gameState.afterImageEmitter.vAfterImage.size(); ++i)
 	{
-		gameState.particleEmitter.vParticle[i].currentLifetime += elapsedTime;
-		gameState.particleEmitter.vParticle[i].opacity = exponentialDecay(gameState.particleEmitter.baseOpacity, gameState.particleEmitter.decayConstant, gameState.particleEmitter.vParticle[i].currentLifetime);
-		Play::DrawSpriteRotated(gameState.particleEmitter.vParticle[i].spriteId, gameState.particleEmitter.vParticle[i].pos, gameState.particleEmitter.vParticle[i].spriteFrame, 0, gameState.player.sizeScale, gameState.particleEmitter.vParticle[i].opacity);
+		gameState.afterImageEmitter.vAfterImage[i].currentLifetime += elapsedTime;
+		gameState.afterImageEmitter.vAfterImage[i].opacity = exponentialDecay(gameState.afterImageEmitter.baseOpacity, gameState.afterImageEmitter.decayConstant, gameState.afterImageEmitter.vAfterImage[i].currentLifetime);
+		Play::DrawSpriteRotated(gameState.afterImageEmitter.vAfterImage[i].spriteId, gameState.afterImageEmitter.vAfterImage[i].pos, gameState.afterImageEmitter.vAfterImage[i].spriteFrame, 0, gameState.player.sizeScale, gameState.afterImageEmitter.vAfterImage[i].opacity);
 
-		if (gameState.particleEmitter.vParticle[i].opacity < gameState.particleEmitter.opacityThreshold)
-			gameState.particleEmitter.vParticle.erase(gameState.particleEmitter.vParticle.begin() + i);
+		if (gameState.afterImageEmitter.vAfterImage[i].opacity < gameState.afterImageEmitter.opacityThreshold)
+			gameState.afterImageEmitter.vAfterImage.erase(gameState.afterImageEmitter.vAfterImage.begin() + i);
 	}
 }
 
@@ -1114,9 +1091,9 @@ void DrawBalloon()
 	}
 }
 
-void DrawFinishLine()
+void DrawPortal()
 {
-	Play::DrawSprite(Play::GetSpriteId("finish_line"), gameState.finishLine.pos, 0);
+	Play::DrawSprite(Play::GetSpriteId("portal"), gameState.portal.pos, 0);
 }
 
 void DrawUI()
@@ -1130,7 +1107,8 @@ void DrawUI()
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
-		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.particleEmitter.splitTime), Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 180), Play::LEFT);
 
 		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 217), Play::LEFT);
 		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 254), Play::LEFT);
@@ -1148,21 +1126,21 @@ void DrawUI()
 	}
 	case(PLAY_MODE):
 	{
-		if (gameState.finishLine.vSplitTime.size() > 0)
+		if (gameState.portal.vSplitTime.size() > 0)
 		{
-			float fastestSplit = *std::min_element(gameState.finishLine.vSplitTime.begin(), gameState.finishLine.vSplitTime.end());
+			float fastestSplit = *std::min_element(gameState.portal.vSplitTime.begin(), gameState.portal.vSplitTime.end());
 			Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
 			Play::DrawFontText("64px", "FASTEST SPLIT: " + std::to_string(fastestSplit), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
-			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.finishLine.splitTime), Point2D(DISPLAY_WIDTH - 64, 138), Play::RIGHT);
+			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.portal.splitTime), Point2D(DISPLAY_WIDTH - 64, 138), Play::RIGHT);
 		}
 		else
 		{
 			Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
-			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.finishLine.splitTime), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
+			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.portal.splitTime), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
 		}
-		Play::DrawFontText("64px", "CROSSES FINISH LINE: " + std::to_string(gameState.finishLine.crossesFinishLine), Point2D(64, 64), Play::LEFT);
-		Play::DrawFontText("64px", "COMPLETED LAP: " + std::to_string(gameState.finishLine.completedLap), Point2D(64, 101), Play::LEFT);
-		Play::DrawFontText("64px", "HAS COMPLETED LAP: " + std::to_string(gameState.finishLine.hasCompletedLap), Point2D(64, 138), Play::LEFT);
+		Play::DrawFontText("64px", "CROSSES PORTAL: " + std::to_string(gameState.portal.crossesPortal), Point2D(64, 64), Play::LEFT);
+		Play::DrawFontText("64px", "COMPLETED LAP: " + std::to_string(gameState.portal.completedLap), Point2D(64, 101), Play::LEFT);
+		Play::DrawFontText("64px", "HAS COMPLETED LAP: " + std::to_string(gameState.portal.hasCompletedLap), Point2D(64, 138), Play::LEFT);
 		break;
 	}
 	}
@@ -1172,26 +1150,28 @@ void HandleBackgrounds()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-	// if player passes finishing line
-	// change background
+	// if player passes portal change scene
 	Play::DrawBackground();
 }
 
 void CreatePlayer()
 {
 	int id{ Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle") };
-	GameObject& playerObj{ Play::GetGameObject(id) };
 }
 
 void CreatePlatform()
 {
 	Platform platform;
 
-	int gap = 16;
+	int total = sizeof(ROOM);
+	int nColumn = sizeof(ROOM[0]);
+	int nRow = total / nColumn;
 
-	for (int row = 0; row < 23; ++row)
+	int gap = PLATFORM_WIDTH / 2;
+
+	for (int row = 0; row < nRow; ++row)
 	{
-		for (int col = 0; col < 40; ++col)
+		for (int col = 0; col < nColumn; ++col)
 		{
 			if (ROOM[row][col] == _empt)
 				continue;
@@ -1238,15 +1218,12 @@ float q_rsqrt(float number)
 	long i;
 	float x2, y;
 	const float threehalfs = 1.5F;
-
 	x2 = number * 0.5F;
 	y = number;
-	i = *(long*)&y;									   // evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);			               // wtf?
+	i = *(long*)&y;
+	i = 0x5f3759df - (i >> 1);
 	y = *(float*)&i;
-	y = y * (threehalfs - (x2 * y * y));			   // 1st iteration
-	// y  = y * ( threehalfs - ( x2 * y * y ) );	   // 2nd iteration, this can be removed
-
+	y = y * (threehalfs - (x2 * y * y));
 	return y;
 }
 
@@ -1264,22 +1241,22 @@ bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2
 
 	// aObj hit left side of bObj
 	if (left < right && left < top && left < bottom)
-		gameState.player.collisionDir = Vector2D(-1.0f, 0.0f);
+		gameState.player.collisionDir = Vector2D(-1, 0);
 
 	// aObj hit right side of bObj
 	else if (right < left && right < top && right < bottom)
-		gameState.player.collisionDir = Vector2D(1.0f, 0.0f);
+		gameState.player.collisionDir = Vector2D(1, 0);
 
 	// aObj hit top side of bObj
 	else if (top < bottom && top < left && top < right)
-		gameState.player.collisionDir = Vector2D(0.0f, -1.0f);
+		gameState.player.collisionDir = Vector2D(0, -1);
 
 	// aObj hit bottom side of bObj
 	else if (bottom < top && bottom < left && bottom < right)
-		gameState.player.collisionDir = Vector2D(0.0f, 1.0f);
+		gameState.player.collisionDir = Vector2D(0, 1);
 
 	else
-		gameState.player.collisionDir = Vector2D(0.0f, 0.0f);
+		gameState.player.collisionDir = Vector2D(0, 0);
 
 	return (aPos.x - aAABB.x + aOffset.x < bPos.x + bAABB.x + bOffset.x
 		&& aPos.x + aAABB.x + aOffset.x > bPos.x - bAABB.x + bOffset.x
@@ -1305,15 +1282,15 @@ Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector
 	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
 
 	if (left < right && left < top && left < bottom)
-		return Vector2D(-1.0f, 0.0f);
+		return Vector2D(-1, 0);
 	else if (right < left && right < top && right < bottom)
-		return Vector2D(1.0f, 0.0f);
+		return Vector2D(1, 0);
 	else if (top < bottom && top < left && top < right)
-		return Vector2D(0.0f, -1.0f);
+		return Vector2D(0, -1);
 	else if (bottom < top && bottom < left && bottom < right)
-		return Vector2D(0.0f, 1.0f);
+		return Vector2D(0, 1);
 	else
-		return Vector2D(0.0f, 0.0f);
+		return Vector2D(0, 0);
 }
 
 void MergeCollisionBox()
