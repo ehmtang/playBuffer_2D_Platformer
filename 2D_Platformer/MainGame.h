@@ -14,12 +14,22 @@ enum GameObjectType
 
 enum PlatformType
 {
-	EMPT = 0,
-	GBRK,
-	DBRK,
-	BUSH,
-	FIRE,
-	ICE_,
+	_empt = 0,
+	_btm_l_in_cnr = 12,
+	_btm_l_out_cnr = 2,
+	_btm_mid = 1,
+	_btm_r_in_cnr = 4,
+	_btm_r_out_cnr = 5,
+	_l_mid = 6,
+	_r_mid = 7,
+	_top_l_in_cnr = 8,
+	_top_l_out_cnr = 9,
+	_top_mid = 10,
+	_top_r_in_cnr = 11,
+	_top_r_out_cnr = 13,
+	fire = 16,
+	ice = 14,
+	ledge = 15,
 };
 
 enum Backgrounds
@@ -107,13 +117,13 @@ struct PlayerAttributes
 	Vector2D PunchBox{ 7, 7 };				//scale in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale in x
 	Vector2D collisionDir{ 0, 0 };
-	Point2D startingPos{ 768, 96 };
+	Point2D startingPos{ 600, 300 };
 	PlayerState state{ STATE_IDLE };
 	float jumpTime{ 0 };
 	float jumpEndTime{ 0.1f };
 	float coyoteTime{ 0 };
 	float airDashTime{ 0 };
-	const float sizeScale{ 2.f };
+	const float sizeScale{ 1.5f };
 	const float rollImpulse{ 30.f };
 	const float jumpImpulse{ 20.f };
 	const float wallJumpImpulse{ 30.f };
@@ -142,7 +152,7 @@ struct Platform
 {
 	Vector2D pBox{ 16, 16 };
 	Point2D pos{ 0, 0 };
-	int type{ DBRK };
+	int type{ 0 };
 	bool playerOnTop{ false };
 
 	Point2D Left() { return Point2D(pos.x - pBox.x, pos.y); };

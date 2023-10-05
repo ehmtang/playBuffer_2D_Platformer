@@ -19,53 +19,46 @@ constexpr int PLATFORM_WIDTH{ 32 };
 
 const int ROOM[23][40] =
 {
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, EMPT, EMPT, EMPT, EMPT, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, BUSH, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, GBRK, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, FIRE, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, EMPT, DBRK},
-	{DBRK, DBRK, DBRK, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, ICE_, DBRK, DBRK, DBRK, DBRK},
-	{DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK, DBRK},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,14,14,14,14,14,14,14,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,0,0},
+	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
+	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
+	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
+	{0,0,14,0,0,0,9,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,9,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,11,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,2,10,5,15,15,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,9,1,1,1,1,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,7,0,0,0,0,0,6,0,0,15,15,15,15,9,1,1,1,1,1,13,16,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,7,0,6,0,0,0,2,10,10,10,10,10,5,0,0,0,0,0,0,7,0,0,0,0,0,6,16,0,0,0,16,7,0,0},
+	{0,0,14,0,0,0,2,10,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,6,16,16,16,16,16,7,0,0},
+	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,7,0,0,0,0,0,12,1,1,1,1,1,4,0,0},
+	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,14,14,14,14,14,14,14,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 
-	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	//	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	//<tileset firstgid = "1" source = "../_btm_mid.tsx" / >
+	//<tileset firstgid = "2" source = "../_btm_l_out_cnr.tsx" / >
+	//<tileset firstgid = "3" source = "../_btm_mid.tsx" / >
+	//<tileset firstgid = "4" source = "../_btm_r_in_cnr.tsx" / >
+	//<tileset firstgid = "5" source = "../_btm_r_out_cnr.tsx" / >
+	//<tileset firstgid = "6" source = "../_l_mid.tsx" / >
+	//<tileset firstgid = "7" source = "../_r_mid.tsx" / >
+	//<tileset firstgid = "8" source = "../_top_l_in_cnr.tsx" / >
+	//<tileset firstgid = "9" source = "../_top_l_out_cnr.tsx" / >
+	//<tileset firstgid = "10" source = "../_top_mid.tsx" / >
+	//<tileset firstgid = "11" source = "../_top_r_in_cnr.tsx" / >
+	//<tileset firstgid = "12" source = "../_btm_l_in_cnr.tsx" / >
+	//<tileset firstgid = "13" source = "../_top_r_out_cnr.tsx" / >
+	//<tileset firstgid = "14" source = "../ice.tsx" / >
+	//<tileset firstgid = "15" source = "../ledge.tsx" / >
+	//<tileset firstgid = "16" source = "fire.tsx" / >
 };
 
 
@@ -75,7 +68,7 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
 
-	Play::LoadBackground("Data\\Backgrounds\\bg_5th.png");
+	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
 	//Play::StartAudioLoop("theme");
 	Play::CentreAllSpriteOrigins();
 	HandleSizeScale();
@@ -87,7 +80,9 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
+	
 	HandleBackgrounds();
+
 	UpdatePlayer(elapsedTime);
 	//HandleAudio(elapsedTime);
 	HandleFinishLine(elapsedTime);
@@ -433,8 +428,6 @@ void Punch(float& elapsedTime)
 		gameState.player.state = STATE_IDLE;
 		return;
 	}
-	else
-		playerObj.velocity = { 0 , 0 };
 }
 
 void Roll(float& elapsedTime)
@@ -586,15 +579,10 @@ float ResolveFriction()
 
 	int dir = gameState.player.direction;
 	float accel_x = 0;
-
+	
 	switch (GetPlatformType())
 	{
-	case GBRK:
-	{
-		accel_x = dir * 1.f;
-		break;
-	}
-	case DBRK:
+	default:
 	{
 		accel_x = dir * 1.f;
 
@@ -611,14 +599,9 @@ float ResolveFriction()
 				playerObj.velocity.x = 0;
 			}
 		}
-
 		break;
 	}
-	case BUSH:
-	{
-		break;
-	}
-	case FIRE:
+	case fire:
 	{
 		accel_x = dir * 1.f;
 		playerObj.velocity.y = -20;
@@ -639,7 +622,7 @@ float ResolveFriction()
 
 		break;
 	}
-	case ICE_:
+	case ice:
 	{
 		accel_x = dir * 0.05f;
 
@@ -1087,16 +1070,36 @@ void DrawPlatformSprites()
 		{
 			int spritePosX = (i * PLATFORM_WIDTH) + p.Left().x + PLATFORM_WIDTH / 2;
 			Point2D spritePos = { spritePosX, p.pos.y };
-			if (p.type == DBRK)
-				Play::DrawSprite(Play::GetSpriteId("dark_brick"), spritePos, 0);
-			else if (p.type == GBRK)
-				Play::DrawSprite(Play::GetSpriteId("green_brick"), spritePos, 0);
-			else if (p.type == BUSH)
-				Play::DrawSprite(Play::GetSpriteId("bush"), spritePos, 0);
-			else if (p.type == FIRE)
+			if (p.type == _btm_l_in_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_btm_l_in_cnr"), spritePos, 0);
+			else if (p.type == _btm_l_out_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_btm_l_out_cnr"), spritePos, 0);
+			else if (p.type == _btm_mid)
+				Play::DrawSprite(Play::GetSpriteId("_btm_mid"), spritePos, 0);
+			else if (p.type == _btm_r_in_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_btm_r_in_cnr"), spritePos, 0);
+			else if (p.type == _btm_r_out_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_btm_r_out_cnr"), spritePos, 0);
+			else if (p.type == _l_mid)
+				Play::DrawSprite(Play::GetSpriteId("_l_mid"), spritePos, 0);
+			else if (p.type == _r_mid)
+				Play::DrawSprite(Play::GetSpriteId("_r_mid"), spritePos, 0);
+			else if (p.type == _top_l_in_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_top_l_in_cnr"), spritePos, 0);
+			else if (p.type == _top_l_out_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_top_l_out_cnr"), spritePos, 0);
+			else if (p.type == _top_mid)
+				Play::DrawSprite(Play::GetSpriteId("_top_mid"), spritePos, 0);
+			else if (p.type == _top_r_in_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_top_r_in_cnr"), spritePos, 0);
+			else if (p.type == _top_r_out_cnr)
+				Play::DrawSprite(Play::GetSpriteId("_top_r_out_cnr"), spritePos, 0);
+			else if (p.type == fire)
 				Play::DrawSprite(Play::GetSpriteId("fire"), spritePos, 0);
-			else if (p.type == ICE_)
+			else if (p.type == ice)
 				Play::DrawSprite(Play::GetSpriteId("ice"), spritePos, 0);
+			else if (p.type == ledge)
+				Play::DrawSprite(Play::GetSpriteId("ledge"), spritePos, 0);
 		}
 	}
 }
@@ -1190,18 +1193,38 @@ void CreatePlatform()
 	{
 		for (int col = 0; col < 40; ++col)
 		{
-			if (ROOM[row][col] == EMPT)
+			if (ROOM[row][col] == _empt)
 				continue;
-			else if (ROOM[row][col] == GBRK)
-				platform.type = GBRK;
-			else if (ROOM[row][col] == DBRK)
-				platform.type = DBRK;
-			else if (ROOM[row][col] == BUSH)
-				platform.type = BUSH;
-			else if (ROOM[row][col] == FIRE)
-				platform.type = FIRE;
-			else if (ROOM[row][col] == ICE_)
-				platform.type = ICE_;
+			else if (ROOM[row][col] == _btm_l_in_cnr)
+				platform.type = _btm_l_in_cnr;
+			else if (ROOM[row][col] == _btm_l_out_cnr)
+				platform.type = _btm_l_out_cnr;
+			else if (ROOM[row][col] == _btm_mid)
+				platform.type = _btm_mid;
+			else if (ROOM[row][col] == _btm_r_in_cnr)
+				platform.type = _btm_r_in_cnr;
+			else if (ROOM[row][col] == _btm_r_out_cnr)
+				platform.type = _btm_r_out_cnr;
+			else if (ROOM[row][col] == _l_mid)
+				platform.type = _l_mid;
+			else if (ROOM[row][col] == _r_mid)
+				platform.type = _r_mid;
+			else if (ROOM[row][col] == _top_l_in_cnr)
+				platform.type = _top_l_in_cnr;
+			else if (ROOM[row][col] == _top_l_out_cnr)
+				platform.type = _top_l_out_cnr;
+			else if (ROOM[row][col] == _top_mid)
+				platform.type = _top_mid;
+			else if (ROOM[row][col] == _top_r_in_cnr)
+				platform.type = _top_r_in_cnr;
+			else if (ROOM[row][col] == _top_r_out_cnr)
+				platform.type = _top_r_out_cnr;
+			else if (ROOM[row][col] == fire)
+				platform.type = fire;
+			else if (ROOM[row][col] == ice)
+				platform.type = ice;
+			else if (ROOM[row][col] == ledge)
+				platform.type = ledge;
 
 			platform.pos = Point2D(gap + (col * PLATFORM_WIDTH), gap + (row * PLATFORM_WIDTH));
 			gameState.vPlatform.push_back(platform);
