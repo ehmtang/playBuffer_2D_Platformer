@@ -146,7 +146,7 @@ struct PlayerAttributes
 	float airDashTime{ 0 };
 	float rollImpulse{ 12.f };				//scaled with size
 	float jumpImpulse{ 12.f };				//scaled with size
-	float wallJumpImpulse{ 10.f };			//scaled with size
+	float wallJumpImpulse{ 15.f };			//scaled with size
 	float maxClimbUpSpeed{ 1.f };			//scaled with size
 	float maxClimbDownSpeed{ 3.f };			//scaled with size
 	float maxRunSpeed{ 2.f };				//scaled with size

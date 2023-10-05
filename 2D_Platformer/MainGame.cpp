@@ -441,25 +441,18 @@ void WallClimb(float& elapsedTime)
 
 	if (gameState.player.hasLandedOnWall == false && gameState.player.isOnWall == true)
 	{
-		Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.15f);
-		if (Play::IsAnimationComplete(playerObj))
-			gameState.player.hasLandedOnWall = true;
-		
-		if (Play::KeyPressed('Z'))
-		{
-			gameState.player.hasLandedOnWall = false;
-			gameState.player.state = STATE_WALLJUMP;
-			return;
-		}
+		Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.f);
+		gameState.player.hasLandedOnWall = true;
 	}
-	else if (gameState.player.hasLandedOnWall == true && gameState.player.isOnWall == true)
+
+	if (gameState.player.hasLandedOnWall == true && gameState.player.isOnWall == true)
 	{
 		playerObj.velocity.x = 0;
-		playerObj.acceleration.y = 0;			// use resolve friction
+		playerObj.acceleration.y = 0;		// apply friction here
 
 		if (Play::KeyDown(VK_UP))
 		{
-			Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.4f);
+			Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.2f);
 			playerObj.velocity.y = -gameState.player.maxClimbUpSpeed;
 
 		}
@@ -469,9 +462,11 @@ void WallClimb(float& elapsedTime)
 			playerObj.velocity.y += (gameState.player.maxClimbDownSpeed * elapsedTime * 2.5f);
 		}
 
+		playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
+
 		if (Play::KeyPressed('Z'))
 		{
-			gameState.player.hasLandedOnWall = false;
+			//gameState.player.hasLandedOnWall = false;
 			gameState.player.state = STATE_WALLJUMP;
 			return;
 		}
@@ -504,7 +499,9 @@ void WallJump(float& elapsedTime)
 
 	playerObj.velocity = Vector2D((gameState.player.direction * q_rsqrt_2), -q_rsqrt_2) * Vector2D(gameState.player.wallJumpImpulse, gameState.player.wallJumpImpulse);
 	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_jump_left" : "player_jump", 0);
+	gameState.player.hasLandedOnWall = false;
 	gameState.player.state = STATE_JUMP;
+	return;
 }
 
 void Hurt(float& elapsedTime)
@@ -646,6 +643,7 @@ void HandlePortal(float& elapsedTime)
 	{
 		if (gameState.portal.completedLap > 0)
 			gameState.portal.vSplitTime.push_back(gameState.portal.splitTime);
+
 		gameState.portal.splitTime = 0;
 		gameState.portal.hasCompletedLap = true;
 		gameState.portal.completedLap += 1;
@@ -714,9 +712,7 @@ void HandleGrounded()
 		if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
 		{
 			if (p.type == ledge && playerObj.velocity.y < 0)
-			{
 				break;
-			}
 
 			int diff = abs(playerObj.pos.y - playerObj.oldPos.y);
 			playerObj.pos.y = playerObj.oldPos.y;
@@ -757,11 +753,17 @@ void HandleOnWall()
 	for (Platform& p : gameState.vPlatform)
 	{
 		if (gameState.player.state == STATE_WALLJUMP)
+		{
 			gameState.player.isOnWall = false;
+			return;
+		}
 
 		if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& gameState.player.isGrounded == false
-			&& p.type != ledge)
+			/*&& gameState.player.isGrounded == false*/
+			&& p.type != _btm_mid
+			&& p.type != _top_mid
+			&& p.type != ledge
+			&& p.type != fire)
 		{
 			gameState.player.isOnWall = true;
 			gameState.player.hasJumped = false;
@@ -769,9 +771,8 @@ void HandleOnWall()
 			return;
 		}
 		else
-		{
 			gameState.player.isOnWall = false;
-		}
+
 	}
 }
 
@@ -1069,7 +1070,6 @@ void DrawPlatformSprites()
 	}
 }
 
-
 void DrawPortal()
 {
 	Play::DrawSprite(Play::GetSpriteId("portal"), gameState.portal.pos, 0);
@@ -1252,7 +1252,6 @@ void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aO
 	reflectionVector.Normalize();
 	aObj.velocity = -reflectionVector * gameState.player.obstructedImpulse;
 }
-
 
 void MergeCollisionBox()
 {
