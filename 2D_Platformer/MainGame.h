@@ -146,14 +146,13 @@ struct PlayerAttributes
 	float airDashTime{ 0 };
 	const float sizeScale{ 1.5f };
 	const float rollImpulse{ 30.f };
-	const float jumpImpulse{ 20.f };
+	const float jumpImpulse{ 15.f };
 	const float wallJumpImpulse{ 30.f };
 	const float maxJumpAccel{ 1.f };
 	const float obstructedImpulse{ 5.f };
 	const float maxClimbUpSpeed{ 1.2f };
 	const float maxClimbDownSpeed{ 5.f };
 	const float maxRunSpeed{ 5.f };
-	const float maxRunAccel{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
 	const float maxFallSpeed{ 25.f };
 	const float airDashImpulse{ 30 };
@@ -185,6 +184,13 @@ struct Platform
 	bool playerOnTop{ false };
 };
 
+struct PlatformAttributes
+{
+	float frictionThreshold{ 0.1f };
+	float defaultAccel{ 1.f };
+	float iceAccel{ 0.05f };
+};
+
 struct GameState
 {
 	std::vector<Platform> vPlatform;
@@ -192,6 +198,7 @@ struct GameState
 	AfterImageEmitter afterImageEmitter;
 	FinishLine portal;
 	PlayerAttributes player;
+	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
 	Audio audio;
 	Backgrounds bg;
@@ -218,7 +225,6 @@ void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
 void HandleHurt();
-void BalloonCollision();
 
 void HandleAudio(float& elapsedTime);
 
@@ -230,7 +236,6 @@ void UpdateAfterImageLifeTime(float& elapsedTime);
 
 void DrawPlayer();
 void DrawPlatformSprites();
-void DrawBalloon();
 void DrawCollisionBoxes();
 void DrawPortal();
 void DrawUI();
@@ -240,11 +245,12 @@ void HandleBackgrounds();
 void CreatePlayer();
 void CreatePlatform();
 
+void ResetGame();
+
 float q_rsqrt(float number);
 float exponentialDecay(const float& A0, const float& lambda, const float& time);
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
-Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 void MergeCollisionBox();
 int GetPlatformId();
 int GetPlatformType();

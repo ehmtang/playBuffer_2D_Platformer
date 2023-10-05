@@ -65,7 +65,6 @@ bool MainGameUpdate(float elapsedTime)
 	Play::ClearDrawingBuffer(Play::cWhite);
 
 	HandleBackgrounds();
-
 	UpdatePlayer(elapsedTime);
 	//HandleAudio(elapsedTime);
 	HandlePortal(elapsedTime);
@@ -73,10 +72,15 @@ bool MainGameUpdate(float elapsedTime)
 	DrawAfterImage(elapsedTime);
 	DrawPlatformSprites();
 	DrawCollisionBoxes();
-	DrawBalloon();
 	DrawPlayer();
 	DrawUI();
 	Play::PresentDrawingBuffer();
+
+	if (Play::KeyPressed(VK_TAB))
+	{
+		ResetGame();
+	}
+
 	return Play::KeyDown(VK_ESCAPE);
 }
 
@@ -156,9 +160,9 @@ void UpdatePlayer(float& elapsedTime)
 	Play::UpdateGameObject(playerObj);
 
 	HandleGrounded();
+	HandleObstructed();
 	HandleOnWall();
 	HandleHurt();
-	HandleObstructed();
 }
 
 void Idle(float& elapsedTime)
@@ -437,27 +441,21 @@ void WallClimb(float& elapsedTime)
 
 	if (gameState.player.hasLandedOnWall == false && gameState.player.isOnWall == true)
 	{
-		Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.5f);
-		if (!Play::IsAnimationComplete(playerObj))
-		{
-			(abs(playerObj.velocity.y) > 0.01) ? playerObj.velocity.y *= 0.5 : 0;
-
-			if (Play::KeyPressed('Z'))
-			{
-				gameState.player.hasLandedOnWall = false;
-				gameState.player.state = STATE_WALLJUMP;
-				return;
-			}
-		}
-		else
-		{
+		Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_wall_land_left" : "player_wall_land", 0.15f);
+		if (Play::IsAnimationComplete(playerObj))
 			gameState.player.hasLandedOnWall = true;
+		
+		if (Play::KeyPressed('Z'))
+		{
+			gameState.player.hasLandedOnWall = false;
+			gameState.player.state = STATE_WALLJUMP;
+			return;
 		}
 	}
 	else if (gameState.player.hasLandedOnWall == true && gameState.player.isOnWall == true)
 	{
 		playerObj.velocity.x = 0;
-		playerObj.acceleration.y = 0;
+		playerObj.acceleration.y = 0;			// use resolve friction
 
 		if (Play::KeyDown(VK_UP))
 		{
@@ -506,9 +504,7 @@ void WallJump(float& elapsedTime)
 
 	playerObj.velocity = Vector2D((gameState.player.direction * q_rsqrt_2), -q_rsqrt_2) * Vector2D(gameState.player.wallJumpImpulse, gameState.player.wallJumpImpulse);
 	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_jump_left" : "player_jump", 0);
-
 	gameState.player.state = STATE_JUMP;
-
 }
 
 void Hurt(float& elapsedTime)
@@ -561,22 +557,22 @@ float ResolveFriction()
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	int dir = gameState.player.direction;
-	float accel_x = 0;
+	float accel_x;
 
 	switch (GetPlatformType())
 	{
 	default:
 	{
-		accel_x = dir * 1.f;
+		accel_x = dir * gameState.platformAttr.defaultAccel;
 
 		if (gameState.player.state == STATE_IDLE)
 		{
-			if (playerObj.velocity.x > 0.1)
-				accel_x = -1.f;
-			else if (playerObj.velocity.x < 0.1)
-				accel_x = 1.f;
+			if (playerObj.velocity.x > gameState.platformAttr.frictionThreshold)
+				accel_x = -gameState.platformAttr.defaultAccel;
+			else if (playerObj.velocity.x < gameState.platformAttr.frictionThreshold)
+				accel_x = gameState.platformAttr.defaultAccel;
 
-			if (playerObj.velocity.x >= -0.1 && playerObj.velocity.x <= 0.1)
+			if (playerObj.velocity.x >= -gameState.platformAttr.frictionThreshold && playerObj.velocity.x <= gameState.platformAttr.frictionThreshold)
 			{
 				accel_x = 0;
 				playerObj.velocity.x = 0;
@@ -586,37 +582,24 @@ float ResolveFriction()
 	}
 	case fire:
 	{
-		accel_x = dir * 1.f;
-		playerObj.velocity.y = -20;
-
-		if (gameState.player.state == STATE_IDLE)
-		{
-			if (playerObj.velocity.x > 0.1)
-				accel_x = -1.f;
-			else if (playerObj.velocity.x < 0.1)
-				accel_x = 1.f;
-
-			if (playerObj.velocity.x >= -0.1 && playerObj.velocity.x <= 0.1)
-			{
-				accel_x = 0;
-				playerObj.velocity.x = 0;
-			}
-		}
-
+		accel_x = dir * gameState.platformAttr.defaultAccel;
+		playerObj.velocity.y = -gameState.player.jumpImpulse;
+		gameState.player.hasJumped = true;
+		gameState.player.state = STATE_JUMP;
 		break;
 	}
 	case ice:
 	{
-		accel_x = dir * 0.05f;
+		accel_x = dir * gameState.platformAttr.iceAccel;
 
 		if (gameState.player.state == STATE_IDLE)
 		{
-			if (playerObj.velocity.x > 0.1)
-				accel_x = -0.05f;
-			else if (playerObj.velocity.x < -0.1)
-				accel_x = 0.05f;
+			if (playerObj.velocity.x > gameState.platformAttr.frictionThreshold)
+				accel_x = -gameState.platformAttr.iceAccel;
+			else if (playerObj.velocity.x < -gameState.platformAttr.frictionThreshold)
+				accel_x = gameState.platformAttr.iceAccel;
 
-			if (playerObj.velocity.x >= -0.1 && playerObj.velocity.x <= 0.1)
+			if (playerObj.velocity.x >= -gameState.platformAttr.frictionThreshold && playerObj.velocity.x <= gameState.platformAttr.frictionThreshold)
 			{
 				accel_x = 0;
 				playerObj.velocity.x = 0;
@@ -625,7 +608,6 @@ float ResolveFriction()
 		break;
 	}
 	}
-
 	return accel_x;
 }
 
@@ -671,25 +653,32 @@ void HandleObstructed()
 
 	for (Platform& p : gameState.vPlatform)
 	{
+		// handle verticle obstructions
 		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(0, 1))
+			&& gameState.player.collisionDir == Vector2D(0, 1))
 		{
-			int diff = playerObj.pos.y - playerObj.oldPos.y;
+
+			if (p.type == ledge)
+				break;
+
+			int diff = abs(playerObj.pos.y - playerObj.oldPos.y);
 			playerObj.pos.y = playerObj.oldPos.y;
 			for (int i = 0; i < diff; ++i)
 			{
-				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, i), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
+				if (AABBCollisionTest(playerObj.oldPos + Vector2D(0, -i), gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
 				{
-					playerObj.pos.y += i;
+					playerObj.pos.y -= i;
 					break;
 				}
 			}
 			ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0));
 		}
+
+		// handle horizontal obstructions
 		else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(-1, 0)
+			&& gameState.player.collisionDir == Vector2D(-1, 0)
 			|| AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(1, 0))
+			&& gameState.player.collisionDir == Vector2D(1, 0))
 		{
 			int diff = playerObj.pos.x - playerObj.oldPos.x;
 			playerObj.pos.x = playerObj.oldPos.x;
@@ -701,6 +690,7 @@ void HandleObstructed()
 					break;
 				}
 			}
+			playerObj.pos.x = playerObj.oldPos.x;
 			playerObj.velocity.x = 0;
 		}
 	}
@@ -714,7 +704,12 @@ void HandleGrounded()
 	{
 		if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
 		{
-			int diff = playerObj.pos.y - playerObj.oldPos.y;
+			if (p.type == ledge && playerObj.velocity.y < 0)
+			{
+				break;
+			}
+
+			int diff = abs(playerObj.pos.y - playerObj.oldPos.y);
 			playerObj.pos.y = playerObj.oldPos.y;
 			for (int i = 0; i < diff; i++)
 			{
@@ -753,10 +748,11 @@ void HandleOnWall()
 	for (Platform& p : gameState.vPlatform)
 	{
 		if (gameState.player.state == STATE_WALLJUMP)
-		{
 			gameState.player.isOnWall = false;
-		}
-		else if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) && gameState.player.isGrounded == false)
+
+		if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+			&& gameState.player.isGrounded == false
+			&& p.type != ledge)
 		{
 			gameState.player.isOnWall = true;
 			gameState.player.hasJumped = false;
@@ -773,23 +769,6 @@ void HandleOnWall()
 void HandleHurt()
 {
 
-}
-
-void BalloonCollision()
-{
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-
-	std::vector<int> balloonIds = Play::CollectGameObjectIDsByType(TYPE_BALLOON);
-	for (int balloonId : balloonIds)
-	{
-		GameObject& balloonObj{ Play::GetGameObject(balloonId) };
-
-		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, balloonObj.pos, Vector2D(32, 32), Vector2D(0, 0)))
-		{
-			Play::DestroyGameObject(balloonId);
-			gameState.player.hasAirDashed = false;
-		}
-	}
 }
 
 void HandleAudio(float& elapsedTime)
@@ -1081,15 +1060,6 @@ void DrawPlatformSprites()
 	}
 }
 
-void DrawBalloon()
-{
-	std::vector<int> balloonIds = Play::CollectGameObjectIDsByType(TYPE_BALLOON);
-	for (int balloonId : balloonIds)
-	{
-		GameObject& balloonObj{ Play::GetGameObject(balloonId) };
-		Play::DrawObjectRotated(balloonObj);
-	}
-}
 
 void DrawPortal()
 {
@@ -1212,6 +1182,14 @@ void CreatePlatform()
 	}
 }
 
+void ResetGame()
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	playerObj.pos = gameState.player.startingPos;
+	playerObj.velocity = Vector2D(0, 0);
+	playerObj.acceleration = Vector2D(0, 0);
+}
+
 float q_rsqrt(float number)
 {
 	// Quake3 inverse root algorithm
@@ -1239,22 +1217,14 @@ bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2
 	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
 	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
 
-	// aObj hit left side of bObj
 	if (left < right && left < top && left < bottom)
 		gameState.player.collisionDir = Vector2D(-1, 0);
-
-	// aObj hit right side of bObj
 	else if (right < left && right < top && right < bottom)
 		gameState.player.collisionDir = Vector2D(1, 0);
-
-	// aObj hit top side of bObj
 	else if (top < bottom && top < left && top < right)
 		gameState.player.collisionDir = Vector2D(0, -1);
-
-	// aObj hit bottom side of bObj
 	else if (bottom < top && bottom < left && bottom < right)
 		gameState.player.collisionDir = Vector2D(0, 1);
-
 	else
 		gameState.player.collisionDir = Vector2D(0, 0);
 
@@ -1266,31 +1236,12 @@ bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2
 
 void ApplyReflection(GameObject& aObj, const Point2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Point2D& bAABB, const Vector2D& bOffset)
 {
-	Vector2D collisionEdge = GetNearestEdge(aObj.pos, aAABB, aOffset, bPos, bAABB, bOffset);
+	Vector2D collisionEdge = gameState.player.collisionDir;
 	Vector2D surfaceNormal = collisionEdge.Perpendicular();
 	float dotProduct = aObj.velocity.Dot(surfaceNormal);
 	Vector2D reflectionVector = aObj.velocity - (2.0 * dotProduct * surfaceNormal);
 	reflectionVector.Normalize();
 	aObj.velocity = -reflectionVector * gameState.player.obstructedImpulse;
-}
-
-Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
-{
-	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
-	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
-	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
-	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
-
-	if (left < right && left < top && left < bottom)
-		return Vector2D(-1, 0);
-	else if (right < left && right < top && right < bottom)
-		return Vector2D(1, 0);
-	else if (top < bottom && top < left && top < right)
-		return Vector2D(0, -1);
-	else if (bottom < top && bottom < left && bottom < right)
-		return Vector2D(0, 1);
-	else
-		return Vector2D(0, 0);
 }
 
 void MergeCollisionBox()
