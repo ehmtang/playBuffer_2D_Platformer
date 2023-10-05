@@ -69,11 +69,14 @@ bool MainGameUpdate(float elapsedTime)
 	//HandleAudio(elapsedTime);
 	HandlePortal(elapsedTime);
 	DrawPortal();
-	DrawAfterImage(elapsedTime);
+	HandleAfterImageLifetime(elapsedTime);
 	DrawPlatformSprites();
 	DrawCollisionBoxes();
 	DrawPlayer();
 	DrawUI();
+
+	ApplyWind(elapsedTime);
+
 	Play::PresentDrawingBuffer();
 
 	if (Play::KeyPressed(VK_TAB))
@@ -880,7 +883,7 @@ void ScreenShake(float& elapsedTime)
 	}
 }
 
-void DrawAfterImage(float& elapsedTime)
+void HandleAfterImageLifetime(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
@@ -897,7 +900,7 @@ void DrawAfterImage(float& elapsedTime)
 		}
 
 		if (!gameState.afterImageEmitter.vAfterImage.empty())
-			UpdateAfterImageLifeTime(elapsedTime);
+			DrawImageLifeTime(elapsedTime);
 
 		break;
 	}
@@ -913,7 +916,7 @@ void DrawAfterImage(float& elapsedTime)
 
 		if (!gameState.afterImageEmitter.vAfterImage.empty())
 		{
-			UpdateAfterImageLifeTime(elapsedTime);
+			DrawImageLifeTime(elapsedTime);
 		}
 		break;
 	}
@@ -921,7 +924,7 @@ void DrawAfterImage(float& elapsedTime)
 	{
 		gameState.afterImageEmitter.splitTime = 0;
 		if (!gameState.afterImageEmitter.vAfterImage.empty())
-			UpdateAfterImageLifeTime(elapsedTime);
+			DrawImageLifeTime(elapsedTime);
 
 		break;
 	}
@@ -934,17 +937,15 @@ void AddAfterImageToEmitter(GameObject& playerObj)
 
 	for (int i = 0; i < gameState.afterImageEmitter.emitParticles; ++i)
 	{
+		afterImage.pos = playerObj.pos;
+		afterImage.spriteId = playerObj.spriteId;
+		afterImage.spriteFrame = playerObj.frame;
 		gameState.afterImageEmitter.vAfterImage.push_back(afterImage);
-		gameState.afterImageEmitter.vAfterImage.back().pos = playerObj.pos;
-		gameState.afterImageEmitter.vAfterImage.back().spriteId = playerObj.spriteId;
-		gameState.afterImageEmitter.vAfterImage.back().spriteFrame = playerObj.frame;
 	}
 }
 
-void UpdateAfterImageLifeTime(float& elapsedTime)
+void DrawImageLifeTime(float& elapsedTime)
 {
-	AfterImage afterImage;
-
 	for (int i = 0; i < gameState.afterImageEmitter.vAfterImage.size(); ++i)
 	{
 		gameState.afterImageEmitter.vAfterImage[i].currentLifetime += elapsedTime;
@@ -955,6 +956,90 @@ void UpdateAfterImageLifeTime(float& elapsedTime)
 			gameState.afterImageEmitter.vAfterImage.erase(gameState.afterImageEmitter.vAfterImage.begin() + i);
 	}
 }
+
+void ApplyWind(float& elapsedTime)
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	gameState.petalEmitter.windTime += elapsedTime;
+
+	if (gameState.petalEmitter.windTime <= gameState.petalEmitter.windEndTime
+		&& gameState.petalEmitter.onBreak == false)
+	{
+		if (gameState.petalEmitter.applyAccel == false)
+		{
+			playerObj.acceleration.x += -gameState.petalEmitter.windDir * gameState.petalEmitter.windImpulse;
+			gameState.petalEmitter.applyAccel = true;
+		}
+
+		//playerObj.velocity.x += gameState.petalEmitter.windDir * gameState.petalEmitter.windImpulse;
+		HandlePetalLifetime(elapsedTime);
+	}
+	else if (gameState.petalEmitter.windTime > gameState.petalEmitter.windEndTime
+		&& gameState.petalEmitter.onBreak == false)
+	{
+		gameState.petalEmitter.applyAccel = false;
+		gameState.petalEmitter.windDir *= -1;
+		gameState.petalEmitter.windTime = 0;
+		gameState.petalEmitter.onBreak = true;
+	}
+
+	if (gameState.petalEmitter.windTime > gameState.petalEmitter.breakTime
+		&& gameState.petalEmitter.onBreak == true)
+	{
+		gameState.petalEmitter.windTime = 0;
+		gameState.petalEmitter.onBreak = false;
+	}
+}
+
+void HandlePetalLifetime(float& elapsedTime)
+{
+	gameState.petalEmitter.splitTime += elapsedTime;
+
+	if (gameState.petalEmitter.splitTime > gameState.petalEmitter.emitPeriod)
+	{
+		AddPetalToEmitter();
+		gameState.petalEmitter.splitTime = 0;
+	}
+
+	if (!gameState.petalEmitter.vPetal.empty())
+	{
+		DrawPetalLifeTime(elapsedTime);
+	}
+}
+
+void AddPetalToEmitter()
+{
+	Petal petal;
+
+	int petalSpriteId = (gameState.petalEmitter.windDir == -1) ? Play::GetSpriteId("petal_left") : Play::GetSpriteId("petal");
+
+	for (int i = 0; i < gameState.petalEmitter.emitParticles; ++i)
+	{
+		petal.pos = Point2D(Play::RandomRollRange(-128, DISPLAY_WIDTH + 128), Play::RandomRollRange(-128, DISPLAY_HEIGHT + 128));
+		petal.spriteId = petalSpriteId;
+		gameState.petalEmitter.vPetal.push_back(petal);
+	}
+}
+
+void DrawPetalLifeTime(float& elapsedTime)
+{
+	float phase = 0;
+
+
+	for (int i = 0; i < gameState.petalEmitter.vPetal.size(); ++i)
+	{
+		gameState.petalEmitter.vPetal[i].pos.x += gameState.petalEmitter.windDir * gameState.petalEmitter.windSpeed;
+		gameState.petalEmitter.vPetal[i].pos.y += gameState.petalEmitter.amplitude * sin((PLAY_PI * gameState.petalEmitter.frequency) + phase);
+		gameState.petalEmitter.vPetal[i].currentLifetime += elapsedTime;
+		phase += 0.1f;
+		Play::DrawSpriteRotated(gameState.petalEmitter.vPetal[i].spriteId, gameState.petalEmitter.vPetal[i].pos, 0, 0, 1, gameState.petalEmitter.opacity);
+
+		if (gameState.petalEmitter.vPetal[i].currentLifetime > gameState.petalEmitter.lifetime)
+			gameState.petalEmitter.vPetal.erase(gameState.petalEmitter.vPetal.begin() + i);
+	}
+}
+
 
 void DrawPlayer()
 {

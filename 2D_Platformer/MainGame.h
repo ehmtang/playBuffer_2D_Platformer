@@ -1,7 +1,7 @@
 enum GameModes
 {
 	TEST_MODE = 0,
-	PLAY_MODE = 1,
+	PLAY_MODE = 1,		// Change game mode in GameState struct
 };
 
 enum GameObjectType
@@ -62,7 +62,6 @@ enum PlayerState
 struct Petal
 {
 	Point2D pos{ 0, 0 };
-	float opacity{ 0 };
 	float currentLifetime{ 0 };
 	int spriteId{ 0 };
 	int spriteFrame{ 0 };
@@ -72,12 +71,20 @@ struct PetalEmitter
 {
 	std::vector<Petal> vPetal;
 	float splitTime{ 0 };
-	const float lifetime{ 0.2f };
-	const float baseOpacity{ 1.f };
-	const float opacityThreshold{ 0.02f };
-	const float decayConstant{ 4.0f };
-	const float emitPeriod{ 0.02f };
-	const int emitParticles{ 1 };
+	const float opacity{ 0.6 };
+	const float lifetime{ 4.2f };
+	const float emitPeriod{ 0.3f };
+	const int windSpeed{ 5 };
+	const int amplitude{ 1 };
+	const int frequency{ 2 };
+	const int emitParticles{ 5 };
+	int windDir{ 1 };
+	float windTime{ 0 };
+	const float windEndTime{ 3.f };
+	const float breakTime{ 3.f };
+	const float windImpulse{ 3.f };
+	bool applyAccel{ false };
+	bool onBreak{ false };
 };
 
 struct AfterImage
@@ -134,7 +141,7 @@ struct PlayerAttributes
 	Vector2D WallBox{ 1, 7 };				//scale with size in y
 	Vector2D WallBoxOffset{ 7, -3 };		//scale with size in x and y
 	Vector2D HurtBox{ 5, 15 };				//scale with size in x and y
-	Vector2D HurtBoxOffset{ 0, 0 };			
+	Vector2D HurtBoxOffset{ 0, 0 };
 	Vector2D PunchBox{ 7, 7 };				//scale with size in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
 	Vector2D collisionDir{ 0, 0 };
@@ -230,9 +237,14 @@ void HandleAudio(float& elapsedTime);
 
 void ScreenShake(float& elapsedTime);
 
-void DrawAfterImage(float& elapsedTime);
+void HandleAfterImageLifetime(float& elapsedTime);
 void AddAfterImageToEmitter(GameObject& playerObj);
-void UpdateAfterImageLifeTime(float& elapsedTime);
+void DrawImageLifeTime(float& elapsedTime);
+
+void ApplyWind(float& elapsedTime);
+void HandlePetalLifetime(float& elapsedTime);
+void AddPetalToEmitter();
+void DrawPetalLifeTime(float& elapsedTime);
 
 void DrawPlayer();
 void DrawPlatformSprites();
