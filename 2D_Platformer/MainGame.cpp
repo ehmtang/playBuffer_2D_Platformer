@@ -51,7 +51,7 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
 
-	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
+	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map2-export.png");
 	//Play::StartAudioLoop("theme");
 	Play::CentreAllSpriteOrigins();
 	HandleSizeScale();
@@ -66,7 +66,6 @@ bool MainGameUpdate(float elapsedTime)
 
 	HandleBackgrounds();
 	UpdatePlayer(elapsedTime);
-	//HandleAudio(elapsedTime);
 	HandlePortal(elapsedTime);
 	DrawPortal();
 	HandleAfterImageLifetime(elapsedTime);
@@ -160,8 +159,8 @@ void UpdatePlayer(float& elapsedTime)
 	if (Play::IsLeavingDisplayArea(playerObj))
 		playerObj.pos = playerObj.oldPos;
 
+	CalculateAcceleration();
 	Play::UpdateGameObject(playerObj);
-
 	HandleGrounded();
 	HandleObstructed();
 	HandleOnWall();
@@ -178,7 +177,7 @@ void Idle(float& elapsedTime)
 
 	if (!Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT) && gameState.player.isGrounded == true)
 	{
-		playerObj.acceleration.x = ResolveFriction();
+		playerObj.acceleration.x = ApplyFriction();
 	}
 	else if (Play::KeyDown(VK_LEFT) || Play::KeyDown(VK_RIGHT))
 	{
@@ -218,13 +217,13 @@ void Run(float& elapsedTime)
 	{
 		gameState.player.direction = -1;
 		Play::SetSprite(playerObj, "player_run_left", 0.25f);
-		playerObj.acceleration.x = ResolveFriction();
+		playerObj.acceleration.x = ApplyFriction();
 	}
 	else if (Play::KeyDown(VK_RIGHT))
 	{
 		gameState.player.direction = 1;
 		Play::SetSprite(playerObj, "player_run", 0.25f);
-		playerObj.acceleration.x = ResolveFriction();
+		playerObj.acceleration.x = ApplyFriction();
 	}
 
 	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed - playerObj.acceleration.x, gameState.player.maxRunSpeed - playerObj.acceleration.x);
@@ -561,7 +560,7 @@ void HandleSizeScale()
 	gameState.player.airDashImpulse *= gameState.player.sizeScale;
 }
 
-float ResolveFriction()
+float ApplyFriction()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
@@ -618,6 +617,18 @@ float ResolveFriction()
 	}
 	}
 	return accel_x;
+}
+
+Vector2D CalculateAcceleration()
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	// Sum of all accelerations
+	// Gravity = gameState.player.gravity
+	// Running Force = gameState.platformAttr.defaultAccel
+	// Wind Force = gameState.petalEmitter.windForce
+	Vector2D totalAccel = playerObj.acceleration + gameState.petalEmitter.windForce + gameState.player.gravity;
+	return totalAccel;
 }
 
 void HandlePortal(float& elapsedTime)
@@ -784,87 +795,6 @@ void HandleHurt()
 
 }
 
-void HandleAudio(float& elapsedTime)
-{
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-	playerObj.scale = gameState.player.sizeScale;
-
-	switch (gameState.player.state)
-	{
-	case STATE_IDLE:
-	{
-		gameState.audio.audioPlayed = false;
-		Play::StopAudioLoop("step_rock");
-		break;
-	}
-	case STATE_RUN:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("step_rock");
-		}
-		break;
-	}
-	case STATE_JUMP:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("jump");
-		}
-		break;
-	}
-	case STATE_FALL:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("landing");
-		}
-		break;
-	}
-	case STATE_ATTACK:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("attack");
-		}
-		break;
-	}
-	case STATE_ROLL:
-	{
-		break;
-	}
-	case STATE_AIRDASH:
-	{
-		break;
-	}
-	case STATE_WALLCLIMB:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("climb");
-		}
-		break;
-	}
-	case STATE_WALLJUMP:
-	{
-		break;
-	}
-	case STATE_HURT:
-	{
-		break;
-	}
-	case STATE_DEATH:
-	{
-		break;
-	}
-	}
-}
-
 void ScreenShake(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
@@ -966,13 +896,14 @@ void ApplyWind(float& elapsedTime)
 	if (gameState.petalEmitter.windTime <= gameState.petalEmitter.windEndTime
 		&& gameState.petalEmitter.onBreak == false)
 	{
-		if (gameState.petalEmitter.applyAccel == false)
-		{
-			playerObj.acceleration.x += -gameState.petalEmitter.windDir * gameState.petalEmitter.windImpulse;
-			gameState.petalEmitter.applyAccel = true;
-		}
 
-		//playerObj.velocity.x += gameState.petalEmitter.windDir * gameState.petalEmitter.windImpulse;
+		//if (gameState.petalEmitter.applyAccel == false)
+		//{
+		//	playerObj.acceleration += -gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
+		//	gameState.petalEmitter.applyAccel = true;
+		//}
+
+		playerObj.velocity += gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
 		HandlePetalLifetime(elapsedTime);
 	}
 	else if (gameState.petalEmitter.windTime > gameState.petalEmitter.windEndTime
@@ -1026,16 +957,17 @@ void DrawPetalLifeTime(float& elapsedTime)
 {
 	float phase = 0;
 
-
 	for (int i = 0; i < gameState.petalEmitter.vPetal.size(); ++i)
 	{
-		gameState.petalEmitter.vPetal[i].pos.x += gameState.petalEmitter.windDir * gameState.petalEmitter.windSpeed;
+		gameState.petalEmitter.vPetal[i].pos.x += gameState.petalEmitter.windDir * gameState.petalEmitter.petalSpeed;
 		gameState.petalEmitter.vPetal[i].pos.y += gameState.petalEmitter.amplitude * sin((PLAY_PI * gameState.petalEmitter.frequency) + phase);
 		gameState.petalEmitter.vPetal[i].currentLifetime += elapsedTime;
 		phase += 0.1f;
-		Play::DrawSpriteRotated(gameState.petalEmitter.vPetal[i].spriteId, gameState.petalEmitter.vPetal[i].pos, 0, 0, 1, gameState.petalEmitter.opacity);
 
-		if (gameState.petalEmitter.vPetal[i].currentLifetime > gameState.petalEmitter.lifetime)
+		gameState.petalEmitter.vPetal[i].opacity = exponentialDecay(gameState.petalEmitter.baseOpacity, gameState.petalEmitter.decayConstant, gameState.petalEmitter.vPetal[i].currentLifetime);
+		Play::DrawSpriteRotated(gameState.petalEmitter.vPetal[i].spriteId, gameState.petalEmitter.vPetal[i].pos, 0, 0, 1, gameState.petalEmitter.vPetal[i].opacity);
+
+		if (gameState.petalEmitter.vPetal[i].currentLifetime > gameState.petalEmitter.windEndTime)
 			gameState.petalEmitter.vPetal.erase(gameState.petalEmitter.vPetal.begin() + i);
 	}
 }
@@ -1111,17 +1043,49 @@ void DrawCollisionBoxes()
 	}
 }
 
+const char* spriteNames[] = 
+{
+	"_empt",
+	"_btm_mid",
+	"_btm_l_out_cnr",
+	"",
+	"_btm_r_in_cnr",
+	"_btm_r_out_cnr",
+	"_l_mid",
+	"_r_mid",
+	"_top_l_in_cnr",
+	"_top_l_out_cnr",
+	"_top_mid",
+	"_top_r_in_cnr",
+	"_btm_l_in_cnr",
+	"_top_r_out_cnr",
+	"ice",
+	"ledge",
+	"fire",
+};
+
 void DrawPlatformSprites()
 {
+
+
+
 	for (Platform& p : gameState.vPlatform)
 	{
 		int nPlatform = (p.Right().x - p.Left().x) / PLATFORM_WIDTH;
 
 		for (int i = 0; i < nPlatform; ++i)
 		{
+
+			// table lookup
+
+
+
 			int spritePosX = (i * PLATFORM_WIDTH) + p.Left().x + PLATFORM_WIDTH / 2;
 			Point2D spritePos = { spritePosX, p.pos.y };
-			if (p.type == _btm_l_in_cnr)
+
+			Play::DrawSprite(Play::GetSpriteId(spriteNames[p.type]), spritePos, 0);
+
+			/*if (p.type == _btm_l_in_cnr)
 				Play::DrawSprite(Play::GetSpriteId("_btm_l_in_cnr"), spritePos, 0);
 			else if (p.type == _btm_l_out_cnr)
 				Play::DrawSprite(Play::GetSpriteId("_btm_l_out_cnr"), spritePos, 0);
@@ -1150,7 +1114,7 @@ void DrawPlatformSprites()
 			else if (p.type == ice)
 				Play::DrawSprite(Play::GetSpriteId("ice"), spritePos, 0);
 			else if (p.type == ledge)
-				Play::DrawSprite(Play::GetSpriteId("ledge"), spritePos, 0);
+				Play::DrawSprite(Play::GetSpriteId("ledge"), spritePos, 0);*/
 		}
 	}
 }

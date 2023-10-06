@@ -1,7 +1,7 @@
 enum GameModes
 {
 	TEST_MODE = 0,
-	PLAY_MODE = 1,		// Change game mode in GameState struct
+	PLAY_MODE = 1,		// Change game mode in GameState struct add toggle testmode and playmode
 };
 
 enum GameObjectType
@@ -14,10 +14,11 @@ enum GameObjectType
 
 enum PlatformType
 {
+	// remove unecessary '='
 	_empt = 0,
-	_btm_l_in_cnr = 12,
-	_btm_l_out_cnr = 2,
 	_btm_mid = 1,
+	_btm_l_out_cnr = 2,
+	_unused = 3,
 	_btm_r_in_cnr = 4,
 	_btm_r_out_cnr = 5,
 	_l_mid = 6,
@@ -26,10 +27,11 @@ enum PlatformType
 	_top_l_out_cnr = 9,
 	_top_mid = 10,
 	_top_r_in_cnr = 11,
+	_btm_l_in_cnr = 12,
 	_top_r_out_cnr = 13,
-	fire = 16,
 	ice = 14,
 	ledge = 15,
+	fire = 16,
 };
 
 enum Backgrounds
@@ -63,6 +65,7 @@ struct Petal
 {
 	Point2D pos{ 0, 0 };
 	float currentLifetime{ 0 };
+	float opacity{ 1.f };
 	int spriteId{ 0 };
 	int spriteFrame{ 0 };
 };
@@ -70,19 +73,19 @@ struct Petal
 struct PetalEmitter
 {
 	std::vector<Petal> vPetal;
+	const Vector2D windForce{ 3.f, 0 };
 	float splitTime{ 0 };
-	const float opacity{ 0.6 };
-	const float lifetime{ 4.2f };
+	float windTime{ 0 };
+	const float baseOpacity{ 1.f };
+	const float decayConstant{ 0.75f };
 	const float emitPeriod{ 0.3f };
-	const int windSpeed{ 5 };
+	const float windEndTime{ 3.f };
+	const float breakTime{ 3.f };
+	int windDir{ 1 };
+	const int petalSpeed{ 5 };
 	const int amplitude{ 1 };
 	const int frequency{ 2 };
 	const int emitParticles{ 5 };
-	int windDir{ 1 };
-	float windTime{ 0 };
-	const float windEndTime{ 3.f };
-	const float breakTime{ 3.f };
-	const float windImpulse{ 3.f };
 	bool applyAccel{ false };
 	bool onBreak{ false };
 };
@@ -225,15 +228,15 @@ void WallJump(float& elapsedTime);
 void Hurt(float& elapsedTime);
 void Death(float& elapsedTime);
 void HandleSizeScale();
-float ResolveFriction();
+float ApplyFriction();
+
+Vector2D CalculateAcceleration();
 
 void HandlePortal(float& elapsedTime);
 void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
 void HandleHurt();
-
-void HandleAudio(float& elapsedTime);
 
 void ScreenShake(float& elapsedTime);
 
