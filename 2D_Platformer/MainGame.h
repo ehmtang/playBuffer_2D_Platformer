@@ -65,6 +65,7 @@ enum SlimeState
 {
 	SLIME_IDLE = 0,
 	SLIME_WALK,
+	SLIME_TURN,
 };
 
 struct Petal
@@ -143,7 +144,6 @@ struct FinishLine
 
 struct PlayerAttributes
 {
-	Vector2D gravity{ 0, 1.f };
 	Vector2D airDashDir{ 0, 0 };
 	Vector2D GroundBox{ 4, 1 };				//scale with size in x
 	Vector2D GroundBoxOffset{ 0, 15 };		//scale with size in y
@@ -153,7 +153,6 @@ struct PlayerAttributes
 	Vector2D HurtBoxOffset{ 0, 0 };
 	Vector2D PunchBox{ 7, 7 };				//scale with size in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
-	Vector2D collisionDir{ 0, 0 };
 	Point2D startingPos{ 600, 300 };
 	PlayerState state{ STATE_IDLE };
 	float jumpTime{ 0 };
@@ -186,17 +185,18 @@ struct PlayerAttributes
 
 struct SlimeAttributes
 {
-	Vector2D HurtBox{ 15, 15 };				//scale with size in x and y
-	Vector2D HurtBoxOffset{ -3, 0 };
+	Vector2D HurtBox{ 16, 12 };				//scale with size in x and y
+	Vector2D HurtBoxOffset{ 4, 1 };
 	Vector2D collisionDir{ 0, 0 };
-	Point2D startingPos{ 1000, 210 };
+	Point2D startingPos{ 1100, 192 };
 	SlimeState state{ SLIME_IDLE };
 	float maxWalkSpeed{ 2.f };				//scaled with size
 	float sizeScale{ 1.f };
-	int direction{ -1 };
-	int idleCounter{ 0 };
-	const int idleLimit{ 10 };
+	float idleTime{ 0 };
+	int direction{ 1 };
+	const float idleLimit{ 3.f };
 	bool isHurt{ false };
+	bool isGrounded{ false };
 };
 
 struct Platform
@@ -234,6 +234,7 @@ struct GameState
 	ScreenShakeInfo camera;
 	Audio audio;
 	Backgrounds bg;
+	Vector2D gravity{ 0, 1.f };
 	int gameMode = TEST_MODE;
 };
 
@@ -256,7 +257,8 @@ Vector2D CalculateAcceleration();
 void UpdateSlime(float& elapsedTime);
 void SlimeIdle(float& elapsedTime);
 void SlimeWalk(float& elapsedTime);
-
+void SlimeTurn(float& elapsedTime);
+void SlimeGrounded();
 
 void HandlePortal(float& elapsedTime);
 void HandleObstructed();
@@ -293,6 +295,7 @@ void ResetGame();
 float q_rsqrt(float number);
 float exponentialDecay(const float& A0, const float& lambda, const float& time);
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
+Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
 void MergeCollisionBox();
 int GetPlatformId();
