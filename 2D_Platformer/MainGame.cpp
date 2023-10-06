@@ -45,6 +45,27 @@ const int ROOM[23][40] =
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 
+const char* spriteNames[] =
+{
+	"_empt",
+	"_btm_mid",
+	"_btm_l_out_cnr",
+	"",
+	"_btm_r_in_cnr",
+	"_btm_r_out_cnr",
+	"_l_mid",
+	"_r_mid",
+	"_top_l_in_cnr",
+	"_top_l_out_cnr",
+	"_top_mid",
+	"_top_r_in_cnr",
+	"_btm_l_in_cnr",
+	"_top_r_out_cnr",
+	"ice",
+	"ledge",
+	"fire",
+};
+
 GameState gameState;
 
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
@@ -58,24 +79,25 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 	CreatePlatform();
 	MergeCollisionBox();
 	CreatePlayer();
+	CreateSlime();
 }
 
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
-
+	ToggleGameModes();
 	HandleBackgrounds();
 	UpdatePlayer(elapsedTime);
+	UpdateSlime(elapsedTime);
 	HandlePortal(elapsedTime);
 	DrawPortal();
 	HandleAfterImageLifetime(elapsedTime);
 	DrawPlatformSprites();
 	DrawCollisionBoxes();
 	DrawPlayer();
+	DrawSlime();
 	DrawUI();
-
 	ApplyWind(elapsedTime);
-
 	Play::PresentDrawingBuffer();
 
 	if (Play::KeyPressed(VK_TAB))
@@ -631,6 +653,53 @@ Vector2D CalculateAcceleration()
 	return totalAccel;
 }
 
+void UpdateSlime(float& elapsedTime)
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	slimeObj.scale = gameState.slime.sizeScale;
+
+	switch (gameState.slime.state)
+	{
+	case SLIME_IDLE:
+	{
+		SlimeIdle(elapsedTime);
+		break;
+	}
+	case SLIME_WALK:
+	{
+		SlimeWalk(elapsedTime);
+		break;
+	}
+	}
+}
+
+
+
+
+void SlimeIdle(float& elapsedTime)
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_idle_left" : "slime_idle", 0.25f);
+
+	slimeObj.velocity.x = std::clamp(slimeObj.velocity.x, -gameState.player.maxRunSpeed - slimeObj.acceleration.x, gameState.player.maxRunSpeed - slimeObj.acceleration.x);
+
+	if (Play::IsAnimationComplete)
+	{
+		gameState.slime.idleCounter += 1;
+
+		if (gameState.slime.idleCounter > gameState.slime.idleLimit)
+		{
+			gameState.slime.state = SLIME_WALK;
+		}
+	}
+}
+
+void SlimeWalk(float& elapsedTime)
+{
+
+}
+
 void HandlePortal(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
@@ -972,7 +1041,6 @@ void DrawPetalLifeTime(float& elapsedTime)
 	}
 }
 
-
 void DrawPlayer()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
@@ -981,11 +1049,14 @@ void DrawPlayer()
 
 void DrawCollisionBoxes()
 {
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
 	switch (gameState.gameMode)
 	{
 	case(TEST_MODE):
 	{
-		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+		Play::DrawRect(slimeObj.pos - gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, slimeObj.pos + gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, Play::cOrange);
 
 		for (Platform& p : gameState.vPlatform)
 		{
@@ -1043,78 +1114,22 @@ void DrawCollisionBoxes()
 	}
 }
 
-const char* spriteNames[] = 
+void DrawSlime()
 {
-	"_empt",
-	"_btm_mid",
-	"_btm_l_out_cnr",
-	"",
-	"_btm_r_in_cnr",
-	"_btm_r_out_cnr",
-	"_l_mid",
-	"_r_mid",
-	"_top_l_in_cnr",
-	"_top_l_out_cnr",
-	"_top_mid",
-	"_top_r_in_cnr",
-	"_btm_l_in_cnr",
-	"_top_r_out_cnr",
-	"ice",
-	"ledge",
-	"fire",
-};
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	Play::DrawObjectRotated(slimeObj);
+}
 
 void DrawPlatformSprites()
 {
-
-
-
 	for (Platform& p : gameState.vPlatform)
 	{
 		int nPlatform = (p.Right().x - p.Left().x) / PLATFORM_WIDTH;
-
 		for (int i = 0; i < nPlatform; ++i)
 		{
-
-			// table lookup
-
-
-
 			int spritePosX = (i * PLATFORM_WIDTH) + p.Left().x + PLATFORM_WIDTH / 2;
 			Point2D spritePos = { spritePosX, p.pos.y };
-
 			Play::DrawSprite(Play::GetSpriteId(spriteNames[p.type]), spritePos, 0);
-
-			/*if (p.type == _btm_l_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_l_in_cnr"), spritePos, 0);
-			else if (p.type == _btm_l_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_l_out_cnr"), spritePos, 0);
-			else if (p.type == _btm_mid)
-				Play::DrawSprite(Play::GetSpriteId("_btm_mid"), spritePos, 0);
-			else if (p.type == _btm_r_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_r_in_cnr"), spritePos, 0);
-			else if (p.type == _btm_r_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_r_out_cnr"), spritePos, 0);
-			else if (p.type == _l_mid)
-				Play::DrawSprite(Play::GetSpriteId("_l_mid"), spritePos, 0);
-			else if (p.type == _r_mid)
-				Play::DrawSprite(Play::GetSpriteId("_r_mid"), spritePos, 0);
-			else if (p.type == _top_l_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_l_in_cnr"), spritePos, 0);
-			else if (p.type == _top_l_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_l_out_cnr"), spritePos, 0);
-			else if (p.type == _top_mid)
-				Play::DrawSprite(Play::GetSpriteId("_top_mid"), spritePos, 0);
-			else if (p.type == _top_r_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_r_in_cnr"), spritePos, 0);
-			else if (p.type == _top_r_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_r_out_cnr"), spritePos, 0);
-			else if (p.type == fire)
-				Play::DrawSprite(Play::GetSpriteId("fire"), spritePos, 0);
-			else if (p.type == ice)
-				Play::DrawSprite(Play::GetSpriteId("ice"), spritePos, 0);
-			else if (p.type == ledge)
-				Play::DrawSprite(Play::GetSpriteId("ledge"), spritePos, 0);*/
 		}
 	}
 }
@@ -1131,17 +1146,17 @@ void DrawUI()
 	case(TEST_MODE):
 	{
 		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+		Play::DrawFontText("64px", "TEST MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 69), Play::LEFT);
+		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 106), Play::LEFT);
+		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 180), Play::LEFT);
+		Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 217), Play::LEFT);
 
-		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
-		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 69), Play::LEFT);
-		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
-		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 143), Play::LEFT);
-		Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 180), Play::LEFT);
-
-		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 217), Play::LEFT);
-		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 254), Play::LEFT);
-		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 291), Play::LEFT);
-		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(37, 328), Play::LEFT);
+		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 254), Play::LEFT);
+		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 291), Play::LEFT);
+		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 328), Play::LEFT);
+		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(37, 365), Play::LEFT);
 
 		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 37, 32), Play::RIGHT);
 		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(DISPLAY_WIDTH - 37, 69), Play::RIGHT);
@@ -1184,7 +1199,7 @@ void HandleBackgrounds()
 
 void CreatePlayer()
 {
-	int id{ Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle") };
+	Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle");
 }
 
 void CreatePlatform()
@@ -1238,6 +1253,11 @@ void CreatePlatform()
 			gameState.vPlatform.push_back(platform);
 		}
 	}
+}
+
+void CreateSlime()
+{
+	Play::CreateGameObject(TYPE_SLIME, gameState.slime.startingPos, 0, "slime_idle");
 }
 
 void ResetGame()
@@ -1334,4 +1354,10 @@ int GetPlatformType()
 		if (gameState.vPlatform[i].playerOnTop == true)
 			return gameState.vPlatform[i].type;
 	}
+}
+
+void ToggleGameModes()
+{
+	if (Play::KeyPressed(VK_TAB))
+		(gameState.gameMode == TEST_MODE) ? gameState.gameMode = PLAY_MODE : gameState.gameMode = TEST_MODE;
 }

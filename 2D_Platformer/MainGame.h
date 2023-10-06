@@ -1,15 +1,15 @@
 enum GameModes
 {
 	TEST_MODE = 0,
-	PLAY_MODE = 1,		// Change game mode in GameState struct add toggle testmode and playmode
+	PLAY_MODE = 1,
 };
 
 enum GameObjectType
 {
 	TYPE_NULL = -1,
 	TYPE_PLAYER,
+	TYPE_SLIME,
 	TYPE_DESTROYED,
-	TYPE_BALLOON,
 };
 
 enum PlatformType
@@ -61,6 +61,12 @@ enum PlayerState
 	STATE_DEATH,
 };
 
+enum SlimeState
+{
+	SLIME_IDLE = 0,
+	SLIME_WALK,
+};
+
 struct Petal
 {
 	Point2D pos{ 0, 0 };
@@ -79,8 +85,8 @@ struct PetalEmitter
 	const float baseOpacity{ 1.f };
 	const float decayConstant{ 0.75f };
 	const float emitPeriod{ 0.3f };
-	const float windEndTime{ 3.f };
-	const float breakTime{ 3.f };
+	const float windEndTime{ 2.f };
+	const float breakTime{ 5.f };
 	int windDir{ 1 };
 	const int petalSpeed{ 5 };
 	const int amplitude{ 1 };
@@ -178,6 +184,21 @@ struct PlayerAttributes
 	bool isHurt{ false };
 };
 
+struct SlimeAttributes
+{
+	Vector2D HurtBox{ 15, 15 };				//scale with size in x and y
+	Vector2D HurtBoxOffset{ -3, 0 };
+	Vector2D collisionDir{ 0, 0 };
+	Point2D startingPos{ 1000, 210 };
+	SlimeState state{ SLIME_IDLE };
+	float maxWalkSpeed{ 2.f };				//scaled with size
+	float sizeScale{ 1.f };
+	int direction{ -1 };
+	int idleCounter{ 0 };
+	const int idleLimit{ 10 };
+	bool isHurt{ false };
+};
+
 struct Platform
 {
 	Vector2D pBox{ 16, 16 };
@@ -208,6 +229,7 @@ struct GameState
 	AfterImageEmitter afterImageEmitter;
 	FinishLine portal;
 	PlayerAttributes player;
+	SlimeAttributes slime;
 	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
 	Audio audio;
@@ -229,8 +251,12 @@ void Hurt(float& elapsedTime);
 void Death(float& elapsedTime);
 void HandleSizeScale();
 float ApplyFriction();
-
 Vector2D CalculateAcceleration();
+
+void UpdateSlime(float& elapsedTime);
+void SlimeIdle(float& elapsedTime);
+void SlimeWalk(float& elapsedTime);
+
 
 void HandlePortal(float& elapsedTime);
 void HandleObstructed();
@@ -252,6 +278,7 @@ void DrawPetalLifeTime(float& elapsedTime);
 void DrawPlayer();
 void DrawPlatformSprites();
 void DrawCollisionBoxes();
+void DrawSlime();
 void DrawPortal();
 void DrawUI();
 
@@ -259,6 +286,7 @@ void HandleBackgrounds();
 
 void CreatePlayer();
 void CreatePlatform();
+void CreateSlime();
 
 void ResetGame();
 
@@ -269,3 +297,4 @@ void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aO
 void MergeCollisionBox();
 int GetPlatformId();
 int GetPlatformType();
+void ToggleGameModes();
