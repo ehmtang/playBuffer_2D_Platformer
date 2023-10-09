@@ -6,6 +6,7 @@
 // Leopaz - player SFX https://leohpaz.itch.io/90-retro-player-movement-sfx
 // JasonTomLee - slime character sprite https://jasontomlee.itch.io/slime-platformer-asset-pack
 // Elthen - portal sprite https://elthen.itch.io/2d-pixel-art-portal-sprites
+// CazWolf - keyboard sprites https://cazwolf.itch.io/caz-pixel-keyboard
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
@@ -97,6 +98,7 @@ bool MainGameUpdate(float elapsedTime)
 	DrawPlayer();
 	DrawSlime();
 	DrawUI();
+	DrawSlimeTalk();
 	ApplyWind(elapsedTime);
 	Play::PresentDrawingBuffer();
 
@@ -682,15 +684,24 @@ void UpdateSlime(float& elapsedTime)
 
 	Play::UpdateGameObject(slimeObj);
 	SlimeGrounded();
+	SlimeTalk();
 }
 
 void SlimeIdle(float& elapsedTime)
 {
 	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
 
 	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_idle_left" : "slime_idle", 0.25f);
 
 	gameState.slime.idleTime += elapsedTime;
+
+	if (AABBCollisionTest({ slimeObj.pos.x + gameState.slime.direction * PLATFORM_WIDTH / 2, slimeObj.pos.y }, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset))
+	{
+		gameState.slime.idleTime = 0;
+		return;
+	}
 
 	if (gameState.slime.idleTime > gameState.slime.idleLimit)
 	{
@@ -707,7 +718,7 @@ void SlimeWalk(float& elapsedTime)
 
 	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_walk_left" : "slime_walk", 0.25f);
 
-	float newPosX = slimeObj.pos.x + gameState.slime.direction * 2;
+	float newPosX = slimeObj.pos.x + gameState.slime.direction * gameState.slime.maxWalkSpeed;
 
 	bool willWalkOffEdge = true;
 
@@ -728,17 +739,13 @@ void SlimeWalk(float& elapsedTime)
 
 	for (Platform& p : gameState.vPlatform)
 	{
-		if (AABBCollisionTest(slimeObj.pos, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& GetNearestEdge(slimeObj.pos, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(-1, 0)
-			|| AABBCollisionTest(slimeObj.pos, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& GetNearestEdge(slimeObj.pos, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(1, 0)
-			|| willWalkOffEdge == true)
+		if (AABBCollisionTest(slimeObj.pos + Vector2D(gameState.slime.direction * gameState.slime.maxWalkSpeed, 0), gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+			&& GetNearestEdge(slimeObj.pos + Vector2D(gameState.slime.direction * gameState.slime.maxWalkSpeed, 0), gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(-gameState.slime.direction, 0))
 		{
 			gameState.slime.state = SLIME_TURN;
 			return;
 		}
 	}
-
 	slimeObj.pos.x = newPosX;
 }
 
@@ -789,6 +796,47 @@ void SlimeGrounded()
 	{
 		slimeObj.acceleration.y = gameState.gravity.y;
 		//slimeObj.velocity.y = std::clamp(slimeObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
+	}
+}
+
+void SlimeTalk()
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	if (AABBCollisionTest(slimeObj.pos, gameState.slime.TalkBox, Vector2D(gameState.slime.direction, 1) * gameState.slime.HurtBoxOffset, playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset))
+	{
+		SlimeTalkIcon();
+
+		// set slimeobj sprite to idle
+		// face the player
+		// 
+	}
+
+}
+
+void SlimeTalkIcon()
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
+	if (gameState.slime.hasTalked == false)
+		Play::DrawSpriteRotated("key_x", slimeObj.pos + Point2D(0, -20), 0, 0, 0.5f, 1);
+
+	if (Play::KeyPressed('X'))
+	{
+		(gameState.slime.hasTalked == true) ? gameState.slime.hasTalked = false : gameState.slime.hasTalked = true;
+	}
+
+
+
+}
+
+void DrawSlimeTalk()
+{
+	if (gameState.slime.hasTalked == true)
+	{
+		Play::DrawFontText("64px", "Hi friend. Use the arrow keys to move. 'Z' to jump. 'X' to punch. 'C' to roll.", Point2D(37, DISPLAY_HEIGHT - 79), Play::LEFT);
+		Play::DrawFontText("64px", "Arrow keys to move. To Air Dash, jump and press 'C' with arrow key.", Point2D(37, DISPLAY_HEIGHT - 37), Play::LEFT);
 	}
 }
 
@@ -1238,7 +1286,7 @@ void DrawUI()
 	case(TEST_MODE):
 	{
 		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-		Play::DrawFontText("64px", "TEST MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "TEST MODE - TAB to switch to PLAY_MODE", Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
@@ -1256,6 +1304,42 @@ void DrawUI()
 		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(DISPLAY_WIDTH - 37, 180), Play::RIGHT);
 		Play::DrawFontText("64px", "PLATFORM ON: " + std::to_string(GetPlatformId()), Point2D(DISPLAY_WIDTH - 37, 217), Play::RIGHT);
 		Play::DrawFontText("64px", "PLATFORM TYPE: " + std::to_string(GetPlatformType()), Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
+
+		if (Play::KeyDown('Z'))
+			Play::DrawSpriteRotated("key_z_pressed", Point2D(64, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_z", Point2D(64, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
+		if (Play::KeyDown('X'))
+			Play::DrawSpriteRotated("key_x_pressed", Point2D(96, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_x", Point2D(96, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
+		if (Play::KeyDown('C'))
+			Play::DrawSpriteRotated("key_c_pressed", Point2D(128, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_c", Point2D(128, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_LEFT))
+			Play::DrawSpriteRotated("key_left_pressed", Point2D(192, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_left", Point2D(192, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_UP))
+			Play::DrawSpriteRotated("key_up_pressed", Point2D(224, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_up", Point2D(224, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_RIGHT))
+			Play::DrawSpriteRotated("key_right_pressed", Point2D(256, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_right", Point2D(256, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_DOWN))
+			Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+
 		break;
 	}
 	case(PLAY_MODE):

@@ -66,6 +66,7 @@ enum SlimeState
 	SLIME_IDLE = 0,
 	SLIME_WALK,
 	SLIME_TURN,
+	SLIME_TALK,
 };
 
 struct Petal
@@ -86,8 +87,8 @@ struct PetalEmitter
 	const float baseOpacity{ 1.f };
 	const float decayConstant{ 0.75f };
 	const float emitPeriod{ 0.3f };
-	const float windEndTime{ 2.f };
-	const float breakTime{ 5.f };
+	const float windEndTime{ 1.2f };
+	const float breakTime{ 6.f };
 	int windDir{ 1 };
 	const int petalSpeed{ 5 };
 	const int amplitude{ 1 };
@@ -186,17 +187,18 @@ struct PlayerAttributes
 struct SlimeAttributes
 {
 	Vector2D HurtBox{ 16, 12 };				//scale with size in x and y
+	Vector2D TalkBox{ 32, 12 };				//scale with size in x and y
 	Vector2D HurtBoxOffset{ 4, 1 };
-	Vector2D collisionDir{ 0, 0 };
-	Point2D startingPos{ 1100, 192 };
+	Point2D startingPos{ 500, 384 };
 	SlimeState state{ SLIME_IDLE };
 	float maxWalkSpeed{ 2.f };				//scaled with size
 	float sizeScale{ 1.f };
 	float idleTime{ 0 };
-	int direction{ 1 };
+	int direction{ -1 };
 	const float idleLimit{ 3.f };
 	bool isHurt{ false };
 	bool isGrounded{ false };
+	bool hasTalked{ false };
 };
 
 struct Platform
@@ -259,6 +261,9 @@ void SlimeIdle(float& elapsedTime);
 void SlimeWalk(float& elapsedTime);
 void SlimeTurn(float& elapsedTime);
 void SlimeGrounded();
+void SlimeTalk();
+void SlimeTalkIcon();
+void DrawSlimeTalk();
 
 void HandlePortal(float& elapsedTime);
 void HandleObstructed();
