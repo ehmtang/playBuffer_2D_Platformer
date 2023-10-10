@@ -14,24 +14,28 @@ enum GameObjectType
 
 enum PlatformType
 {
-	// remove unecessary '='
 	_empt = 0,
-	_btm_mid = 1,
-	_btm_l_out_cnr = 2,
-	_unused = 3,
-	_btm_r_in_cnr = 4,
-	_btm_r_out_cnr = 5,
-	_l_mid = 6,
-	_r_mid = 7,
-	_top_l_in_cnr = 8,
-	_top_l_out_cnr = 9,
-	_top_mid = 10,
-	_top_r_in_cnr = 11,
-	_btm_l_in_cnr = 12,
-	_top_r_out_cnr = 13,
-	ice = 14,
-	ledge = 15,
-	fire = 16,
+	_btm_mid,
+	_btm_l_out_cnr,
+	_unused,
+	_btm_r_in_cnr,
+	_btm_r_out_cnr,
+	_l_mid,
+	_r_mid,
+	_top_l_in_cnr,
+	_top_l_out_cnr,
+	_top_mid,
+	_btm_l_in_cnr,
+	_top_r_out_cnr,
+	ice,
+	ledge,
+	fire,
+	_bg_wall,
+	_top_r_in_cnr,
+	spike_down,
+	spike_left,
+	spike_right,
+	spike_up,
 };
 
 enum Backgrounds
@@ -81,21 +85,21 @@ struct Petal
 struct PetalEmitter
 {
 	std::vector<Petal> vPetal;
-	const Vector2D windForce{ 3.f, 0 };
+	const Vector2D windForce{ 1.5f, 0 };
 	float splitTime{ 0 };
 	float windTime{ 0 };
 	const float baseOpacity{ 1.f };
 	const float decayConstant{ 0.75f };
 	const float emitPeriod{ 0.3f };
-	const float windEndTime{ 1.2f };
-	const float breakTime{ 6.f };
+	const float windEndTime{ 2.f };
+	const float breakTime{ 8.f };
 	int windDir{ 1 };
 	const int petalSpeed{ 5 };
 	const int amplitude{ 1 };
 	const int frequency{ 2 };
 	const int emitParticles{ 5 };
 	bool applyAccel{ false };
-	bool onBreak{ false };
+	bool onBreak{ true };
 };
 
 struct AfterImage
@@ -132,7 +136,7 @@ struct Audio
 	bool audioPlayed{ false };
 };
 
-struct FinishLine
+struct Portal
 {
 	std::vector<float> vSplitTime;
 	Point2D pos{ 720, 120 };
@@ -154,7 +158,7 @@ struct PlayerAttributes
 	Vector2D HurtBoxOffset{ 0, 0 };
 	Vector2D PunchBox{ 7, 7 };				//scale with size in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
-	Point2D startingPos{ 600, 300 };
+	Point2D startingPos{ 416, 384 };
 	PlayerState state{ STATE_IDLE };
 	float jumpTime{ 0 };
 	float jumpEndTime{ 0.1f };
@@ -229,7 +233,7 @@ struct GameState
 	std::vector<Platform> vPlatform;
 	PetalEmitter petalEmitter;
 	AfterImageEmitter afterImageEmitter;
-	FinishLine portal;
+	Portal portal;
 	PlayerAttributes player;
 	SlimeAttributes slime;
 	PlatformAttributes platformAttr;
@@ -292,7 +296,8 @@ void DrawUI();
 void HandleBackgrounds();
 
 void CreatePlayer();
-void CreatePlatform();
+//void CreatePlatform(const int arr[][40], int nRows, int nCols);
+void CreatePlatform(const int room[][40]); 
 void CreateSlime();
 
 void ResetGame();

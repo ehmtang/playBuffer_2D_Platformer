@@ -7,6 +7,8 @@
 // JasonTomLee - slime character sprite https://jasontomlee.itch.io/slime-platformer-asset-pack
 // Elthen - portal sprite https://elthen.itch.io/2d-pixel-art-portal-sprites
 // CazWolf - keyboard sprites https://cazwolf.itch.io/caz-pixel-keyboard
+// Purrple Cat - Crescent Moon background theme https://purrplecat.com/
+
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
@@ -19,31 +21,115 @@ constexpr int DISPLAY_HEIGHT{ 720 };
 constexpr int DISPLAY_SCALE{ 1 };
 constexpr int PLATFORM_WIDTH{ 32 };
 
-const int ROOM[23][40] =
+const int MAX_ROWS = 23;
+const int MAX_COLS = 40;
+
+const int ROOM_0[23][40] =
 {
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,14,14,14,14,14,14,14,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,9,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,9,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,11,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,2,10,5,15,15,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,9,1,1,1,1,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,7,0,0,0,0,0,6,0,0,15,15,15,15,9,1,1,1,1,1,13,16,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,2,10,10,10,10,10,5,0,0,0,0,0,0,7,0,0,0,0,0,6,16,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,2,10,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,6,16,16,16,16,16,7,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,7,0,0,0,0,0,12,1,1,1,1,1,4,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,14,14,14,14,14,14,14,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{ 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,13,13,13,13,13,13,13,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0},
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,9,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,9,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,17,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,2,10,5,14,14,14,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,9,1,1,1,1,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,7,0,0,0,0,0,6,0,0,14,14,14,14,9,1,1,1,1,1,12,15,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,2,10,10,10,10,10,5,0,0,0,0,0,0,7,0,0,0,0,0,6,15,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,2,10,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,6,15,15,15,15,15,7,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,14,14,14,7,0,0,0,0,0,11,1,1,1,1,1,4,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,13,13,13,13,13,13,13,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const int ROOM_1[23][40] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,8,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,2,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,11,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0  },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const int ROOM_2[23][40] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,8,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,1,1,1,4,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,13,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,11,1,1,12,21,21,21,21,21,21,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,11,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const int ROOM_3[23][40] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,8,10,10,10,10,10,10,10,10,10,10,10,17,0,0,0,0,0,0,0,0,0,0,8,10,10,10,10,10,10,10,10,10,10,10,17,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,11,1,1,1,1,12,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,9,1,1,1,1,4,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,2,10,10,10,10,10,10,10,10,10,10,5,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,18,18,18,18,18,18,18,18,18,18,18,18,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,11,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
 };
 
 const char* spriteNames[] =
@@ -59,12 +145,17 @@ const char* spriteNames[] =
 	"_top_l_in_cnr",
 	"_top_l_out_cnr",
 	"_top_mid",
-	"_top_r_in_cnr",
 	"_btm_l_in_cnr",
 	"_top_r_out_cnr",
 	"ice",
 	"ledge",
 	"fire",
+	"_bg_wall",
+	"_top_r_in_cnr",
+	"spike_down",
+	"spike_left",
+	"spike_right",
+	"spike_up",
 };
 
 GameState gameState;
@@ -73,11 +164,11 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
 
-	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map2-export.png");
-	//Play::StartAudioLoop("theme");
+	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
+	Play::StartAudioLoop("Crescent-Moon_snip");
 	Play::CentreAllSpriteOrigins();
 	HandleSizeScale();
-	CreatePlatform();
+	CreatePlatform(ROOM_0);
 	MergeCollisionBox();
 	CreatePlayer();
 	CreateSlime();
@@ -435,6 +526,8 @@ void Punch(float& elapsedTime)
 
 	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_punch_left" : "player_punch", 0.7f);
 
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
+
 	if (Play::IsAnimationComplete(playerObj))
 	{
 		gameState.player.state = STATE_IDLE;
@@ -491,7 +584,6 @@ void WallClimb(float& elapsedTime)
 
 		if (Play::KeyPressed('Z'))
 		{
-			//gameState.player.hasLandedOnWall = false;
 			gameState.player.state = STATE_WALLJUMP;
 			return;
 		}
@@ -819,8 +911,7 @@ void SlimeTalkIcon()
 {
 	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
 
-	if (gameState.slime.hasTalked == false)
-		Play::DrawSpriteRotated("key_x", slimeObj.pos + Point2D(0, -20), 0, 0, 0.5f, 1);
+	Play::DrawSpriteRotated("key_x", slimeObj.pos + Point2D(0, -20), 0, 0, 0.5f, 1);
 
 	if (Play::KeyPressed('X'))
 	{
@@ -835,8 +926,9 @@ void DrawSlimeTalk()
 {
 	if (gameState.slime.hasTalked == true)
 	{
-		Play::DrawFontText("64px", "Hi friend. Use the arrow keys to move. 'Z' to jump. 'X' to punch. 'C' to roll.", Point2D(37, DISPLAY_HEIGHT - 79), Play::LEFT);
-		Play::DrawFontText("64px", "Arrow keys to move. To Air Dash, jump and press 'C' with arrow key.", Point2D(37, DISPLAY_HEIGHT - 37), Play::LEFT);
+		Play::DrawFontText("64px", "Hi friend. Use the arrow keys to move. 'Z' to jump. 'X' to punch. 'C' to roll.", Point2D(37, DISPLAY_HEIGHT - 111), Play::LEFT);
+		Play::DrawFontText("64px", "To Air Dash, jump and press 'C' with arrow key.", Point2D(37, DISPLAY_HEIGHT - 74), Play::LEFT);
+		Play::DrawFontText("64px", "When you're ready. Enter the portal!", Point2D(37, DISPLAY_HEIGHT - 37), Play::LEFT);
 	}
 }
 
@@ -1289,9 +1381,9 @@ void DrawUI()
 		Play::DrawFontText("64px", "TEST MODE - TAB to switch to PLAY_MODE", Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 106), Play::LEFT);
-		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
-		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 180), Play::LEFT);
-		Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 217), Play::LEFT);
+		//Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
+		//Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 180), Play::LEFT);
+		//Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 217), Play::LEFT);
 
 		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 254), Play::LEFT);
 		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 291), Play::LEFT);
@@ -1306,39 +1398,39 @@ void DrawUI()
 		Play::DrawFontText("64px", "PLATFORM TYPE: " + std::to_string(GetPlatformType()), Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
 
 		if (Play::KeyDown('Z'))
-			Play::DrawSpriteRotated("key_z_pressed", Point2D(64, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_z_pressed", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_z", Point2D(64, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_z", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		if (Play::KeyDown('X'))
-			Play::DrawSpriteRotated("key_x_pressed", Point2D(96, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_x_pressed", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_x", Point2D(96, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_x", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		if (Play::KeyDown('C'))
-			Play::DrawSpriteRotated("key_c_pressed", Point2D(128, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_c_pressed", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_c", Point2D(128, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_c", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		if (Play::KeyDown(VK_LEFT))
-			Play::DrawSpriteRotated("key_left_pressed", Point2D(192, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_left_pressed", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_left", Point2D(192, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_left", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		if (Play::KeyDown(VK_UP))
-			Play::DrawSpriteRotated("key_up_pressed", Point2D(224, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_up_pressed", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_up", Point2D(224, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_up", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		if (Play::KeyDown(VK_RIGHT))
-			Play::DrawSpriteRotated("key_right_pressed", Point2D(256, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_right_pressed", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_right", Point2D(256, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_right", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		if (Play::KeyDown(VK_DOWN))
-			Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 		else
-			Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 32), 0, 0, 1, 1);
+			Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
 
 		break;
 	}
@@ -1377,12 +1469,12 @@ void CreatePlayer()
 	Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle");
 }
 
-void CreatePlatform()
+void CreatePlatform(const int room[][MAX_COLS])
 {
 	Platform platform;
 
-	int total = sizeof(ROOM);
-	int nColumn = sizeof(ROOM[0]);
+	int total = MAX_ROWS * MAX_COLS;//sizeof(room);
+	int nColumn = MAX_COLS;// sizeof(room[0]);
 	int nRow = total / nColumn;
 
 	int gap = PLATFORM_WIDTH / 2;
@@ -1391,38 +1483,12 @@ void CreatePlatform()
 	{
 		for (int col = 0; col < nColumn; ++col)
 		{
-			if (ROOM[row][col] == _empt)
+			int value = room[row][col];
+
+			if (room[row][col] == _empt)
 				continue;
-			else if (ROOM[row][col] == _btm_l_in_cnr)
-				platform.type = _btm_l_in_cnr;
-			else if (ROOM[row][col] == _btm_l_out_cnr)
-				platform.type = _btm_l_out_cnr;
-			else if (ROOM[row][col] == _btm_mid)
-				platform.type = _btm_mid;
-			else if (ROOM[row][col] == _btm_r_in_cnr)
-				platform.type = _btm_r_in_cnr;
-			else if (ROOM[row][col] == _btm_r_out_cnr)
-				platform.type = _btm_r_out_cnr;
-			else if (ROOM[row][col] == _l_mid)
-				platform.type = _l_mid;
-			else if (ROOM[row][col] == _r_mid)
-				platform.type = _r_mid;
-			else if (ROOM[row][col] == _top_l_in_cnr)
-				platform.type = _top_l_in_cnr;
-			else if (ROOM[row][col] == _top_l_out_cnr)
-				platform.type = _top_l_out_cnr;
-			else if (ROOM[row][col] == _top_mid)
-				platform.type = _top_mid;
-			else if (ROOM[row][col] == _top_r_in_cnr)
-				platform.type = _top_r_in_cnr;
-			else if (ROOM[row][col] == _top_r_out_cnr)
-				platform.type = _top_r_out_cnr;
-			else if (ROOM[row][col] == fire)
-				platform.type = fire;
-			else if (ROOM[row][col] == ice)
-				platform.type = ice;
-			else if (ROOM[row][col] == ledge)
-				platform.type = ledge;
+			else
+				platform.type = room[row][col];
 
 			platform.pos = Point2D(gap + (col * PLATFORM_WIDTH), gap + (row * PLATFORM_WIDTH));
 			gameState.vPlatform.push_back(platform);
