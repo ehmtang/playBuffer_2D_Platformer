@@ -658,10 +658,8 @@ void HandleSizeScale()
 	gameState.player.WallBox *= Vector2D(1, gameState.player.sizeScale);
 	gameState.player.WallBoxOffset *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
 	gameState.player.HurtBox *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
-	gameState.player.HurtBoxOffset;
 	gameState.player.PunchBox *= Vector2D(gameState.player.sizeScale, gameState.player.sizeScale);
 	gameState.player.PunchBoxOffset *= Vector2D(gameState.player.sizeScale, 1);
-
 	gameState.player.rollImpulse *= gameState.player.sizeScale;
 	gameState.player.jumpImpulse *= gameState.player.sizeScale;
 	gameState.player.wallJumpImpulse *= gameState.player.sizeScale;
@@ -1052,17 +1050,17 @@ void HandleOnWall()
 
 	for (Platform& p : gameState.vPlatform)
 	{
-		bool unclimbable = 
+		bool unclimbable =
 			(
-			p.type != _btm_mid &&
-			p.type != _top_mid &&
-			p.type != ledge &&
-			p.type != fire &&
-			p.type != spike_up &&
-			p.type != spike_down &&
-			p.type != spike_left &&
-			p.type != spike_right
-			);
+				p.type != _btm_mid &&
+				p.type != _top_mid &&
+				p.type != ledge &&
+				p.type != fire &&
+				p.type != spike_up &&
+				p.type != spike_down &&
+				p.type != spike_left &&
+				p.type != spike_right
+				);
 
 		if (gameState.player.state == STATE_WALLJUMP)
 		{
@@ -1275,9 +1273,12 @@ void DrawCollisionBoxes()
 
 	switch (gameState.gameMode)
 	{
-	case(TEST_MODE):
+	case(PLAY_MODE):
 	{
-
+		break;
+	}
+	default:
+	{
 		if (gameState.slime.direction == -1)
 			Play::DrawRect(slimeObj.pos - gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, slimeObj.pos + gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, Play::cOrange);
 		else if (gameState.slime.direction == 1)
@@ -1332,10 +1333,6 @@ void DrawCollisionBoxes()
 		}
 		break;
 	}
-	case(PLAY_MODE):
-	{
-		break;
-	}
 	}
 }
 
@@ -1359,6 +1356,7 @@ void DrawPlatformSprites()
 	}
 }
 
+
 void DrawPortal()
 {
 	Play::DrawSprite(Play::GetSpriteId("portal"), gameState.portal.pos, 0);
@@ -1366,87 +1364,64 @@ void DrawPortal()
 
 void DrawUI()
 {
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
 	switch (gameState.gameMode)
 	{
-	case(TEST_MODE):
+	case(TEST_MODE_OBJ):
 	{
-		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-		Play::DrawFontText("64px", "TEST MODE - TAB to switch to PLAY_MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "TEST MODE obj - TAB to switch MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "PLAYER POS: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 69), Play::LEFT);
+		Play::DrawFontText("64px", "PLAYER VEL: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 106), Play::LEFT);
+		Play::DrawFontText("64px", "PLAYER ACC: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "SLIME POS: (" + std::to_string(slimeObj.pos.x) + ',' + ' ' + std::to_string(slimeObj.pos.y) + ')', Point2D(37, 180), Play::LEFT);
+		Play::DrawFontText("64px", "SLIME VEL: (" + std::to_string(slimeObj.velocity.x) + ',' + ' ' + std::to_string(slimeObj.velocity.y) + ')', Point2D(37, 217), Play::LEFT);
+		Play::DrawFontText("64px", "SLIME ACC: (" + std::to_string(slimeObj.acceleration.x) + ',' + ' ' + std::to_string(slimeObj.acceleration.y) + ')', Point2D(37, 254), Play::LEFT);
+		DrawButtons();
+		break;
+	}
+	case(TEST_MODE_BOOL):
+	{
+		Play::DrawFontText("64px", "TEST MODE bool - TAB to switch MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(37, 69), Play::LEFT);
+		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(37, 106), Play::LEFT);
+		Play::DrawFontText("64px", "HAS AIR DASHED: " + std::to_string(gameState.player.hasAirDashed), Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "HAS LANDED ON WALL: " + std::to_string(gameState.player.hasLandedOnWall), Point2D(37, 180), Play::LEFT);
+		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(37, 217), Play::LEFT);
+		Play::DrawFontText("64px", "PLATFORM ON: " + std::to_string(GetPlatformId()), Point2D(37, 254), Play::LEFT);
+		Play::DrawFontText("64px", "PLATFORM TYPE: " + std::to_string(GetPlatformType()), Point2D(37, 291), Play::LEFT);
+		DrawButtons();
+		break;
+	}
+	case(TEST_MODE_TIME):
+	{
+		Play::DrawFontText("64px", "TEST MODE time - TAB to switch MODE", Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 106), Play::LEFT);
-		//Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
-		//Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 180), Play::LEFT);
-		//Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 217), Play::LEFT);
-
-		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 254), Play::LEFT);
-		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 291), Play::LEFT);
-		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 328), Play::LEFT);
-
-		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 37, 32), Play::RIGHT);
-		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(DISPLAY_WIDTH - 37, 69), Play::RIGHT);
-		Play::DrawFontText("64px", "HAS AIR DASHED: " + std::to_string(gameState.player.hasAirDashed), Point2D(DISPLAY_WIDTH - 37, 106), Play::RIGHT);
-		Play::DrawFontText("64px", "HAS LANDED ON WALL: " + std::to_string(gameState.player.hasLandedOnWall), Point2D(DISPLAY_WIDTH - 37, 143), Play::RIGHT);
-		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(DISPLAY_WIDTH - 37, 180), Play::RIGHT);
-		Play::DrawFontText("64px", "PLATFORM ON: " + std::to_string(GetPlatformId()), Point2D(DISPLAY_WIDTH - 37, 217), Play::RIGHT);
-		Play::DrawFontText("64px", "PLATFORM TYPE: " + std::to_string(GetPlatformType()), Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
-
-		if (Play::KeyDown('Z'))
-			Play::DrawSpriteRotated("key_z_pressed", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_z", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
-		if (Play::KeyDown('X'))
-			Play::DrawSpriteRotated("key_x_pressed", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_x", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
-		if (Play::KeyDown('C'))
-			Play::DrawSpriteRotated("key_c_pressed", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_c", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
-		if (Play::KeyDown(VK_LEFT))
-			Play::DrawSpriteRotated("key_left_pressed", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_left", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
-		if (Play::KeyDown(VK_UP))
-			Play::DrawSpriteRotated("key_up_pressed", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_up", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
-		if (Play::KeyDown(VK_RIGHT))
-			Play::DrawSpriteRotated("key_right_pressed", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_right", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
-		if (Play::KeyDown(VK_DOWN))
-			Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-		else
-			Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
-
+		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
+		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 180), Play::LEFT);
+		Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 217), Play::LEFT);
+		DrawButtons();
 		break;
 	}
 	case(PLAY_MODE):
 	{
-		if (gameState.portal.vSplitTime.size() > 0)
-		{
-			float fastestSplit = *std::min_element(gameState.portal.vSplitTime.begin(), gameState.portal.vSplitTime.end());
-			Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
-			Play::DrawFontText("64px", "FASTEST SPLIT: " + std::to_string(fastestSplit), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
-			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.portal.splitTime), Point2D(DISPLAY_WIDTH - 64, 138), Play::RIGHT);
-		}
-		else
-		{
-			Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 64, 64), Play::RIGHT);
-			Play::DrawFontText("64px", "SPLIT TIME: " + std::to_string(gameState.portal.splitTime), Point2D(DISPLAY_WIDTH - 64, 101), Play::RIGHT);
-		}
-		Play::DrawFontText("64px", "CROSSES PORTAL: " + std::to_string(gameState.portal.crossesPortal), Point2D(64, 64), Play::LEFT);
-		Play::DrawFontText("64px", "COMPLETED LAP: " + std::to_string(gameState.portal.completedLap), Point2D(64, 101), Play::LEFT);
-		Play::DrawFontText("64px", "HAS COMPLETED LAP: " + std::to_string(gameState.portal.hasCompletedLap), Point2D(64, 138), Play::LEFT);
+		Play::DrawFontText("64px", "LEVEL: " + std::to_string(gameState.level), Point2D(37, 37), Play::LEFT);
 		break;
 	}
 	}
+}
+
+void DrawButtons()
+{
+	(Play::KeyDown('Z') ? Play::DrawSpriteRotated("key_z_pressed", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_z", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
+	(Play::KeyDown('X') ? Play::DrawSpriteRotated("key_x_pressed", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_x", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
+	(Play::KeyDown('C') ? Play::DrawSpriteRotated("key_c_pressed", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_c", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
+	(Play::KeyDown(VK_LEFT) ? Play::DrawSpriteRotated("key_left_pressed", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_left", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
+	(Play::KeyDown(VK_UP) ? Play::DrawSpriteRotated("key_up_pressed", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_up", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
+	(Play::KeyDown(VK_RIGHT) ? Play::DrawSpriteRotated("key_right_pressed", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_right", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
+	(Play::KeyDown(VK_DOWN) ? Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
 }
 
 void HandleBackgrounds()
@@ -1454,7 +1429,6 @@ void HandleBackgrounds()
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	// if player passes portal change scene
-
 	//if (gameState.level)
 
 	Play::DrawBackground();
@@ -1599,5 +1573,9 @@ int GetPlatformType()
 void ToggleGameModes()
 {
 	if (Play::KeyPressed(VK_TAB))
-		(gameState.gameMode == TEST_MODE) ? gameState.gameMode = PLAY_MODE : gameState.gameMode = TEST_MODE;
+	{
+		gameState.gameMode += 1;
+		if (gameState.gameMode == END)
+			gameState.gameMode = TEST_MODE_OBJ;
+	}
 }

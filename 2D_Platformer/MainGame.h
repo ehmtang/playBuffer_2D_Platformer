@@ -1,7 +1,10 @@
 enum GameModes
 {
-	TEST_MODE = 0,
-	PLAY_MODE = 1,
+	TEST_MODE_OBJ = 0,
+	TEST_MODE_BOOL,
+	TEST_MODE_TIME,
+	PLAY_MODE,
+	END,
 };
 
 enum GameObjectType
@@ -230,10 +233,11 @@ struct GameState
 	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
 	Vector2D gravity{ 0, 1.f };
-	int gameMode = TEST_MODE;
+	int gameMode = TEST_MODE_OBJ;
 	int level{ 0 };
 };
 
+// player
 void UpdatePlayer(float& elapsedTime);
 void Idle(float& elapsedTime);
 void Run(float& elapsedTime);
@@ -249,6 +253,7 @@ void HandleSizeScale();
 float ApplyFriction();
 Vector2D CalculateAcceleration();
 
+// slime
 void UpdateSlime(float& elapsedTime);
 void SlimeIdle(float& elapsedTime);
 void SlimeWalk(float& elapsedTime);
@@ -282,6 +287,7 @@ void DrawCollisionBoxes();
 void DrawSlime();
 void DrawPortal();
 void DrawUI();
+void DrawButtons();
 
 // background
 void HandleBackgrounds();
