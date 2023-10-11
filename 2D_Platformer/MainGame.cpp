@@ -6,6 +6,9 @@
 // Leopaz - player SFX https://leohpaz.itch.io/90-retro-player-movement-sfx
 // JasonTomLee - slime character sprite https://jasontomlee.itch.io/slime-platformer-asset-pack
 // Elthen - portal sprite https://elthen.itch.io/2d-pixel-art-portal-sprites
+// CazWolf - keyboard sprites https://cazwolf.itch.io/caz-pixel-keyboard
+// Purrple Cat - Crescent Moon background theme https://purrplecat.com/
+
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
@@ -18,31 +21,141 @@ constexpr int DISPLAY_HEIGHT{ 720 };
 constexpr int DISPLAY_SCALE{ 1 };
 constexpr int PLATFORM_WIDTH{ 32 };
 
-const int ROOM[23][40] =
+const int MAX_ROWS = 23;
+const int MAX_COLS = 40;
+
+const int ROOM_0[23][40] =
 {
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,14,14,14,14,14,14,14,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,9,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,9,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,11,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,2,10,5,15,15,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,9,1,1,1,1,1,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,7,0,0,0,0,0,6,0,0,15,15,15,15,9,1,1,1,1,1,13,16,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,7,0,6,0,0,0,2,10,10,10,10,10,5,0,0,0,0,0,0,7,0,0,0,0,0,6,16,0,0,0,16,7,0,0},
-	{0,0,14,0,0,0,2,10,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,6,16,16,16,16,16,7,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,7,0,0,0,0,0,12,1,1,1,1,1,4,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,14,14,14,14,14,14,14,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{ 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,13,13,13,13,13,13,13,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0},
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,9,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,9,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,17,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,2,10,5,14,14,14,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,9,1,1,1,1,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,7,0,0,0,0,0,6,0,0,14,14,14,14,9,1,1,1,1,1,12,15,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,2,10,10,10,10,10,5,0,0,0,0,0,0,7,0,0,0,0,0,6,15,0,0,0,15,7,0,0 },
+	{ 0,0,13,0,0,0,2,10,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,6,15,15,15,15,15,7,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,14,14,14,7,0,0,0,0,0,11,1,1,1,1,1,4,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,13,13,13,13,13,13,13,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const int ROOM_1[23][40] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,8,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,2,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,11,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0  },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const int ROOM_2[23][40] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,8,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,1,1,1,4,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,13,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,19,13,13,13,13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,19,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,11,1,1,12,21,21,21,21,21,21,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,11,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const int ROOM_3[23][40] =
+{
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,8,10,10,10,10,10,10,10,10,10,10,10,17,0,0,0,0,0,0,0,0,0,0,8,10,10,10,10,10,10,10,10,10,10,10,17,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,6,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,7,0,0 },
+	{ 0,0,11,1,1,1,1,12,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,9,1,1,1,1,4,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0,0,0,0,6,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,19,2,10,10,10,10,10,10,10,10,10,10,5,20,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,18,18,18,18,18,18,18,18,18,18,18,18,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,6,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,7,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,11,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+};
+
+const char* spriteNames[] =
+{
+	"_empt",
+	"_btm_mid",
+	"_btm_l_out_cnr",
+	"",
+	"_btm_r_in_cnr",
+	"_btm_r_out_cnr",
+	"_l_mid",
+	"_r_mid",
+	"_top_l_in_cnr",
+	"_top_l_out_cnr",
+	"_top_mid",
+	"_btm_l_in_cnr",
+	"_top_r_out_cnr",
+	"ice",
+	"ledge",
+	"fire",
+	"_bg_wall",
+	"_top_r_in_cnr",
+	"spike_down",
+	"spike_left",
+	"spike_right",
+	"spike_up",
 };
 
 GameState gameState;
@@ -52,31 +165,32 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
 
 	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
-	//Play::StartAudioLoop("theme");
+	Play::StartAudioLoop("Crescent-Moon_snip");
 	Play::CentreAllSpriteOrigins();
 	HandleSizeScale();
-	CreatePlatform();
+	CreatePlatform(ROOM_0);
 	MergeCollisionBox();
 	CreatePlayer();
+	CreateSlime();
 }
 
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
-
+	ToggleGameModes();
 	HandleBackgrounds();
 	UpdatePlayer(elapsedTime);
-	//HandleAudio(elapsedTime);
+	UpdateSlime(elapsedTime);
 	HandlePortal(elapsedTime);
 	DrawPortal();
 	HandleAfterImageLifetime(elapsedTime);
 	DrawPlatformSprites();
 	DrawCollisionBoxes();
 	DrawPlayer();
+	DrawSlime();
 	DrawUI();
-
+	DrawSlimeTalk();
 	ApplyWind(elapsedTime);
-
 	Play::PresentDrawingBuffer();
 
 	if (Play::KeyPressed(VK_TAB))
@@ -160,8 +274,8 @@ void UpdatePlayer(float& elapsedTime)
 	if (Play::IsLeavingDisplayArea(playerObj))
 		playerObj.pos = playerObj.oldPos;
 
+	CalculateAcceleration();
 	Play::UpdateGameObject(playerObj);
-
 	HandleGrounded();
 	HandleObstructed();
 	HandleOnWall();
@@ -178,7 +292,7 @@ void Idle(float& elapsedTime)
 
 	if (!Play::KeyDown(VK_LEFT) && !Play::KeyDown(VK_RIGHT) && gameState.player.isGrounded == true)
 	{
-		playerObj.acceleration.x = ResolveFriction();
+		playerObj.acceleration.x = ApplyFriction();
 	}
 	else if (Play::KeyDown(VK_LEFT) || Play::KeyDown(VK_RIGHT))
 	{
@@ -213,18 +327,17 @@ void Run(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
-
 	if (Play::KeyDown(VK_LEFT))
 	{
 		gameState.player.direction = -1;
 		Play::SetSprite(playerObj, "player_run_left", 0.25f);
-		playerObj.acceleration.x = ResolveFriction();
+		playerObj.acceleration.x = ApplyFriction();
 	}
 	else if (Play::KeyDown(VK_RIGHT))
 	{
 		gameState.player.direction = 1;
 		Play::SetSprite(playerObj, "player_run", 0.25f);
-		playerObj.acceleration.x = ResolveFriction();
+		playerObj.acceleration.x = ApplyFriction();
 	}
 
 	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed - playerObj.acceleration.x, gameState.player.maxRunSpeed - playerObj.acceleration.x);
@@ -413,6 +526,8 @@ void Punch(float& elapsedTime)
 
 	Play::SetSprite(playerObj, (gameState.player.direction == -1) ? "player_punch_left" : "player_punch", 0.7f);
 
+	playerObj.velocity.x = std::clamp(playerObj.velocity.x, -gameState.player.maxRunSpeed, gameState.player.maxRunSpeed);
+
 	if (Play::IsAnimationComplete(playerObj))
 	{
 		gameState.player.state = STATE_IDLE;
@@ -469,7 +584,6 @@ void WallClimb(float& elapsedTime)
 
 		if (Play::KeyPressed('Z'))
 		{
-			//gameState.player.hasLandedOnWall = false;
 			gameState.player.state = STATE_WALLJUMP;
 			return;
 		}
@@ -559,9 +673,13 @@ void HandleSizeScale()
 	gameState.player.maxRunSpeed *= gameState.player.sizeScale;
 	gameState.player.maxFallSpeed *= gameState.player.sizeScale;
 	gameState.player.airDashImpulse *= gameState.player.sizeScale;
+
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	gameState.slime.HurtBox *= Vector2D(gameState.slime.sizeScale, gameState.slime.sizeScale);
+	gameState.slime.HurtBoxOffset *= Vector2D(1, gameState.slime.sizeScale);
 }
 
-float ResolveFriction()
+float ApplyFriction()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
@@ -620,10 +738,203 @@ float ResolveFriction()
 	return accel_x;
 }
 
-void HandlePortal(float& elapsedTime)
+Vector2D CalculateAcceleration()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
+	// Sum of all accelerations
+	// Gravity = gameState.player.gravity
+	// Running Force = gameState.platformAttr.defaultAccel
+	// Wind Force = gameState.petalEmitter.windForce
+	Vector2D totalAccel = playerObj.acceleration + gameState.petalEmitter.windForce + gameState.gravity;
+	return totalAccel;
+}
+
+void UpdateSlime(float& elapsedTime)
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	slimeObj.scale = gameState.slime.sizeScale;
+
+	switch (gameState.slime.state)
+	{
+	case SLIME_IDLE:
+	{
+		SlimeIdle(elapsedTime);
+		break;
+	}
+	case SLIME_WALK:
+	{
+		SlimeWalk(elapsedTime);
+		break;
+	}
+	case SLIME_TURN:
+	{
+		SlimeTurn(elapsedTime);
+		break;
+	}
+	}
+
+	Play::UpdateGameObject(slimeObj);
+	SlimeGrounded();
+	SlimeTalk();
+}
+
+void SlimeIdle(float& elapsedTime)
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+
+	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_idle_left" : "slime_idle", 0.25f);
+
+	gameState.slime.idleTime += elapsedTime;
+
+	if (AABBCollisionTest({ slimeObj.pos.x + gameState.slime.direction * PLATFORM_WIDTH / 2, slimeObj.pos.y }, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset))
+	{
+		gameState.slime.idleTime = 0;
+		return;
+	}
+
+	if (gameState.slime.idleTime > gameState.slime.idleLimit)
+	{
+		gameState.slime.idleTime = 0;
+		gameState.slime.state = SLIME_WALK;
+		return;
+	}
+
+}
+
+void SlimeWalk(float& elapsedTime)
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
+	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_walk_left" : "slime_walk", 0.25f);
+
+	float newPosX = slimeObj.pos.x + gameState.slime.direction * gameState.slime.maxWalkSpeed;
+
+	bool willWalkOffEdge = true;
+
+	for (Platform& p : gameState.vPlatform)
+	{
+		if (AABBCollisionTest({ slimeObj.pos.x + gameState.slime.direction * PLATFORM_WIDTH, slimeObj.pos.y }, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
+		{
+			willWalkOffEdge = false;
+			break;
+		}
+	}
+
+	if (willWalkOffEdge)
+	{
+		gameState.slime.state = SLIME_TURN;
+		return;
+	}
+
+	for (Platform& p : gameState.vPlatform)
+	{
+		if (AABBCollisionTest(slimeObj.pos + Vector2D(gameState.slime.direction * gameState.slime.maxWalkSpeed, 0), gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+			&& GetNearestEdge(slimeObj.pos + Vector2D(gameState.slime.direction * gameState.slime.maxWalkSpeed, 0), gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(-gameState.slime.direction, 0))
+		{
+			gameState.slime.state = SLIME_TURN;
+			return;
+		}
+	}
+	slimeObj.pos.x = newPosX;
+}
+
+void SlimeTurn(float& elapsedTime)
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
+	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_walk_turn_left" : "slime_walk_turn", 0.1f);
+	if (Play::IsAnimationComplete)
+	{
+		gameState.slime.direction *= -1;
+		gameState.slime.state = SLIME_IDLE;
+		return;
+	}
+}
+
+void SlimeGrounded()
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
+	for (Platform& p : gameState.vPlatform)
+	{
+		if (AABBCollisionTest(slimeObj.pos, gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
+		{
+			int diff = abs(slimeObj.pos.y - slimeObj.oldPos.y);
+			slimeObj.pos.y = slimeObj.oldPos.y;
+			for (int i = 0; i < diff; i++)
+			{
+				if (AABBCollisionTest(slimeObj.oldPos + Vector2D(0, i), gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					&& GetNearestEdge(slimeObj.oldPos + Vector2D(0, i), gameState.slime.HurtBox, gameState.slime.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(0, -1))
+				{
+					slimeObj.pos.y += i;
+					break;
+				}
+			}
+			gameState.slime.isGrounded = true;
+			slimeObj.velocity.y = 0;
+			slimeObj.acceleration.y = 0;
+			break;
+		}
+		else
+		{
+			gameState.slime.isGrounded = false;
+		}
+	}
+
+	if (gameState.slime.isGrounded == false)
+	{
+		slimeObj.acceleration.y = gameState.gravity.y;
+		//slimeObj.velocity.y = std::clamp(slimeObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
+	}
+}
+
+void SlimeTalk()
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+	if (AABBCollisionTest(slimeObj.pos, gameState.slime.TalkBox, Vector2D(gameState.slime.direction, 1) * gameState.slime.HurtBoxOffset, playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset))
+	{
+		SlimeTalkIcon();
+
+		// set slimeobj sprite to idle
+		// face the player
+		// 
+	}
+
+}
+
+void SlimeTalkIcon()
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
+	Play::DrawSpriteRotated("key_x", slimeObj.pos + Point2D(0, -20), 0, 0, 0.5f, 1);
+
+	if (Play::KeyPressed('X'))
+	{
+		(gameState.slime.hasTalked == true) ? gameState.slime.hasTalked = false : gameState.slime.hasTalked = true;
+	}
+
+
+
+}
+
+void DrawSlimeTalk()
+{
+	if (gameState.slime.hasTalked == true)
+	{
+		Play::DrawFontText("64px", "Hi friend. Use the arrow keys to move. 'Z' to jump. 'X' to punch. 'C' to roll.", Point2D(37, DISPLAY_HEIGHT - 111), Play::LEFT);
+		Play::DrawFontText("64px", "To Air Dash, jump and press 'C' with arrow key.", Point2D(37, DISPLAY_HEIGHT - 74), Play::LEFT);
+		Play::DrawFontText("64px", "When you're ready. Enter the portal!", Point2D(37, DISPLAY_HEIGHT - 37), Play::LEFT);
+	}
+}
+
+void HandlePortal(float& elapsedTime)
+{
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.portal.pos, gameState.portal.box, Vector2D(0, 0))
 		&& (playerObj.pos.x - gameState.player.HurtBox.x - gameState.player.HurtBoxOffset.x) > (gameState.portal.pos.x - gameState.portal.box.x))
@@ -663,11 +974,9 @@ void HandleObstructed()
 
 	for (Platform& p : gameState.vPlatform)
 	{
-		// handle verticle obstructions
 		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& gameState.player.collisionDir == Vector2D(0, 1))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(0, 1))
 		{
-
 			if (p.type == ledge)
 				break;
 
@@ -684,11 +993,10 @@ void HandleObstructed()
 			ApplyReflection(playerObj, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0));
 		}
 
-		// handle horizontal obstructions
 		else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& gameState.player.collisionDir == Vector2D(-1, 0)
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(-1, 0)
 			|| AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			&& gameState.player.collisionDir == Vector2D(1, 0))
+			&& GetNearestEdge(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)) == Vector2D(1, 0))
 		{
 			int diff = playerObj.pos.x - playerObj.oldPos.x;
 			playerObj.pos.x = playerObj.oldPos.x;
@@ -744,7 +1052,7 @@ void HandleGrounded()
 
 	if (gameState.player.isGrounded == false || gameState.player.isOnWall == false)
 	{
-		playerObj.acceleration.y = gameState.player.gravity.y;
+		playerObj.acceleration.y = gameState.gravity.y;
 		playerObj.velocity.y = std::clamp(playerObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
 	}
 }
@@ -782,87 +1090,6 @@ void HandleOnWall()
 void HandleHurt()
 {
 
-}
-
-void HandleAudio(float& elapsedTime)
-{
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-	playerObj.scale = gameState.player.sizeScale;
-
-	switch (gameState.player.state)
-	{
-	case STATE_IDLE:
-	{
-		gameState.audio.audioPlayed = false;
-		Play::StopAudioLoop("step_rock");
-		break;
-	}
-	case STATE_RUN:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("step_rock");
-		}
-		break;
-	}
-	case STATE_JUMP:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("jump");
-		}
-		break;
-	}
-	case STATE_FALL:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("landing");
-		}
-		break;
-	}
-	case STATE_ATTACK:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("attack");
-		}
-		break;
-	}
-	case STATE_ROLL:
-	{
-		break;
-	}
-	case STATE_AIRDASH:
-	{
-		break;
-	}
-	case STATE_WALLCLIMB:
-	{
-		if (gameState.audio.audioPlayed == false)
-		{
-			gameState.audio.audioPlayed = true;
-			Play::PlayAudio("climb");
-		}
-		break;
-	}
-	case STATE_WALLJUMP:
-	{
-		break;
-	}
-	case STATE_HURT:
-	{
-		break;
-	}
-	case STATE_DEATH:
-	{
-		break;
-	}
-	}
 }
 
 void ScreenShake(float& elapsedTime)
@@ -966,13 +1193,14 @@ void ApplyWind(float& elapsedTime)
 	if (gameState.petalEmitter.windTime <= gameState.petalEmitter.windEndTime
 		&& gameState.petalEmitter.onBreak == false)
 	{
-		if (gameState.petalEmitter.applyAccel == false)
-		{
-			playerObj.acceleration.x += -gameState.petalEmitter.windDir * gameState.petalEmitter.windImpulse;
-			gameState.petalEmitter.applyAccel = true;
-		}
 
-		//playerObj.velocity.x += gameState.petalEmitter.windDir * gameState.petalEmitter.windImpulse;
+		//if (gameState.petalEmitter.applyAccel == false)
+		//{
+		//	playerObj.acceleration += -gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
+		//	gameState.petalEmitter.applyAccel = true;
+		//}
+
+		playerObj.velocity += gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
 		HandlePetalLifetime(elapsedTime);
 	}
 	else if (gameState.petalEmitter.windTime > gameState.petalEmitter.windEndTime
@@ -1026,20 +1254,20 @@ void DrawPetalLifeTime(float& elapsedTime)
 {
 	float phase = 0;
 
-
 	for (int i = 0; i < gameState.petalEmitter.vPetal.size(); ++i)
 	{
-		gameState.petalEmitter.vPetal[i].pos.x += gameState.petalEmitter.windDir * gameState.petalEmitter.windSpeed;
+		gameState.petalEmitter.vPetal[i].pos.x += gameState.petalEmitter.windDir * gameState.petalEmitter.petalSpeed;
 		gameState.petalEmitter.vPetal[i].pos.y += gameState.petalEmitter.amplitude * sin((PLAY_PI * gameState.petalEmitter.frequency) + phase);
 		gameState.petalEmitter.vPetal[i].currentLifetime += elapsedTime;
 		phase += 0.1f;
-		Play::DrawSpriteRotated(gameState.petalEmitter.vPetal[i].spriteId, gameState.petalEmitter.vPetal[i].pos, 0, 0, 1, gameState.petalEmitter.opacity);
 
-		if (gameState.petalEmitter.vPetal[i].currentLifetime > gameState.petalEmitter.lifetime)
+		gameState.petalEmitter.vPetal[i].opacity = exponentialDecay(gameState.petalEmitter.baseOpacity, gameState.petalEmitter.decayConstant, gameState.petalEmitter.vPetal[i].currentLifetime);
+		Play::DrawSpriteRotated(gameState.petalEmitter.vPetal[i].spriteId, gameState.petalEmitter.vPetal[i].pos, 0, 0, 1, gameState.petalEmitter.vPetal[i].opacity);
+
+		if (gameState.petalEmitter.vPetal[i].currentLifetime > gameState.petalEmitter.windEndTime)
 			gameState.petalEmitter.vPetal.erase(gameState.petalEmitter.vPetal.begin() + i);
 	}
 }
-
 
 void DrawPlayer()
 {
@@ -1049,11 +1277,18 @@ void DrawPlayer()
 
 void DrawCollisionBoxes()
 {
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+
 	switch (gameState.gameMode)
 	{
 	case(TEST_MODE):
 	{
-		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+
+		if (gameState.slime.direction == -1)
+			Play::DrawRect(slimeObj.pos - gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, slimeObj.pos + gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, Play::cOrange);
+		else if (gameState.slime.direction == 1)
+			Play::DrawRect(slimeObj.pos - gameState.slime.HurtBox + gameState.slime.HurtBoxOffset, slimeObj.pos + gameState.slime.HurtBox + gameState.slime.HurtBoxOffset, Play::cOrange);
 
 		for (Platform& p : gameState.vPlatform)
 		{
@@ -1111,46 +1346,22 @@ void DrawCollisionBoxes()
 	}
 }
 
+void DrawSlime()
+{
+	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	Play::DrawObjectRotated(slimeObj);
+}
+
 void DrawPlatformSprites()
 {
 	for (Platform& p : gameState.vPlatform)
 	{
 		int nPlatform = (p.Right().x - p.Left().x) / PLATFORM_WIDTH;
-
 		for (int i = 0; i < nPlatform; ++i)
 		{
 			int spritePosX = (i * PLATFORM_WIDTH) + p.Left().x + PLATFORM_WIDTH / 2;
 			Point2D spritePos = { spritePosX, p.pos.y };
-			if (p.type == _btm_l_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_l_in_cnr"), spritePos, 0);
-			else if (p.type == _btm_l_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_l_out_cnr"), spritePos, 0);
-			else if (p.type == _btm_mid)
-				Play::DrawSprite(Play::GetSpriteId("_btm_mid"), spritePos, 0);
-			else if (p.type == _btm_r_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_r_in_cnr"), spritePos, 0);
-			else if (p.type == _btm_r_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_btm_r_out_cnr"), spritePos, 0);
-			else if (p.type == _l_mid)
-				Play::DrawSprite(Play::GetSpriteId("_l_mid"), spritePos, 0);
-			else if (p.type == _r_mid)
-				Play::DrawSprite(Play::GetSpriteId("_r_mid"), spritePos, 0);
-			else if (p.type == _top_l_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_l_in_cnr"), spritePos, 0);
-			else if (p.type == _top_l_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_l_out_cnr"), spritePos, 0);
-			else if (p.type == _top_mid)
-				Play::DrawSprite(Play::GetSpriteId("_top_mid"), spritePos, 0);
-			else if (p.type == _top_r_in_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_r_in_cnr"), spritePos, 0);
-			else if (p.type == _top_r_out_cnr)
-				Play::DrawSprite(Play::GetSpriteId("_top_r_out_cnr"), spritePos, 0);
-			else if (p.type == fire)
-				Play::DrawSprite(Play::GetSpriteId("fire"), spritePos, 0);
-			else if (p.type == ice)
-				Play::DrawSprite(Play::GetSpriteId("ice"), spritePos, 0);
-			else if (p.type == ledge)
-				Play::DrawSprite(Play::GetSpriteId("ledge"), spritePos, 0);
+			Play::DrawSprite(Play::GetSpriteId(spriteNames[p.type]), spritePos, 0);
 		}
 	}
 }
@@ -1167,17 +1378,16 @@ void DrawUI()
 	case(TEST_MODE):
 	{
 		GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+		Play::DrawFontText("64px", "TEST MODE - TAB to switch to PLAY_MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 69), Play::LEFT);
+		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 106), Play::LEFT);
+		//Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
+		//Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 180), Play::LEFT);
+		//Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 217), Play::LEFT);
 
-		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 32), Play::LEFT);
-		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 69), Play::LEFT);
-		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 106), Play::LEFT);
-		Play::DrawFontText("64px", "PARTICLE SPLIT TIMER: " + std::to_string(gameState.afterImageEmitter.splitTime), Point2D(37, 143), Play::LEFT);
-		Play::DrawFontText("64px", "SCREEN SHAKE TIMER: " + std::to_string(gameState.camera.shakeTime), Point2D(37, 180), Play::LEFT);
-
-		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 217), Play::LEFT);
-		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 254), Play::LEFT);
-		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 291), Play::LEFT);
-		Play::DrawFontText("64px", "COLLISION DIR: (" + std::to_string(gameState.player.collisionDir.x) + ',' + ' ' + std::to_string(gameState.player.collisionDir.y) + ')', Point2D(37, 328), Play::LEFT);
+		Play::DrawFontText("64px", "POSITION: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 254), Play::LEFT);
+		Play::DrawFontText("64px", "VELOCITY: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 291), Play::LEFT);
+		Play::DrawFontText("64px", "ACCELERATION: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 328), Play::LEFT);
 
 		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(DISPLAY_WIDTH - 37, 32), Play::RIGHT);
 		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(DISPLAY_WIDTH - 37, 69), Play::RIGHT);
@@ -1186,6 +1396,42 @@ void DrawUI()
 		Play::DrawFontText("64px", "IS GROUNDED: " + std::to_string(gameState.player.isGrounded), Point2D(DISPLAY_WIDTH - 37, 180), Play::RIGHT);
 		Play::DrawFontText("64px", "PLATFORM ON: " + std::to_string(GetPlatformId()), Point2D(DISPLAY_WIDTH - 37, 217), Play::RIGHT);
 		Play::DrawFontText("64px", "PLATFORM TYPE: " + std::to_string(GetPlatformType()), Point2D(DISPLAY_WIDTH - 37, 254), Play::RIGHT);
+
+		if (Play::KeyDown('Z'))
+			Play::DrawSpriteRotated("key_z_pressed", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_z", Point2D(64, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
+		if (Play::KeyDown('X'))
+			Play::DrawSpriteRotated("key_x_pressed", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_x", Point2D(96, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
+		if (Play::KeyDown('C'))
+			Play::DrawSpriteRotated("key_c_pressed", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_c", Point2D(128, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_LEFT))
+			Play::DrawSpriteRotated("key_left_pressed", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_left", Point2D(192, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_UP))
+			Play::DrawSpriteRotated("key_up_pressed", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_up", Point2D(224, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_RIGHT))
+			Play::DrawSpriteRotated("key_right_pressed", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_right", Point2D(256, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
+		if (Play::KeyDown(VK_DOWN))
+			Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+		else
+			Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1);
+
 		break;
 	}
 	case(PLAY_MODE):
@@ -1220,15 +1466,15 @@ void HandleBackgrounds()
 
 void CreatePlayer()
 {
-	int id{ Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle") };
+	Play::CreateGameObject(TYPE_PLAYER, gameState.player.startingPos, 0, "player_idle");
 }
 
-void CreatePlatform()
+void CreatePlatform(const int room[][MAX_COLS])
 {
 	Platform platform;
 
-	int total = sizeof(ROOM);
-	int nColumn = sizeof(ROOM[0]);
+	int total = MAX_ROWS * MAX_COLS;//sizeof(room);
+	int nColumn = MAX_COLS;// sizeof(room[0]);
 	int nRow = total / nColumn;
 
 	int gap = PLATFORM_WIDTH / 2;
@@ -1237,43 +1483,22 @@ void CreatePlatform()
 	{
 		for (int col = 0; col < nColumn; ++col)
 		{
-			if (ROOM[row][col] == _empt)
+			int value = room[row][col];
+
+			if (room[row][col] == _empt)
 				continue;
-			else if (ROOM[row][col] == _btm_l_in_cnr)
-				platform.type = _btm_l_in_cnr;
-			else if (ROOM[row][col] == _btm_l_out_cnr)
-				platform.type = _btm_l_out_cnr;
-			else if (ROOM[row][col] == _btm_mid)
-				platform.type = _btm_mid;
-			else if (ROOM[row][col] == _btm_r_in_cnr)
-				platform.type = _btm_r_in_cnr;
-			else if (ROOM[row][col] == _btm_r_out_cnr)
-				platform.type = _btm_r_out_cnr;
-			else if (ROOM[row][col] == _l_mid)
-				platform.type = _l_mid;
-			else if (ROOM[row][col] == _r_mid)
-				platform.type = _r_mid;
-			else if (ROOM[row][col] == _top_l_in_cnr)
-				platform.type = _top_l_in_cnr;
-			else if (ROOM[row][col] == _top_l_out_cnr)
-				platform.type = _top_l_out_cnr;
-			else if (ROOM[row][col] == _top_mid)
-				platform.type = _top_mid;
-			else if (ROOM[row][col] == _top_r_in_cnr)
-				platform.type = _top_r_in_cnr;
-			else if (ROOM[row][col] == _top_r_out_cnr)
-				platform.type = _top_r_out_cnr;
-			else if (ROOM[row][col] == fire)
-				platform.type = fire;
-			else if (ROOM[row][col] == ice)
-				platform.type = ice;
-			else if (ROOM[row][col] == ledge)
-				platform.type = ledge;
+			else
+				platform.type = room[row][col];
 
 			platform.pos = Point2D(gap + (col * PLATFORM_WIDTH), gap + (row * PLATFORM_WIDTH));
 			gameState.vPlatform.push_back(platform);
 		}
 	}
+}
+
+void CreateSlime()
+{
+	Play::CreateGameObject(TYPE_SLIME, gameState.slime.startingPos, 0, "slime_idle");
 }
 
 void ResetGame()
@@ -1306,31 +1531,34 @@ float exponentialDecay(const float& A0, const float& lambda, const float& time)
 
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
-	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
-	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
-	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
-	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
-
-	if (left < right && left < top && left < bottom)
-		gameState.player.collisionDir = Vector2D(-1, 0);
-	else if (right < left && right < top && right < bottom)
-		gameState.player.collisionDir = Vector2D(1, 0);
-	else if (top < bottom && top < left && top < right)
-		gameState.player.collisionDir = Vector2D(0, -1);
-	else if (bottom < top && bottom < left && bottom < right)
-		gameState.player.collisionDir = Vector2D(0, 1);
-	else
-		gameState.player.collisionDir = Vector2D(0, 0);
-
 	return (aPos.x - aAABB.x + aOffset.x < bPos.x + bAABB.x + bOffset.x
 		&& aPos.x + aAABB.x + aOffset.x > bPos.x - bAABB.x + bOffset.x
 		&& aPos.y - aAABB.y + aOffset.y < bPos.y + bAABB.y + bOffset.y
 		&& aPos.y + aAABB.y + aOffset.y > bPos.y - bAABB.y + bOffset.y);
 }
 
+Vector2D GetNearestEdge(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
+{
+	float left = abs((aPos.x + aAABB.x + aOffset.x) - (bPos.x - bAABB.x + bOffset.x));
+	float right = abs((aPos.x - aAABB.x + aOffset.x) - (bPos.x + bAABB.x + bOffset.x));
+	float top = abs((aPos.y + aAABB.y + aOffset.y) - (bPos.y - bAABB.y + bOffset.y));
+	float bottom = abs((aPos.y - aAABB.y + aOffset.y) - (bPos.y + bAABB.y + bOffset.y));
+
+	if (left < right && left < top && left < bottom)
+		return Vector2D(-1.0f, 0.0f);
+	else if (right < left && right < top && right < bottom)
+		return Vector2D(1.0f, 0.0f);
+	else if (top < bottom && top < left && top < right)
+		return Vector2D(0.0f, -1.0f);
+	else if (bottom < top && bottom < left && bottom < right)
+		return Vector2D(0.0f, 1.0f);
+	else
+		return Vector2D(0.0f, 0.0f);
+}
+
 void ApplyReflection(GameObject& aObj, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset)
 {
-	Vector2D collisionEdge = gameState.player.collisionDir;
+	Vector2D collisionEdge = GetNearestEdge(aObj.pos, aAABB, aOffset, bPos, bAABB, bOffset);
 	Vector2D surfaceNormal = collisionEdge.Perpendicular();
 	float dotProduct = aObj.velocity.Dot(surfaceNormal);
 	Vector2D reflectionVector = aObj.velocity - (2.0 * dotProduct * surfaceNormal);
@@ -1370,4 +1598,10 @@ int GetPlatformType()
 		if (gameState.vPlatform[i].playerOnTop == true)
 			return gameState.vPlatform[i].type;
 	}
+}
+
+void ToggleGameModes()
+{
+	if (Play::KeyPressed(VK_TAB))
+		(gameState.gameMode == TEST_MODE) ? gameState.gameMode = PLAY_MODE : gameState.gameMode = TEST_MODE;
 }
