@@ -40,14 +40,10 @@ enum PlatformType
 
 enum Backgrounds
 {
-	BG_1ST = 0,
-	BG_2ND,
-	BG_3RD,
-	BG_4TH,
-	BG_5TH,
-	BG_6TH,
-	BG_7TH,
-	BG_8TH,
+	BG_0 = 0,
+	BG_1,
+	BG_2,
+	BG_3,
 };
 
 enum PlayerState
@@ -61,7 +57,6 @@ enum PlayerState
 	STATE_ROLL,
 	STATE_WALLCLIMB,
 	STATE_WALLJUMP,
-	STATE_HURT,
 	STATE_DEATH,
 };
 
@@ -130,12 +125,6 @@ struct ScreenShakeInfo
 	float shakeEndTime{ 0.05f };
 };
 
-struct Audio
-{
-	float audioTimer{ 0 };
-	bool audioPlayed{ false };
-};
-
 struct Portal
 {
 	std::vector<float> vSplitTime;
@@ -177,7 +166,6 @@ struct PlayerAttributes
 	const float obstructedImpulse{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
 	const float airDashEndTime{ 0.1f };
-	int health{ 100 };
 	int direction{ -1 };
 	bool hasJumped{ false };
 	bool isAirDashing{ false };
@@ -185,7 +173,7 @@ struct PlayerAttributes
 	bool hasLandedOnWall{ false };
 	bool isGrounded{ false };
 	bool isOnWall{ false };
-	bool isHurt{ false };
+	bool hasDied{ false };
 };
 
 struct SlimeAttributes
@@ -238,10 +226,10 @@ struct GameState
 	SlimeAttributes slime;
 	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
-	Audio audio;
 	Backgrounds bg;
 	Vector2D gravity{ 0, 1.f };
 	int gameMode = TEST_MODE;
+	int room_num{ 0 };
 };
 
 void UpdatePlayer(float& elapsedTime);
@@ -254,7 +242,6 @@ void Punch(float& elapsedTime);
 void Roll(float& elapsedTime);
 void WallClimb(float& elapsedTime);
 void WallJump(float& elapsedTime);
-void Hurt(float& elapsedTime);
 void Death(float& elapsedTime);
 void HandleSizeScale();
 float ApplyFriction();
@@ -269,23 +256,24 @@ void SlimeTalk();
 void SlimeTalkIcon();
 void DrawSlimeTalk();
 
+// collisions
+void HandleDeath();
 void HandlePortal(float& elapsedTime);
 void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
-void HandleHurt();
 
+// environment and effects
 void ScreenShake(float& elapsedTime);
-
 void HandleAfterImageLifetime(float& elapsedTime);
 void AddAfterImageToEmitter(GameObject& playerObj);
 void DrawImageLifeTime(float& elapsedTime);
-
 void ApplyWind(float& elapsedTime);
 void HandlePetalLifetime(float& elapsedTime);
 void AddPetalToEmitter();
 void DrawPetalLifeTime(float& elapsedTime);
 
+// draw
 void DrawPlayer();
 void DrawPlatformSprites();
 void DrawCollisionBoxes();
@@ -293,15 +281,16 @@ void DrawSlime();
 void DrawPortal();
 void DrawUI();
 
+// background
 void HandleBackgrounds();
 
+// create
 void CreatePlayer();
-//void CreatePlatform(const int arr[][40], int nRows, int nCols);
 void CreatePlatform(const int room[][40]); 
 void CreateSlime();
 
-void ResetGame();
-
+// utility
+void ResetPlayerPos();
 float q_rsqrt(float number);
 float exponentialDecay(const float& A0, const float& lambda, const float& time);
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);

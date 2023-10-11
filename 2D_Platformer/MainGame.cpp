@@ -24,9 +24,10 @@ constexpr int PLATFORM_WIDTH{ 32 };
 const int MAX_ROWS = 23;
 const int MAX_COLS = 40;
 
+
 const int ROOM_0[23][40] =
 {
-	{ 13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
 	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
 	{ 0,0,13,13,13,13,13,13,13,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,17,0,0},
 	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
@@ -165,7 +166,7 @@ void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
 
 	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
-	Play::StartAudioLoop("Crescent-Moon_snip");
+	//Play::StartAudioLoop("Crescent-Moon_snip");
 	Play::CentreAllSpriteOrigins();
 	HandleSizeScale();
 	CreatePlatform(ROOM_0);
@@ -195,7 +196,7 @@ bool MainGameUpdate(float elapsedTime)
 
 	if (Play::KeyPressed(VK_TAB))
 	{
-		ResetGame();
+		ResetPlayerPos();
 	}
 
 	return Play::KeyDown(VK_ESCAPE);
@@ -259,11 +260,6 @@ void UpdatePlayer(float& elapsedTime)
 		WallJump(elapsedTime);
 		break;
 	}
-	case STATE_HURT:
-	{
-		Hurt(elapsedTime);
-		break;
-	}
 	case STATE_DEATH:
 	{
 		Death(elapsedTime);
@@ -274,12 +270,11 @@ void UpdatePlayer(float& elapsedTime)
 	if (Play::IsLeavingDisplayArea(playerObj))
 		playerObj.pos = playerObj.oldPos;
 
-	CalculateAcceleration();
 	Play::UpdateGameObject(playerObj);
 	HandleGrounded();
 	HandleObstructed();
 	HandleOnWall();
-	HandleHurt();
+
 }
 
 void Idle(float& elapsedTime)
@@ -621,25 +616,6 @@ void WallJump(float& elapsedTime)
 	return;
 }
 
-void Hurt(float& elapsedTime)
-{
-	// All states go to hurt
-
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-	Play::SetSprite(playerObj, "player_hurt", 0.2f);
-
-	if (!Play::IsAnimationComplete(playerObj))
-	{
-		playerObj.pos += { 6, 0 };
-	}
-	else
-	{
-		playerObj.velocity = { 0 , 0 };
-		gameState.player.state = STATE_IDLE;
-		return;
-	}
-}
-
 void Death(float& elapsedTime)
 {
 	// All states go to death
@@ -740,14 +716,16 @@ float ApplyFriction()
 
 Vector2D CalculateAcceleration()
 {
+	// NOTE: not implemented in game yet.
+	// requires resolving the frictional algorithm to work with this function
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-
-	// Sum of all accelerations
-	// Gravity = gameState.player.gravity
-	// Running Force = gameState.platformAttr.defaultAccel
-	// Wind Force = gameState.petalEmitter.windForce
 	Vector2D totalAccel = playerObj.acceleration + gameState.petalEmitter.windForce + gameState.gravity;
 	return totalAccel;
+}
+
+void HandleDeath()
+{
+
 }
 
 void UpdateSlime(float& elapsedTime)
@@ -879,16 +857,11 @@ void SlimeGrounded()
 			break;
 		}
 		else
-		{
 			gameState.slime.isGrounded = false;
-		}
 	}
 
 	if (gameState.slime.isGrounded == false)
-	{
 		slimeObj.acceleration.y = gameState.gravity.y;
-		//slimeObj.velocity.y = std::clamp(slimeObj.velocity.y, -gameState.player.maxFallSpeed, gameState.player.maxFallSpeed);
-	}
 }
 
 void SlimeTalk()
@@ -897,14 +870,7 @@ void SlimeTalk()
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	if (AABBCollisionTest(slimeObj.pos, gameState.slime.TalkBox, Vector2D(gameState.slime.direction, 1) * gameState.slime.HurtBoxOffset, playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset))
-	{
 		SlimeTalkIcon();
-
-		// set slimeobj sprite to idle
-		// face the player
-		// 
-	}
-
 }
 
 void SlimeTalkIcon()
@@ -914,12 +880,7 @@ void SlimeTalkIcon()
 	Play::DrawSpriteRotated("key_x", slimeObj.pos + Point2D(0, -20), 0, 0, 0.5f, 1);
 
 	if (Play::KeyPressed('X'))
-	{
 		(gameState.slime.hasTalked == true) ? gameState.slime.hasTalked = false : gameState.slime.hasTalked = true;
-	}
-
-
-
 }
 
 void DrawSlimeTalk()
@@ -1473,8 +1434,8 @@ void CreatePlatform(const int room[][MAX_COLS])
 {
 	Platform platform;
 
-	int total = MAX_ROWS * MAX_COLS;//sizeof(room);
-	int nColumn = MAX_COLS;// sizeof(room[0]);
+	int total = MAX_ROWS * MAX_COLS;
+	int nColumn = MAX_COLS;
 	int nRow = total / nColumn;
 
 	int gap = PLATFORM_WIDTH / 2;
@@ -1501,7 +1462,7 @@ void CreateSlime()
 	Play::CreateGameObject(TYPE_SLIME, gameState.slime.startingPos, 0, "slime_idle");
 }
 
-void ResetGame()
+void ResetPlayerPos()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 	playerObj.pos = gameState.player.startingPos;
