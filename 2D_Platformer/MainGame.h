@@ -149,8 +149,8 @@ struct PlayerAttributes
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
 	Point2D startingPos{ 416, 384 };
 	PlayerState state{ STATE_IDLE };
+	float deathTime{ 0 };
 	float jumpTime{ 0 };
-	float jumpEndTime{ 0.1f };
 	float coyoteTime{ 0 };
 	float airDashTime{ 0 };
 	float rollImpulse{ 12.f };				//scaled with size
@@ -161,11 +161,14 @@ struct PlayerAttributes
 	float maxRunSpeed{ 2.f };				//scaled with size
 	float maxFallSpeed{ 8.f };				//scaled with size
 	float airDashImpulse{ 15 };				//scaled with size
+	const float deathEndTime{ 3.f };
+	const float jumpEndTime{ 0.1f };
 	const float sizeScale{ 1.5f };
 	const float maxJumpAccel{ 1.f };
 	const float obstructedImpulse{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
 	const float airDashEndTime{ 0.1f };
+
 	int direction{ -1 };
 	bool hasJumped{ false };
 	bool isAirDashing{ false };
@@ -226,10 +229,9 @@ struct GameState
 	SlimeAttributes slime;
 	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
-	Backgrounds bg;
 	Vector2D gravity{ 0, 1.f };
 	int gameMode = TEST_MODE;
-	int room_num{ 0 };
+	int level{ 0 };
 };
 
 void UpdatePlayer(float& elapsedTime);

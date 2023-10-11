@@ -8,7 +8,7 @@
 // Elthen - portal sprite https://elthen.itch.io/2d-pixel-art-portal-sprites
 // CazWolf - keyboard sprites https://cazwolf.itch.io/caz-pixel-keyboard
 // Purrple Cat - Crescent Moon background theme https://purrplecat.com/
-
+// Grafxkid - speech indicator https://grafxkid.itch.io/mini-fx-items-ui
 
 #define PLAY_IMPLEMENTATION
 #define PLAY_USING_GAMEOBJECT_MANAGER
@@ -34,8 +34,8 @@ const int ROOM_0[23][40] =
 	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
 	{ 0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
 	{ 0,0,13,0,0,0,9,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0 },
-	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0 },
-	{ 0,0,13,0,0,0,7,0,6,0,0,0,9,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,17,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,0,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,4,0,0 },
+	{ 0,0,13,0,0,0,7,0,6,0,0,19,9,1,12,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,10,10,10,10,10,17,0,0 },
 	{ 0,0,13,0,0,0,7,0,6,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
 	{ 0,0,13,0,0,0,7,0,6,0,0,0,2,10,5,14,14,14,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
 	{ 0,0,13,0,0,0,7,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7,0,0 },
@@ -192,6 +192,7 @@ bool MainGameUpdate(float elapsedTime)
 	DrawUI();
 	DrawSlimeTalk();
 	ApplyWind(elapsedTime);
+
 	Play::PresentDrawingBuffer();
 
 	if (Play::KeyPressed(VK_TAB))
@@ -271,10 +272,13 @@ void UpdatePlayer(float& elapsedTime)
 		playerObj.pos = playerObj.oldPos;
 
 	Play::UpdateGameObject(playerObj);
+	HandleDeath();
 	HandleGrounded();
-	HandleObstructed();
-	HandleOnWall();
-
+	if (gameState.player.state != STATE_DEATH)
+	{
+		HandleObstructed();
+		HandleOnWall();
+	}
 }
 
 void Idle(float& elapsedTime)
@@ -618,14 +622,31 @@ void WallJump(float& elapsedTime)
 
 void Death(float& elapsedTime)
 {
-	// All states go to death
-
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-	Play::SetSprite(playerObj, "player_death", 0.2f);
+
+	playerObj.velocity.x = 0;
+	playerObj.acceleration.x = 0;
+	gameState.player.deathTime += elapsedTime;
+
+
+	if (gameState.player.hasDied == false)
+	{
+		Play::SetSprite(playerObj, "player_death", 0.05f);
+	}
 
 	if (Play::IsAnimationComplete(playerObj))
 	{
+		gameState.player.hasDied = true;
+		Play::SetSprite(playerObj, "player_death", 0);
 		playerObj.frame = 9;
+	}
+
+	if (gameState.player.deathTime > gameState.player.deathEndTime)
+	{
+		gameState.player.deathTime = 0;
+		gameState.player.hasDied = false;
+		playerObj.pos = gameState.player.startingPos;
+		gameState.player.state = STATE_IDLE;
 	}
 }
 
@@ -725,7 +746,14 @@ Vector2D CalculateAcceleration()
 
 void HandleDeath()
 {
+	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
+	for (Platform& p : gameState.vPlatform)
+	{
+		if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+			&& (p.type == spike_up || p.type == spike_down || p.type == spike_left || p.type == spike_right))
+			gameState.player.state = STATE_DEATH;
+	}
 }
 
 void UpdateSlime(float& elapsedTime)
@@ -1024,6 +1052,18 @@ void HandleOnWall()
 
 	for (Platform& p : gameState.vPlatform)
 	{
+		bool unclimbable = 
+			(
+			p.type != _btm_mid &&
+			p.type != _top_mid &&
+			p.type != ledge &&
+			p.type != fire &&
+			p.type != spike_up &&
+			p.type != spike_down &&
+			p.type != spike_left &&
+			p.type != spike_right
+			);
+
 		if (gameState.player.state == STATE_WALLJUMP)
 		{
 			gameState.player.isOnWall = false;
@@ -1031,11 +1071,7 @@ void HandleOnWall()
 		}
 
 		if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2f(gameState.player.direction, 1) * gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
-			/*&& gameState.player.isGrounded == false*/
-			&& p.type != _btm_mid
-			&& p.type != _top_mid
-			&& p.type != ledge
-			&& p.type != fire)
+			&& unclimbable)
 		{
 			gameState.player.isOnWall = true;
 			gameState.player.hasJumped = false;
@@ -1155,13 +1191,9 @@ void ApplyWind(float& elapsedTime)
 		&& gameState.petalEmitter.onBreak == false)
 	{
 
-		//if (gameState.petalEmitter.applyAccel == false)
-		//{
-		//	playerObj.acceleration += -gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
-		//	gameState.petalEmitter.applyAccel = true;
-		//}
+		if (gameState.player.state != STATE_DEATH)
+			playerObj.velocity += gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
 
-		playerObj.velocity += gameState.petalEmitter.windDir * gameState.petalEmitter.windForce;
 		HandlePetalLifetime(elapsedTime);
 	}
 	else if (gameState.petalEmitter.windTime > gameState.petalEmitter.windEndTime
@@ -1422,6 +1454,9 @@ void HandleBackgrounds()
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 
 	// if player passes portal change scene
+
+	//if (gameState.level)
+
 	Play::DrawBackground();
 }
 
