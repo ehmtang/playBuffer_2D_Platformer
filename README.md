@@ -1,4 +1,4 @@
-# playBuffer_2D_Platformer
+# playBuffer 2D Platformer Demo
 
 Inspired by Celeste, I aimed to recreate some of the features as part of my DITP 2D Platformer.
 
