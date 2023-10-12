@@ -1,7 +1,10 @@
 enum GameModes
 {
-	TEST_MODE = 0,
-	PLAY_MODE = 1,
+	TEST_MODE_OBJ = 0,
+	TEST_MODE_BOOL,
+	TEST_MODE_TIME,
+	PLAY_MODE,
+	END,
 };
 
 enum GameObjectType
@@ -9,6 +12,7 @@ enum GameObjectType
 	TYPE_NULL = -1,
 	TYPE_PLAYER,
 	TYPE_SLIME,
+	TYPE_PORTAL,
 	TYPE_DESTROYED,
 };
 
@@ -40,14 +44,10 @@ enum PlatformType
 
 enum Backgrounds
 {
-	BG_1ST = 0,
-	BG_2ND,
-	BG_3RD,
-	BG_4TH,
-	BG_5TH,
-	BG_6TH,
-	BG_7TH,
-	BG_8TH,
+	BG_0 = 0,
+	BG_1,
+	BG_2,
+	BG_3,
 };
 
 enum PlayerState
@@ -61,7 +61,6 @@ enum PlayerState
 	STATE_ROLL,
 	STATE_WALLCLIMB,
 	STATE_WALLJUMP,
-	STATE_HURT,
 	STATE_DEATH,
 };
 
@@ -71,6 +70,13 @@ enum SlimeState
 	SLIME_WALK,
 	SLIME_TURN,
 	SLIME_TALK,
+};
+
+enum PortalState
+{
+	PORTAL_OPENING = 0,
+	PORTAL_IDLE,
+	PORTAL_CLOSING,
 };
 
 struct Petal
@@ -130,21 +136,15 @@ struct ScreenShakeInfo
 	float shakeEndTime{ 0.05f };
 };
 
-struct Audio
-{
-	float audioTimer{ 0 };
-	bool audioPlayed{ false };
-};
-
-struct Portal
+struct PortalAttributes
 {
 	std::vector<float> vSplitTime;
-	Point2D pos{ 720, 120 };
-	Vector2D box{ 16, 48 };
+	Point2D startingPos{ 1120, 160 };
+	Vector2D box{ 8, 26 };
+	PortalState state{ PORTAL_OPENING };
+	float sizeScale{ 1.5f };
 	float splitTime{ 0.f };
-	int completedLap{ 0 };
 	bool crossesPortal{ false };
-	bool hasCompletedLap{ false };
 };
 
 struct PlayerAttributes
@@ -160,8 +160,8 @@ struct PlayerAttributes
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
 	Point2D startingPos{ 416, 384 };
 	PlayerState state{ STATE_IDLE };
+	float deathTime{ 0 };
 	float jumpTime{ 0 };
-	float jumpEndTime{ 0.1f };
 	float coyoteTime{ 0 };
 	float airDashTime{ 0 };
 	float rollImpulse{ 12.f };				//scaled with size
@@ -172,12 +172,13 @@ struct PlayerAttributes
 	float maxRunSpeed{ 2.f };				//scaled with size
 	float maxFallSpeed{ 8.f };				//scaled with size
 	float airDashImpulse{ 15 };				//scaled with size
+	const float deathEndTime{ 3.f };
+	const float jumpEndTime{ 0.1f };
 	const float sizeScale{ 1.5f };
 	const float maxJumpAccel{ 1.f };
 	const float obstructedImpulse{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
 	const float airDashEndTime{ 0.1f };
-	int health{ 100 };
 	int direction{ -1 };
 	bool hasJumped{ false };
 	bool isAirDashing{ false };
@@ -185,7 +186,7 @@ struct PlayerAttributes
 	bool hasLandedOnWall{ false };
 	bool isGrounded{ false };
 	bool isOnWall{ false };
-	bool isHurt{ false };
+	bool hasDied{ false };
 };
 
 struct SlimeAttributes
@@ -231,19 +232,22 @@ struct PlatformAttributes
 struct GameState
 {
 	std::vector<Platform> vPlatform;
+	std::vector<int> vBg;
 	PetalEmitter petalEmitter;
 	AfterImageEmitter afterImageEmitter;
-	Portal portal;
+	PortalAttributes portal;
 	PlayerAttributes player;
 	SlimeAttributes slime;
 	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
-	Audio audio;
-	Backgrounds bg;
 	Vector2D gravity{ 0, 1.f };
-	int gameMode = TEST_MODE;
+	int gameMode = TEST_MODE_OBJ;
+	int level{ 0 };
+	bool roomBGLoaded{ false };
+	bool isLevelCreated{ false };
 };
 
+// player
 void UpdatePlayer(float& elapsedTime);
 void Idle(float& elapsedTime);
 void Run(float& elapsedTime);
@@ -254,12 +258,12 @@ void Punch(float& elapsedTime);
 void Roll(float& elapsedTime);
 void WallClimb(float& elapsedTime);
 void WallJump(float& elapsedTime);
-void Hurt(float& elapsedTime);
 void Death(float& elapsedTime);
 void HandleSizeScale();
 float ApplyFriction();
 Vector2D CalculateAcceleration();
 
+// slime
 void UpdateSlime(float& elapsedTime);
 void SlimeIdle(float& elapsedTime);
 void SlimeWalk(float& elapsedTime);
@@ -269,39 +273,49 @@ void SlimeTalk();
 void SlimeTalkIcon();
 void DrawSlimeTalk();
 
-void HandlePortal(float& elapsedTime);
+// portal
+void UpdatePortal();
+
+// collisions
+void HandleDeath();
 void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
-void HandleHurt();
 
+// environment and effects
 void ScreenShake(float& elapsedTime);
-
 void HandleAfterImageLifetime(float& elapsedTime);
 void AddAfterImageToEmitter(GameObject& playerObj);
-void DrawImageLifeTime(float& elapsedTime);
-
+void DrawAfterImage(float& elapsedTime);
 void ApplyWind(float& elapsedTime);
 void HandlePetalLifetime(float& elapsedTime);
 void AddPetalToEmitter();
-void DrawPetalLifeTime(float& elapsedTime);
+void DrawPetal(float& elapsedTime);
+void HandleLevelChange();
 
+// draw
 void DrawPlayer();
 void DrawPlatformSprites();
 void DrawCollisionBoxes();
 void DrawSlime();
 void DrawPortal();
 void DrawUI();
+void DrawButtons();
 
-void HandleBackgrounds();
+// background and level
+void LoadBackground();
+void LoadLevel();
+void ChangeLevel();
 
+
+// create
 void CreatePlayer();
-//void CreatePlatform(const int arr[][40], int nRows, int nCols);
-void CreatePlatform(const int room[][40]); 
+void CreatePlatform(const int room[][40]);
 void CreateSlime();
+void CreatePortal();
 
-void ResetGame();
-
+// utility
+void ResetPlayerPos();
 float q_rsqrt(float number);
 float exponentialDecay(const float& A0, const float& lambda, const float& time);
 bool AABBCollisionTest(const Point2D& aPos, const Vector2D& aAABB, const Vector2D& aOffset, const Point2D& bPos, const Vector2D& bAABB, const Vector2D& bOffset);
