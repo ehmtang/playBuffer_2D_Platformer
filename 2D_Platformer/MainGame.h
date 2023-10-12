@@ -12,6 +12,7 @@ enum GameObjectType
 	TYPE_NULL = -1,
 	TYPE_PLAYER,
 	TYPE_SLIME,
+	TYPE_PORTAL,
 	TYPE_DESTROYED,
 };
 
@@ -71,6 +72,13 @@ enum SlimeState
 	SLIME_TALK,
 };
 
+enum PortalState
+{
+	PORTAL_OPENING = 0,
+	PORTAL_IDLE,
+	PORTAL_CLOSING,
+};
+
 struct Petal
 {
 	Point2D pos{ 0, 0 };
@@ -128,15 +136,15 @@ struct ScreenShakeInfo
 	float shakeEndTime{ 0.05f };
 };
 
-struct Portal
+struct PortalAttributes
 {
 	std::vector<float> vSplitTime;
-	Point2D pos{ 720, 120 };
-	Vector2D box{ 16, 48 };
+	Point2D startingPos{ 1120, 160 };
+	Vector2D box{ 8, 26 };
+	PortalState state{ PORTAL_OPENING };
+	float sizeScale{ 1.5f };
 	float splitTime{ 0.f };
-	int completedLap{ 0 };
 	bool crossesPortal{ false };
-	bool hasCompletedLap{ false };
 };
 
 struct PlayerAttributes
@@ -171,7 +179,6 @@ struct PlayerAttributes
 	const float obstructedImpulse{ 5.f };
 	const float coyoteTimeThreshold{ 0.8f };
 	const float airDashEndTime{ 0.1f };
-
 	int direction{ -1 };
 	bool hasJumped{ false };
 	bool isAirDashing{ false };
@@ -225,9 +232,10 @@ struct PlatformAttributes
 struct GameState
 {
 	std::vector<Platform> vPlatform;
+	std::vector<int> vBg;
 	PetalEmitter petalEmitter;
 	AfterImageEmitter afterImageEmitter;
-	Portal portal;
+	PortalAttributes portal;
 	PlayerAttributes player;
 	SlimeAttributes slime;
 	PlatformAttributes platformAttr;
@@ -235,6 +243,8 @@ struct GameState
 	Vector2D gravity{ 0, 1.f };
 	int gameMode = TEST_MODE_OBJ;
 	int level{ 0 };
+	bool roomBGLoaded{ false };
+	bool isLevelCreated{ false };
 };
 
 // player
@@ -263,9 +273,11 @@ void SlimeTalk();
 void SlimeTalkIcon();
 void DrawSlimeTalk();
 
+// portal
+void UpdatePortal();
+
 // collisions
 void HandleDeath();
-void HandlePortal(float& elapsedTime);
 void HandleObstructed();
 void HandleGrounded();
 void HandleOnWall();
@@ -274,11 +286,12 @@ void HandleOnWall();
 void ScreenShake(float& elapsedTime);
 void HandleAfterImageLifetime(float& elapsedTime);
 void AddAfterImageToEmitter(GameObject& playerObj);
-void DrawImageLifeTime(float& elapsedTime);
+void DrawAfterImage(float& elapsedTime);
 void ApplyWind(float& elapsedTime);
 void HandlePetalLifetime(float& elapsedTime);
 void AddPetalToEmitter();
-void DrawPetalLifeTime(float& elapsedTime);
+void DrawPetal(float& elapsedTime);
+void HandleLevelChange();
 
 // draw
 void DrawPlayer();
@@ -289,13 +302,17 @@ void DrawPortal();
 void DrawUI();
 void DrawButtons();
 
-// background
-void HandleBackgrounds();
+// background and level
+void LoadBackground();
+void LoadLevel();
+void ChangeLevel();
+
 
 // create
 void CreatePlayer();
-void CreatePlatform(const int room[][40]); 
+void CreatePlatform(const int room[][40]);
 void CreateSlime();
+void CreatePortal();
 
 // utility
 void ResetPlayerPos();

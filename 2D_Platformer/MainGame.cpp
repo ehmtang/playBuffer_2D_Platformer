@@ -164,41 +164,47 @@ GameState gameState;
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
 {
 	Play::CreateManager(DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
+	LoadBackground();
 
-	Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
-	//Play::StartAudioLoop("Crescent-Moon_snip");
+	//Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png");
+	Play::StartAudioLoop("Crescent-Moon_snip");
 	Play::CentreAllSpriteOrigins();
 	HandleSizeScale();
-	CreatePlatform(ROOM_0);
-	MergeCollisionBox();
+	//CreatePlatform(ROOM_0);
+	//MergeCollisionBox();
 	CreatePlayer();
 	CreateSlime();
+	CreatePortal();
 }
 
 bool MainGameUpdate(float elapsedTime)
 {
 	Play::ClearDrawingBuffer(Play::cWhite);
+	Play::DrawBackground(gameState.vBg[gameState.level]);
+	
 	ToggleGameModes();
-	HandleBackgrounds();
+	LoadLevel();
+
 	UpdatePlayer(elapsedTime);
 	UpdateSlime(elapsedTime);
-	HandlePortal(elapsedTime);
-	DrawPortal();
+	UpdatePortal();
+
 	HandleAfterImageLifetime(elapsedTime);
+
 	DrawPlatformSprites();
 	DrawCollisionBoxes();
+	DrawPortal();
 	DrawPlayer();
 	DrawSlime();
 	DrawUI();
 	DrawSlimeTalk();
+
 	ApplyWind(elapsedTime);
 
 	Play::PresentDrawingBuffer();
 
 	if (Play::KeyPressed(VK_TAB))
-	{
 		ResetPlayerPos();
-	}
 
 	return Play::KeyDown(VK_ESCAPE);
 }
@@ -628,11 +634,8 @@ void Death(float& elapsedTime)
 	playerObj.acceleration.x = 0;
 	gameState.player.deathTime += elapsedTime;
 
-
 	if (gameState.player.hasDied == false)
-	{
-		Play::SetSprite(playerObj, "player_death", 0.05f);
-	}
+		Play::SetSprite(playerObj, (gameState.slime.direction == -1) ? "player_death_left" : "player_death", 0.1f);
 
 	if (Play::IsAnimationComplete(playerObj))
 	{
@@ -672,6 +675,9 @@ void HandleSizeScale()
 	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
 	gameState.slime.HurtBox *= Vector2D(gameState.slime.sizeScale, gameState.slime.sizeScale);
 	gameState.slime.HurtBoxOffset *= Vector2D(1, gameState.slime.sizeScale);
+
+	GameObject& portalObj{ Play::GetGameObjectByType(TYPE_PORTAL) };
+	gameState.portal.box *= Vector2D(gameState.portal.sizeScale, gameState.portal.sizeScale);
 }
 
 float ApplyFriction()
@@ -787,7 +793,6 @@ void SlimeIdle(float& elapsedTime)
 {
 	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
-
 
 	Play::SetSprite(slimeObj, (gameState.slime.direction == -1) ? "slime_idle_left" : "slime_idle", 0.25f);
 
@@ -913,46 +918,56 @@ void DrawSlimeTalk()
 {
 	if (gameState.slime.hasTalked == true)
 	{
-		Play::DrawFontText("64px", "Hi friend. Use the arrow keys to move. 'Z' to jump. 'X' to punch. 'C' to roll.", Point2D(37, DISPLAY_HEIGHT - 111), Play::LEFT);
-		Play::DrawFontText("64px", "To Air Dash, jump and press 'C' with arrow key.", Point2D(37, DISPLAY_HEIGHT - 74), Play::LEFT);
+		Play::DrawFontText("64px", "Use the arrow keys to move. 'Z' to jump. 'X' to punch. 'C' to roll.", Point2D(37, DISPLAY_HEIGHT - 111), Play::LEFT);
+		Play::DrawFontText("64px", "To Air Dash, jump and press 'C' with arrow keys.", Point2D(37, DISPLAY_HEIGHT - 74), Play::LEFT);
 		Play::DrawFontText("64px", "When you're ready. Enter the portal!", Point2D(37, DISPLAY_HEIGHT - 37), Play::LEFT);
 	}
 }
 
-void HandlePortal(float& elapsedTime)
+void UpdatePortal()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	GameObject& portalObj{ Play::GetGameObjectByType(TYPE_PORTAL) };
 
-	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.portal.pos, gameState.portal.box, Vector2D(0, 0))
-		&& (playerObj.pos.x - gameState.player.HurtBox.x - gameState.player.HurtBoxOffset.x) > (gameState.portal.pos.x - gameState.portal.box.x))
+	portalObj.scale = gameState.portal.sizeScale;
+
+	switch (gameState.portal.state)
 	{
-		gameState.portal.crossesPortal = false;
+	case(PORTAL_OPENING):
+	{
+		Play::SetSprite(portalObj, "portal_open", 0.2f);
+
+		if (Play::IsAnimationComplete(portalObj) && portalObj.spriteId == Play::GetSpriteId("portal_open"))
+			gameState.portal.state = PORTAL_IDLE;
+
+		break;
 	}
-	else if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, gameState.portal.pos, gameState.portal.box, Vector2D(0, 0))
-		&& (playerObj.pos.x + gameState.player.HurtBox.x + gameState.player.HurtBoxOffset.x) <= gameState.portal.pos.x)
+	case(PORTAL_IDLE):
+	{
+		Play::SetSprite(portalObj, "portal", 0.2f);
+		break;
+	}
+	case(PORTAL_CLOSING):
+	{
+		if (Play::IsAnimationComplete(portalObj) && portalObj.spriteId == Play::GetSpriteId("portal_close"))
+		{
+			Play::SetSprite(portalObj, "portal_close", 0);
+			portalObj.frame = 7;
+			ChangeLevel();
+		}
+		else
+			Play::SetSprite(portalObj, "portal_close", 0.2f);
+		break;
+	}
+	}
+
+	if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, portalObj.pos, gameState.portal.box, Vector2D(0, 0)))
 	{
 		gameState.portal.crossesPortal = true;
+		gameState.portal.state = PORTAL_CLOSING;
 	}
 
-	if (gameState.portal.crossesPortal == true)
-	{
-		gameState.portal.splitTime += elapsedTime;
-	}
-
-	if (gameState.portal.crossesPortal == true
-		&& gameState.portal.hasCompletedLap == false)
-	{
-		if (gameState.portal.completedLap > 0)
-			gameState.portal.vSplitTime.push_back(gameState.portal.splitTime);
-
-		gameState.portal.splitTime = 0;
-		gameState.portal.hasCompletedLap = true;
-		gameState.portal.completedLap += 1;
-	}
-	else if (gameState.portal.crossesPortal == false)
-	{
-		gameState.portal.hasCompletedLap = false;
-	}
+	Play::UpdateGameObject(portalObj);
 }
 
 void HandleObstructed()
@@ -1082,11 +1097,6 @@ void HandleOnWall()
 	}
 }
 
-void HandleHurt()
-{
-
-}
-
 void ScreenShake(float& elapsedTime)
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
@@ -1122,7 +1132,7 @@ void HandleAfterImageLifetime(float& elapsedTime)
 		}
 
 		if (!gameState.afterImageEmitter.vAfterImage.empty())
-			DrawImageLifeTime(elapsedTime);
+			DrawAfterImage(elapsedTime);
 
 		break;
 	}
@@ -1138,7 +1148,7 @@ void HandleAfterImageLifetime(float& elapsedTime)
 
 		if (!gameState.afterImageEmitter.vAfterImage.empty())
 		{
-			DrawImageLifeTime(elapsedTime);
+			DrawAfterImage(elapsedTime);
 		}
 		break;
 	}
@@ -1146,7 +1156,7 @@ void HandleAfterImageLifetime(float& elapsedTime)
 	{
 		gameState.afterImageEmitter.splitTime = 0;
 		if (!gameState.afterImageEmitter.vAfterImage.empty())
-			DrawImageLifeTime(elapsedTime);
+			DrawAfterImage(elapsedTime);
 
 		break;
 	}
@@ -1166,7 +1176,7 @@ void AddAfterImageToEmitter(GameObject& playerObj)
 	}
 }
 
-void DrawImageLifeTime(float& elapsedTime)
+void DrawAfterImage(float& elapsedTime)
 {
 	for (int i = 0; i < gameState.afterImageEmitter.vAfterImage.size(); ++i)
 	{
@@ -1211,6 +1221,11 @@ void ApplyWind(float& elapsedTime)
 	}
 }
 
+void HandleLevelChange()
+{
+
+}
+
 void HandlePetalLifetime(float& elapsedTime)
 {
 	gameState.petalEmitter.splitTime += elapsedTime;
@@ -1223,7 +1238,7 @@ void HandlePetalLifetime(float& elapsedTime)
 
 	if (!gameState.petalEmitter.vPetal.empty())
 	{
-		DrawPetalLifeTime(elapsedTime);
+		DrawPetal(elapsedTime);
 	}
 }
 
@@ -1241,7 +1256,7 @@ void AddPetalToEmitter()
 	}
 }
 
-void DrawPetalLifeTime(float& elapsedTime)
+void DrawPetal(float& elapsedTime)
 {
 	float phase = 0;
 
@@ -1270,6 +1285,7 @@ void DrawCollisionBoxes()
 {
 	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
 	GameObject& slimeObj{ Play::GetGameObjectByType(TYPE_SLIME) };
+	GameObject& portalObj{ Play::GetGameObjectByType(TYPE_PORTAL) };
 
 	switch (gameState.gameMode)
 	{
@@ -1279,6 +1295,8 @@ void DrawCollisionBoxes()
 	}
 	default:
 	{
+		Play::DrawRect(portalObj.pos - gameState.portal.box, portalObj.pos + gameState.portal.box, Play::cGreen);
+
 		if (gameState.slime.direction == -1)
 			Play::DrawRect(slimeObj.pos - gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, slimeObj.pos + gameState.slime.HurtBox + Vector2D(-1, 1) * gameState.slime.HurtBoxOffset, Play::cOrange);
 		else if (gameState.slime.direction == 1)
@@ -1286,49 +1304,45 @@ void DrawCollisionBoxes()
 
 		for (Platform& p : gameState.vPlatform)
 		{
-			if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-				Play::DrawRect(p.pos - p.pBox, p.pos + p.pBox, Play::cRed, true);
-			else
-				Play::DrawRect(p.pos - p.pBox, p.pos + p.pBox, Play::cGreen);
+			(AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+				? Play::DrawRect(p.pos - p.pBox, p.pos + p.pBox, Play::cRed, true)
+				: Play::DrawRect(p.pos - p.pBox, p.pos + p.pBox, Play::cGreen));
 
 			if (gameState.player.direction == -1)
 			{
-				if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, Vector2D(-1, 1) * gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cGreen);
-				if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2D(-1, 1) * gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cYellow);
-				if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, Vector2D(-1, 1) * gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cCyan);
+				(AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, Vector2D(-1, 1) * gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + Vector2D(-1, 1) * gameState.player.GroundBoxOffset, Play::cGreen));
 
-				if (AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, Vector2D(-1, 1) * gameState.player.PunchBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cMagenta);
+				(AABBCollisionTest(playerObj.pos, gameState.player.WallBox, Vector2D(-1, 1) * gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + Vector2D(-1, 1) * gameState.player.WallBoxOffset, Play::cYellow));
+
+				(AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, Vector2D(-1, 1) * gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + Vector2D(-1, 1) * gameState.player.HurtBoxOffset, Play::cCyan));
+
+				(AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, Vector2D(-1, 1) * gameState.player.PunchBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + Vector2D(-1, 1) * gameState.player.PunchBoxOffset, Play::cMagenta));
 			}
 			else if (gameState.player.direction == 1)
 			{
-				if (AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cGreen);
-				if (AABBCollisionTest(playerObj.pos, gameState.player.WallBox, gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cYellow);
-				if (AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cCyan);
-				if (AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, gameState.player.PunchBoxOffset, p.pos, p.pBox, Vector2D(0, 0)))
-					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cRed, true);
-				else
-					Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cMagenta);
+				(AABBCollisionTest(playerObj.pos, gameState.player.GroundBox, gameState.player.GroundBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.GroundBox + gameState.player.GroundBoxOffset, playerObj.pos + gameState.player.GroundBox + gameState.player.GroundBoxOffset, Play::cGreen));
+
+				(AABBCollisionTest(playerObj.pos, gameState.player.WallBox, gameState.player.WallBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.WallBox + gameState.player.WallBoxOffset, playerObj.pos + gameState.player.WallBox + gameState.player.WallBoxOffset, Play::cYellow));
+
+				(AABBCollisionTest(playerObj.pos, gameState.player.HurtBox, gameState.player.HurtBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.HurtBox + gameState.player.HurtBoxOffset, playerObj.pos + gameState.player.HurtBox + gameState.player.HurtBoxOffset, Play::cCyan));
+
+				(AABBCollisionTest(playerObj.pos, gameState.player.PunchBox, gameState.player.PunchBoxOffset, p.pos, p.pBox, Vector2D(0, 0))
+					? Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cRed, true)
+					: Play::DrawRect(playerObj.pos - gameState.player.PunchBox + gameState.player.PunchBoxOffset, playerObj.pos + gameState.player.PunchBox + gameState.player.PunchBoxOffset, Play::cMagenta));
 			}
 		}
 		break;
@@ -1359,7 +1373,8 @@ void DrawPlatformSprites()
 
 void DrawPortal()
 {
-	Play::DrawSprite(Play::GetSpriteId("portal"), gameState.portal.pos, 0);
+	GameObject& portalObj{ Play::GetGameObjectByType(TYPE_PORTAL) };
+	Play::DrawObjectRotated(portalObj);
 }
 
 void DrawUI()
@@ -1371,7 +1386,7 @@ void DrawUI()
 	{
 	case(TEST_MODE_OBJ):
 	{
-		Play::DrawFontText("64px", "TEST MODE obj - TAB to switch MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "TEST MODE obj - TAB to switch MODE & reset player pos", Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "PLAYER POS: (" + std::to_string(playerObj.pos.x) + ',' + ' ' + std::to_string(playerObj.pos.y) + ')', Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "PLAYER VEL: (" + std::to_string(playerObj.velocity.x) + ',' + ' ' + std::to_string(playerObj.velocity.y) + ')', Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "PLAYER ACC: (" + std::to_string(playerObj.acceleration.x) + ',' + ' ' + std::to_string(playerObj.acceleration.y) + ')', Point2D(37, 143), Play::LEFT);
@@ -1383,7 +1398,7 @@ void DrawUI()
 	}
 	case(TEST_MODE_BOOL):
 	{
-		Play::DrawFontText("64px", "TEST MODE bool - TAB to switch MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "TEST MODE bool - TAB to switch MODE & reset player pos", Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "STATE: " + std::to_string(gameState.player.state), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "HAS JUMPED: " + std::to_string(gameState.player.hasJumped), Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "HAS AIR DASHED: " + std::to_string(gameState.player.hasAirDashed), Point2D(37, 143), Play::LEFT);
@@ -1396,7 +1411,7 @@ void DrawUI()
 	}
 	case(TEST_MODE_TIME):
 	{
-		Play::DrawFontText("64px", "TEST MODE time - TAB to switch MODE", Point2D(37, 32), Play::LEFT);
+		Play::DrawFontText("64px", "TEST MODE time - TAB to switch MODE & reset player pos", Point2D(37, 32), Play::LEFT);
 		Play::DrawFontText("64px", "JUMP TIMER: " + std::to_string(gameState.player.jumpTime), Point2D(37, 69), Play::LEFT);
 		Play::DrawFontText("64px", "AIR DASH TIMER: " + std::to_string(gameState.player.airDashTime), Point2D(37, 106), Play::LEFT);
 		Play::DrawFontText("64px", "COYOTE TIMER: " + std::to_string(gameState.player.coyoteTime), Point2D(37, 143), Play::LEFT);
@@ -1424,14 +1439,41 @@ void DrawButtons()
 	(Play::KeyDown(VK_DOWN) ? Play::DrawSpriteRotated("key_down_pressed", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1) : Play::DrawSpriteRotated("key_down", Point2D(288, DISPLAY_HEIGHT - 27), 0, 0, 1, 1));
 }
 
-void HandleBackgrounds()
+void LoadBackground()
 {
-	GameObject& playerObj{ Play::GetGameObjectByType(TYPE_PLAYER) };
+	gameState.vBg.push_back(Play::LoadBackground("Data\\Backgrounds\\platformer_tut_map-export.png"));
+	gameState.vBg.push_back(Play::LoadBackground("Data\\Backgrounds\\platformer_first_map-export.png"));
+	gameState.vBg.push_back(Play::LoadBackground("Data\\Backgrounds\\platformer_second_map-export.png"));
+	gameState.vBg.push_back(Play::LoadBackground("Data\\Backgrounds\\platformer_third_map-export.png"));
+}
 
-	// if player passes portal change scene
-	//if (gameState.level)
+void LoadLevel()
+{
+	if (gameState.isLevelCreated == false)
+	{
+		if (gameState.level == 0)
+			CreatePlatform(ROOM_0);
+		else if (gameState.level == 1)
+			CreatePlatform(ROOM_1);
+		else if (gameState.level == 2)
+			CreatePlatform(ROOM_2);
+		else if (gameState.level == 3)
+			CreatePlatform(ROOM_3);
 
-	Play::DrawBackground();
+		MergeCollisionBox();
+		gameState.isLevelCreated = true;
+	}
+}
+
+void ChangeLevel()
+{
+	gameState.vPlatform.clear();
+	gameState.roomBGLoaded = false;
+	gameState.isLevelCreated = false;
+	gameState.portal.state = PORTAL_OPENING;
+	gameState.level += 1;
+
+	// change starting positions
 }
 
 void CreatePlayer()
@@ -1469,6 +1511,11 @@ void CreatePlatform(const int room[][MAX_COLS])
 void CreateSlime()
 {
 	Play::CreateGameObject(TYPE_SLIME, gameState.slime.startingPos, 0, "slime_idle");
+}
+
+void CreatePortal()
+{
+	Play::CreateGameObject(TYPE_PORTAL, gameState.portal.startingPos, 0, "portal");
 }
 
 void ResetPlayerPos()
