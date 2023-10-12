@@ -2,6 +2,8 @@
 
 Inspired by Celeste, I aimed to recreate some of the features as part of my DITP 2D Platformer.
 
+Many thanks to the Sumo Academy Team - for getting started into game dev.
+
 Credits to the following artists, allowing me to use their assets under the creative license.
 * Zeggy Games - player character sprite https://zegley.itch.io/2d-platformermetroidvania-asset-pack
 * Ninjikin - tile sprites https://ninjikin.itch.io/starter-tiles
