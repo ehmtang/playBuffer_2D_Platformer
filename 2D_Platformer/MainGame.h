@@ -139,7 +139,7 @@ struct ScreenShakeInfo
 struct PortalAttributes
 {
 	std::vector<float> vSplitTime;
-	Point2D startingPos{ 1120, 160 };
+	std::vector<Point2D> vStartingPos{ { 1120, 155 }, {1120, 155}, {1120, 155}, {1120, 155} };
 	Vector2D box{ 8, 26 };
 	PortalState state{ PORTAL_OPENING };
 	float sizeScale{ 1.5f };
@@ -149,6 +149,7 @@ struct PortalAttributes
 
 struct PlayerAttributes
 {
+	std::vector<Point2D> vStartingPos{ { 416, 384 }, { 640, 640 }, { 160, 640 }, { 160, 160 } };
 	Vector2D airDashDir{ 0, 0 };
 	Vector2D GroundBox{ 4, 1 };				//scale with size in x
 	Vector2D GroundBoxOffset{ 0, 15 };		//scale with size in y
@@ -158,7 +159,6 @@ struct PlayerAttributes
 	Vector2D HurtBoxOffset{ 0, 0 };
 	Vector2D PunchBox{ 7, 7 };				//scale with size in x and y
 	Vector2D PunchBoxOffset{ 25, 0 };		//scale with size in x
-	Point2D startingPos{ 416, 384 };
 	PlayerState state{ STATE_IDLE };
 	float deathTime{ 0 };
 	float jumpTime{ 0 };
@@ -235,9 +235,9 @@ struct GameState
 	std::vector<int> vBg;
 	PetalEmitter petalEmitter;
 	AfterImageEmitter afterImageEmitter;
-	PortalAttributes portal;
-	PlayerAttributes player;
-	SlimeAttributes slime;
+	PortalAttributes portalAttr;
+	PlayerAttributes playerAttr;
+	SlimeAttributes slimeAttr;
 	PlatformAttributes platformAttr;
 	ScreenShakeInfo camera;
 	Vector2D gravity{ 0, 1.f };
@@ -276,6 +276,9 @@ void DrawSlimeTalk();
 // portal
 void UpdatePortal();
 
+// coin
+void UpdateCoin();
+
 // collisions
 void HandleDeath();
 void HandleObstructed();
@@ -298,6 +301,7 @@ void DrawPlayer();
 void DrawPlatformSprites();
 void DrawCollisionBoxes();
 void DrawSlime();
+void DrawCoin();
 void DrawPortal();
 void DrawUI();
 void DrawButtons();
@@ -313,6 +317,7 @@ void CreatePlayer();
 void CreatePlatform(const int room[][40]);
 void CreateSlime();
 void CreatePortal();
+void CreateCoin();
 
 // utility
 void ResetPlayerPos();
